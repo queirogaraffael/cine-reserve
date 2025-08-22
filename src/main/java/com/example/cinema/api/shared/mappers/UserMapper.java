@@ -1,0 +1,11 @@
+package com.example.cinema.api.shared.mappers;
+
+import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    UserCreatedResponseDTO toResponseDTO(User user);
+}
