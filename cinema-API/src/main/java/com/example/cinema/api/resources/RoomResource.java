@@ -50,7 +50,7 @@ public class RoomResource {
         return ResponseEntity.ok(room);
     }
 
-    @Operation(summary = "Busca paginada de todos os quartos", description = "Busca todos os quartos com paginação")
+    @Operation(summary = "Busca paginada de todos as salas", description = "Busca todos as salas com paginação")
     @ApiResponse(responseCode = "200", description = "Lista de quartos encontrada")
     @ApiResponse(responseCode = "404", description = "Nenhum quarto encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")

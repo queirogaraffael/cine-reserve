@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.security;
 
-import com.example.cinema.api.domain.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,8 +36,10 @@ public class SecurityFilter extends OncePerRequestFilter {
                 if (username != null) {
                     UserDetails user = userRepository.findByUsername(username);
                     if (user != null) {
+
                         var authentication = new UsernamePasswordAuthenticationToken(
                                 user, null, user.getAuthorities());
+
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }

@@ -2,6 +2,8 @@ package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.Movie;
+import com.example.cinema.api.infrastructure.repositories.GenreRepository;
+import com.example.cinema.api.infrastructure.repositories.MovieRepository;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
@@ -16,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieService {
 
-    private final com.example.cinema.api.domain.repositories.MovieRepository movieRepository;
-    private final com.example.cinema.api.domain.repositories.GenreRepository genreRepository;
+    private final MovieRepository movieRepository;
+    private final GenreRepository genreRepository;
     private final MovieMapper movieMapper;
 
-    public MovieService(com.example.cinema.api.domain.repositories.MovieRepository movieRepository, com.example.cinema.api.domain.repositories.GenreRepository genreRepository, MovieMapper movieMapper) {
+    public MovieService(MovieRepository movieRepository, GenreRepository genreRepository, MovieMapper movieMapper) {
         this.movieRepository = movieRepository;
         this.genreRepository = genreRepository;
         this.movieMapper = movieMapper;

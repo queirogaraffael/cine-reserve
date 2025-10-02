@@ -1,7 +1,7 @@
 package com.example.cinema.api.shared.mappers;
 
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.domain.repositories.projection.MovieResponseDTOProjection;
+import com.example.cinema.api.infrastructure.repositories.projection.MovieResponseDTOProjection;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;

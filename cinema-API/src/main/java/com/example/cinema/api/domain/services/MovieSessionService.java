@@ -3,9 +3,9 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.repositories.MovieRepository;
-import com.example.cinema.api.domain.repositories.MovieSessionRepository;
-import com.example.cinema.api.domain.repositories.RoomRepository;
+import com.example.cinema.api.infrastructure.repositories.MovieRepository;
+import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
+import com.example.cinema.api.infrastructure.repositories.RoomRepository;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
 

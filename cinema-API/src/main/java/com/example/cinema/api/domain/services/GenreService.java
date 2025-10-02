@@ -1,6 +1,7 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Genre;
+import com.example.cinema.api.infrastructure.repositories.GenreRepository;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreResponseDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
@@ -18,10 +19,10 @@ import java.util.Objects;
 @Service
 public class GenreService {
 
-    private final com.example.cinema.api.domain.repositories.GenreRepository genreRepository;
+    private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
 
-    public GenreService(com.example.cinema.api.domain.repositories.GenreRepository genreRepository, GenreMapper genreMapper) {
+    public GenreService(GenreRepository genreRepository, GenreMapper genreMapper) {
         this.genreRepository = genreRepository;
         this.genreMapper = genreMapper;
     }
@@ -42,7 +43,7 @@ public class GenreService {
     @Transactional(readOnly = true)
     public Page<GenreResponseDTO> findAllPageable(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return genreRepository.findAllBy(pageable).map(genreMapper::toDTO);
+        return genreRepository.findAll(pageable).map(genreMapper::toDTO);
     }
 
     @Transactional(readOnly = true)

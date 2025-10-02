@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.repositories.RoomRepository;
+import com.example.cinema.api.infrastructure.repositories.RoomRepository;
 import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
 

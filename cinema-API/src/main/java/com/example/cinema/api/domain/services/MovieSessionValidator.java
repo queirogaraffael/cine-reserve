@@ -1,5 +1,6 @@
 package com.example.cinema.api.domain.services;
 
+import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionUpdateDTO;
 import com.example.cinema.api.domain.enums.MovieSessionStatus;
@@ -13,10 +14,10 @@ import java.time.LocalTime;
 @Component
 public class MovieSessionValidator {
 
-    private final com.example.cinema.api.domain.repositories.MovieSessionRepository movieSessionRepository;
+    private final MovieSessionRepository movieSessionRepository;
     private final Clock clock;
 
-    public MovieSessionValidator(com.example.cinema.api.domain.repositories.MovieSessionRepository movieSessionRepository, Clock clock) {
+    public MovieSessionValidator(MovieSessionRepository movieSessionRepository, Clock clock) {
         this.movieSessionRepository = movieSessionRepository;
         this.clock = clock;
     }

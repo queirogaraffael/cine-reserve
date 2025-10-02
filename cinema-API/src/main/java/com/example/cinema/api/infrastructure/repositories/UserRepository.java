@@ -1,4 +1,4 @@
-package com.example.cinema.api.domain.repositories;
+package com.example.cinema.api.infrastructure.repositories;
 
 import com.example.cinema.api.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;

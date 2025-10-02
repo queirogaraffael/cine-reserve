@@ -1,4 +1,4 @@
-package com.example.cinema.api.domain.repositories;
+package com.example.cinema.api.infrastructure.repositories;
 
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
 import com.example.cinema.api.domain.entities.Room;

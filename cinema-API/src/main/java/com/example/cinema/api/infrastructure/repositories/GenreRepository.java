@@ -1,7 +1,7 @@
-package com.example.cinema.api.domain.repositories;
+package com.example.cinema.api.infrastructure.repositories;
 
 import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.domain.repositories.projection.GenreResponseDTOProjection;
+import com.example.cinema.api.infrastructure.repositories.projection.GenreResponseDTOProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +19,3 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     boolean existsById(Long id);
 
 }
-

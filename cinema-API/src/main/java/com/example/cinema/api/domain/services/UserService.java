@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.domain.user.factories.UserFactory;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;

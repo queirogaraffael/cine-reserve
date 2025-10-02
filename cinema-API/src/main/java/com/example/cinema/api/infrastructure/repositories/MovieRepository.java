@@ -1,7 +1,7 @@
-package com.example.cinema.api.domain.repositories;
+package com.example.cinema.api.infrastructure.repositories;
 
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.domain.repositories.projection.MovieResponseDTOProjection;
+import com.example.cinema.api.infrastructure.repositories.projection.MovieResponseDTOProjection;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
