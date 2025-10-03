@@ -2,23 +2,23 @@ package com.example.cinema.api.domain.purchase.listeners;
 
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
-import com.example.cinema.api.infrastructure.email.EmailServiceImpl;
+import com.example.cinema.api.domain.services.EmailServicePort;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EmailPurchaseNotificationListener {
 
-    private final EmailServiceImpl emailServiceImpl;
+    private final EmailServicePort emailServicePort;
 
-    public EmailPurchaseNotificationListener(EmailServiceImpl emailServiceImpl) {
-        this.emailServiceImpl = emailServiceImpl;
+    public EmailPurchaseNotificationListener(EmailServicePort emailServicePort) {
+        this.emailServicePort = emailServicePort;
     }
 
     @EventListener
     public void handlePurchase(PurchaseCreatedEvent event) {
         Purchase purchase = event.getPurchase();
 
-        emailServiceImpl.sendPurchaseNotificationEmail(purchase.getUser().getEmail(), purchase);
+        emailServicePort.sendPurchaseNotificationEmail(purchase);
     }
 }
