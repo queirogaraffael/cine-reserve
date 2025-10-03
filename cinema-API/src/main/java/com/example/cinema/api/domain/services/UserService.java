@@ -1,9 +1,9 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
-import com.example.cinema.api.domain.user.factories.UserFactory;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
 import com.example.cinema.api.shared.exceptions.UserAlreadyExistsException;
@@ -50,7 +50,10 @@ public class UserService implements UserDetailsService {
         }
 
         String encryptedPassword = passwordEncoder.encode(data.getPassword());
-        User newUser = UserFactory.createFromDto(data, encryptedPassword);
+
+        User newUser = new User(data.getUsername(), data.getName(),
+                data.getEmail(), encryptedPassword, data.getDataJoined(),
+                data.getBirthdate(), UserRole.USER, data.getCategory());
 
         User user = userRepository.save(newUser);
 
