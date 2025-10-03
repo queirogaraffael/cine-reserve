@@ -1,22 +1,25 @@
 package com.example.cinema.api.domain.user.listeners;
 
-import com.example.cinema.api.infrastructure.email.EmailServiceAdapter;
+import com.example.cinema.api.domain.services.EmailServicePort;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class EmailUserWelcomeListener {
 
-    private final EmailServiceAdapter emailServiceAdapter;
+    private final EmailServicePort emailServicePort;
 
-    public EmailUserWelcomeListener(EmailServiceAdapter emailServiceAdapter) {
-        this.emailServiceAdapter = emailServiceAdapter;
+    public EmailUserWelcomeListener(EmailServicePort emailServicePort) {
+        this.emailServicePort = emailServicePort;
     }
 
-    @EventListener
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserCreated(UserCreatedEvent event) {
-        emailServiceAdapter.sendWelcomeEmail(event.getEmail(), event.getName());
+        emailServicePort.sendWelcomeEmail(event.getEmail(), event.getName());
 
     }
 }
