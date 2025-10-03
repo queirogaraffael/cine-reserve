@@ -5,10 +5,11 @@ import com.example.cinema.api.domain.entities.Room;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.domain.repositories.MovieRepository;
-import com.example.cinema.api.domain.repositories.RoomRepository;
-import com.example.cinema.api.domain.repositories.UserRepository;
+
 import com.example.cinema.api.domain.services.MovieSessionService;
+import com.example.cinema.api.infrastructure.repositories.MovieRepository;
+import com.example.cinema.api.infrastructure.repositories.RoomRepository;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

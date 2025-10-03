@@ -4,7 +4,7 @@ package com.example.cinema.api.resources;
 import com.example.cinema.api.domain.entities.*;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.domain.repositories.*;
+import com.example.cinema.api.infrastructure.repositories.*;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

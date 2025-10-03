@@ -4,8 +4,9 @@ import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.domain.repositories.GenreRepository;
-import com.example.cinema.api.domain.repositories.UserRepository;
+
+import com.example.cinema.api.infrastructure.repositories.GenreRepository;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
