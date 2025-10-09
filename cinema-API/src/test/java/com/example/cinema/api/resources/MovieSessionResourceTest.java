@@ -2,16 +2,14 @@ package com.example.cinema.api.resources;
 
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-
 import com.example.cinema.api.domain.services.MovieSessionService;
 import com.example.cinema.api.infrastructure.repositories.MovieRepository;
 import com.example.cinema.api.infrastructure.repositories.RoomRepository;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
-import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
+import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -51,12 +48,10 @@ class MovieSessionResourceTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private TestUtils testUtils;
 
     @Autowired
     private UserRepository userRepository;
-
-    private String jwtToken;
 
     @BeforeEach
     void setup() throws Exception {
@@ -75,7 +70,8 @@ class MovieSessionResourceTest {
 
     @Test
     void testCreateMovieSessionSuccessfully() throws Exception {
-        jwtToken = authenticateAs(UserRole.ADMIN);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Movie movie = new Movie();
         movie.setTitle("Inception");
@@ -96,7 +92,7 @@ class MovieSessionResourceTest {
         dto.setMovieId(movie.getId());
 
         mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -113,7 +109,8 @@ class MovieSessionResourceTest {
 
     @Test
     void testCreateMovieSessionWithPastDateShouldFail() throws Exception {
-        jwtToken = authenticateAs(UserRole.ADMIN);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Movie movie1 = new Movie();
         movie1.setTitle("Matrix");
@@ -135,7 +132,7 @@ class MovieSessionResourceTest {
         dto.setMovieId(movie.getId());
 
         mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -145,7 +142,8 @@ class MovieSessionResourceTest {
 
     @Test
     void testCreateMovieSessionUnauthorizedAsRegularUser() throws Exception {
-        jwtToken = authenticateAs(UserRole.USER);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Movie movie1 = new Movie();
         movie1.setTitle("Avatar");
@@ -167,38 +165,10 @@ class MovieSessionResourceTest {
         dto.setMovieId(movie.getId());
 
         mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isForbidden());
-    }
-
-
-    private String authenticateAs(UserRole role) throws Exception {
-        String username = "user_" + role.name().toLowerCase();
-
-        User user = new User();
-        user.setUsername(username);
-        user.setName("Test " + role.name());
-        user.setEmail(username + "@test.com");
-        user.setPassword(passwordEncoder.encode("senha123"));
-        user.setDataJoined(LocalDate.parse("2024-01-01"));
-        user.setBirthdate(LocalDate.parse("1990-01-01"));
-        user.setRole(role);
-        user.setCategory(UserCategory.REGULAR);
-
-        userRepository.save(user);
-
-        var loginDTO = new UserLoginDTO(username, "senha123");
-
-        var result = mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        return objectMapper.readTree(response).get("token").asText();
     }
 
 }

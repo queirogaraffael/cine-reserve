@@ -5,8 +5,8 @@ import com.example.cinema.api.domain.entities.*;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.repositories.*;
-import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
+import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,12 +51,13 @@ class TicketResourceTest {
     private RoomRepository roomRepository;
 
     @Autowired
+    private TestUtils testUtils;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private GenreRepository genreRepository;
-
-    private String jwtToken;
 
     @BeforeEach
     void setup() {
@@ -70,7 +71,8 @@ class TicketResourceTest {
 
     @Test
     void testCreateTicket() throws Exception {
-        jwtToken = authenticateAs(UserRole.USER);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Room room = new Room();
         room.setNumber("Sala 1");
@@ -100,7 +102,7 @@ class TicketResourceTest {
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(5, savedSession.getId());
 
         mockMvc.perform(post("/api/tickets")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ticketRequestDTO)))
                 .andExpect(status().isCreated())
@@ -109,7 +111,8 @@ class TicketResourceTest {
 
     @Test
     void testCreateTicket_InvalidSeatNumber() throws Exception {
-        jwtToken = authenticateAs(UserRole.USER);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Room room = new Room();
         room.setNumber("Sala Pequena");
@@ -139,7 +142,7 @@ class TicketResourceTest {
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(3, savedSession.getId());
 
         mockMvc.perform(post("/api/tickets")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ticketRequestDTO)))
                 .andExpect(status().isBadRequest())
@@ -148,7 +151,8 @@ class TicketResourceTest {
 
     @Test
     void testCreateTicket_SeatAlreadyTaken() throws Exception {
-        jwtToken = authenticateAs(UserRole.USER);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Room room = new Room();
         room.setNumber("Sala 2");
@@ -197,7 +201,7 @@ class TicketResourceTest {
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(2, savedSession.getId());
 
         mockMvc.perform(post("/api/tickets")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ticketRequestDTO)))
                 .andExpect(status().isBadRequest())
@@ -206,12 +210,13 @@ class TicketResourceTest {
 
     @Test
     void testCreateTicket_MovieSessionNotFound() throws Exception {
-        jwtToken = authenticateAs(UserRole.ADMIN);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(1, 9999L);
 
         mockMvc.perform(post("/api/tickets")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ticketRequestDTO)))
                 .andExpect(status().isNotFound())
@@ -256,7 +261,8 @@ class TicketResourceTest {
 
     @Test
     void testCreateTicket_AsAdmin() throws Exception {
-        jwtToken = authenticateAs(UserRole.ADMIN);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Room room = new Room();
         room.setNumber("Sala Admin");
@@ -286,38 +292,10 @@ class TicketResourceTest {
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(7, savedSession.getId());
 
         mockMvc.perform(post("/api/tickets")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ticketRequestDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.seatNumber").value(7));
-    }
-
-
-    private String authenticateAs(UserRole role) throws Exception {
-        String username = "user_" + role.name().toLowerCase() + "_" + System.currentTimeMillis();
-
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setName("Test " + role.name());
-        newUser.setEmail(username + "@test.com");
-        newUser.setPassword(passwordEncoder.encode("senha123"));
-        newUser.setDataJoined(LocalDate.parse("2024-01-01"));
-        newUser.setBirthdate(LocalDate.parse("1990-01-01"));
-        newUser.setRole(role);
-        newUser.setCategory(UserCategory.REGULAR);
-        userRepository.save(newUser);
-
-
-        var loginDTO = new UserLoginDTO(username, "senha123");
-
-        var result = mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        return objectMapper.readTree(response).get("token").asText();
     }
 }

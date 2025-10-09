@@ -1,15 +1,13 @@
 package com.example.cinema.api.resources;
 
 import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-
 import com.example.cinema.api.infrastructure.repositories.GenreRepository;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
-import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
+import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,9 +38,8 @@ class GenreResourceTest {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private TestUtils testUtils;
 
-    private String jwtToken;
 
     @BeforeEach
     void setup() throws Exception {
@@ -56,12 +50,12 @@ class GenreResourceTest {
     @Test
     void testCreateGenre() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         GenreRequestDTO genreRequestDTO = new GenreRequestDTO("Action");
 
         mockMvc.perform(post("/api/genres")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreRequestDTO)))
                 .andExpect(status().isCreated())
@@ -125,7 +119,7 @@ class GenreResourceTest {
     @Test
     void testUpdateGenre() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -134,7 +128,7 @@ class GenreResourceTest {
         GenreUpdateDTO genreUpdateDTO = new GenreUpdateDTO("Action Adventure");
 
         mockMvc.perform(put("/api/genres/{id}", generoSalvo.getId())
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreUpdateDTO)))
                 .andExpect(status().isOk())
@@ -143,7 +137,8 @@ class GenreResourceTest {
 
     @Test
     void testUpdateGenreConflict() throws Exception {
-        jwtToken = authenticateAs(UserRole.ADMIN);
+
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Genre generoUm = new Genre();
         generoUm.setName("Action");
@@ -156,38 +151,9 @@ class GenreResourceTest {
         GenreUpdateDTO genreUpdateDTO = new GenreUpdateDTO("Adventure");
 
         mockMvc.perform(put("/api/genres/{id}", generoUmSalvo.getId())
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreUpdateDTO)))
                 .andExpect(status().isConflict());
     }
-
-
-    private String authenticateAs(UserRole role) throws Exception {
-        String username = "user_" + role.name().toLowerCase();
-
-        User user = new User();
-        user.setUsername(username);
-        user.setName("Test " + role.name());
-        user.setEmail(username + "@test.com");
-        user.setPassword(passwordEncoder.encode("senha123"));
-        user.setDataJoined(LocalDate.parse("2024-01-01"));
-        user.setBirthdate(LocalDate.parse("1990-01-01"));
-        user.setRole(role);
-        user.setCategory(UserCategory.REGULAR);
-
-        userRepository.save(user);
-
-        var loginDTO = new UserLoginDTO(username, "senha123");
-
-        var result = mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        return objectMapper.readTree(response).get("token").asText();
-    }
-
 }

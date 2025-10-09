@@ -68,7 +68,7 @@ public class MovieSession {
     }
 
 
-    // Metodo indica se MovieSession etá aberta para a venda de ingressos.
+    // Metodo indica se MovieSession está aberta para a venda de ingressos.
     @Transient
     public boolean isAvailableForPurchase() {
         return !canceled && getStatus() == MovieSessionStatus.SCHEDULED;

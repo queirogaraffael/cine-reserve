@@ -2,15 +2,14 @@ package com.example.cinema.api.resources;
 
 import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.repositories.GenreRepository;
 import com.example.cinema.api.infrastructure.repositories.MovieRepository;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
-import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
+import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -46,12 +44,10 @@ class MovieResourceTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private TestUtils testUtils;
 
     @Autowired
     private UserRepository userRepository;
-
-    private String jwtToken;
 
     @BeforeEach
     void setup() throws Exception {
@@ -63,7 +59,7 @@ class MovieResourceTest {
     @Test
     void createMovie_ReturnsCreated() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -79,7 +75,7 @@ class MovieResourceTest {
         );
 
         mockMvc.perform(post("/api/movies/" + genre.getId())
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -214,7 +210,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsOk_WhenSuccessful() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Genre oldGenre = genreRepository.save(new Genre(null, "Thriller", null));
         Genre newGenre = genreRepository.save(new Genre(null, "Mystery", null));
@@ -238,7 +234,7 @@ class MovieResourceTest {
         );
 
         mockMvc.perform(put("/api/movies/" + movie.getId())
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -255,7 +251,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenMovieMissing() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         MovieUpdateDTO dto = new MovieUpdateDTO(
                 "Title",
@@ -267,7 +263,7 @@ class MovieResourceTest {
         );
 
         mockMvc.perform(put("/api/movies/12345")
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
@@ -276,7 +272,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenGenreMissing() throws Exception {
 
-        jwtToken = authenticateAs(UserRole.ADMIN);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
 
         Genre genre = genreRepository.save(new Genre(null, "Original", null));
         Movie movie = movieRepository.save(new Movie(
@@ -299,36 +295,10 @@ class MovieResourceTest {
         );
 
         mockMvc.perform(put("/api/movies/" + movie.getId())
-                        .header("Authorization", "Bearer " + jwtToken)
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
     }
 
-    private String authenticateAs(UserRole role) throws Exception {
-        String username = "user_" + role.name().toLowerCase();
-
-        User user = new User();
-        user.setUsername(username);
-        user.setName("Test " + role.name());
-        user.setEmail(username + "@test.com");
-        user.setPassword(passwordEncoder.encode("senha123"));
-        user.setDataJoined(LocalDate.parse("2024-01-01"));
-        user.setBirthdate(LocalDate.parse("1990-01-01"));
-        user.setRole(role);
-        user.setCategory(UserCategory.REGULAR);
-
-        userRepository.save(user);
-
-        var loginDTO = new UserLoginDTO(username, "senha123");
-
-        var result = mockMvc.perform(post("/api/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDTO)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        return objectMapper.readTree(response).get("token").asText();
-    }
 }
