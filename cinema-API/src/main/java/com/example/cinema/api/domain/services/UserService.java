@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService  {
 
         User user = userRepository.save(newUser);
 
-        eventPublisher.publishEvent(new UserCreatedEvent(this, data.getEmail(), data.getName()));
+        eventPublisher.publishEvent(new UserCreatedEvent(this, user.getEmail(), user.getName()));
 
         return userMapper.toResponseDTO(user);
 
