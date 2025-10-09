@@ -2,8 +2,8 @@ package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
 import com.example.cinema.api.shared.exceptions.UserAlreadyExistsException;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService  {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -37,15 +37,13 @@ public class UserService implements UserDetailsService {
         this.eventPublisher = eventPublisher;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
-    }
 
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 
-        if (userRepository.existsByUsername(data.getUsername())) {
+        System.out.println("Creating user with username: " + data.getUsername() + " and email: " + data.getEmail());
+
+        if (userRepository.existsByUsername(data.getUsername()) || userRepository.existsByEmail(data.getEmail())) {
             throw new UserAlreadyExistsException("Usuário já existe");
         }
 
@@ -57,7 +55,7 @@ public class UserService implements UserDetailsService {
 
         User user = userRepository.save(newUser);
 
-        eventPublisher.publishEvent(new UserCreatedEvent(this, user.getEmail(), user.getName()));
+        eventPublisher.publishEvent(new UserCreatedEvent(this, data.getEmail(), data.getName()));
 
         return userMapper.toResponseDTO(user);
 
@@ -79,4 +77,10 @@ public class UserService implements UserDetailsService {
         return (User) authentication.getPrincipal();
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+    }
 }

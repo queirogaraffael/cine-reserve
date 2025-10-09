@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @Scope("singleton") // apesar de ser um singleton por padrão, coloquei só para deixar explícito
@@ -34,11 +35,11 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (token != null) {
                 String username = tokenService.validateToken(token);
                 if (username != null) {
-                    UserDetails user = userRepository.findByUsername(username);
-                    if (user != null) {
+                    Optional<UserDetails> user = userRepository.findByUsername(username);
+                    if (user.isPresent()) {
 
                         var authentication = new UsernamePasswordAuthenticationToken(
-                                user, null, user.getAuthorities());
+                                user, null, user.get().getAuthorities());
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }

@@ -28,9 +28,14 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true, nullable = false)
     private String username;
+
     private String name;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
     private LocalDate dataJoined;
     private LocalDate birthdate;
@@ -47,7 +52,15 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
 
-    public User(String username, String name, String email, String encryptedPassword, LocalDate dataJoined, LocalDate birthdate, UserRole role, UserCategory category) {
+    public User(String username, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role, UserCategory category) {
+        this.username = username;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.dataJoined = dataJoined;
+        this.birthdate = birthdate;
+        this.role = role;
+        this.category = category;
     }
 
     @Override

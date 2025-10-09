@@ -1,11 +1,15 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.infrastructure.security.TokenService;
 import com.example.cinema.api.shared.dtos.login.TokenResponseDTO;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,4 +30,5 @@ public class AuthService {
         var user = (User) auth.getPrincipal();
         return new TokenResponseDTO(tokenService.generateToken(user));
     }
+
 }
