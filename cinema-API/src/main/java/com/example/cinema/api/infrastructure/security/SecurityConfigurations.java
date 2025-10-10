@@ -54,7 +54,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
 
                         // Endpoints públicos do LoginResource
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
 
                         // Swagger (também público)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
