@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
 import com.example.cinema.api.shared.dtos.tickets.TicketResponseDTO;
@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/tickets")
 @EnableMethodSecurity
-public class TicketResource {
+public class TicketController {
 
     private final TicketService ticketService;
 
-    public TicketResource(TicketService ticketService) {
+    public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 

@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/sessions")
 @EnableMethodSecurity
-public class MovieSessionResource {
+public class MovieSessionController {
 
     private final MovieSessionService movieSessionService;
 
-    public MovieSessionResource(MovieSessionService movieSessionService) {
+    public MovieSessionController(MovieSessionService movieSessionService) {
         this.movieSessionService = movieSessionService;
     }
 

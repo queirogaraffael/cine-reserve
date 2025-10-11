@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.services.GenreService;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
@@ -25,12 +25,12 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/genres")
 @EnableMethodSecurity
-public class GenreResource {
+public class GenreController {
 
     private final GenreService genreService;
     private final CacheControl cacheControl;
 
-    public GenreResource(GenreService genreService, @Value("${cache.ttl}") long cacheTtl) {
+    public GenreController(GenreService genreService, @Value("${cache.ttl}") long cacheTtl) {
         this.genreService = genreService;
         this.cacheControl = CacheControl.maxAge(cacheTtl, TimeUnit.SECONDS).cachePublic();
     }

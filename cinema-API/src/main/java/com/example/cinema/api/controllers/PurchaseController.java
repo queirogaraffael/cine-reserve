@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.shared.dtos.purchase.PurchaseRequestDTO;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/purchases")
 @EnableMethodSecurity
-public class PurchaseResource {
+public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
-    public PurchaseResource(PurchaseService purchaseService) {
+    public PurchaseController(PurchaseService purchaseService) {
         this.purchaseService = purchaseService;
     }
 

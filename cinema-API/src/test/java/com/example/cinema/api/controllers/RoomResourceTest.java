@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 
 import com.example.cinema.api.domain.entities.Room;

@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.services.UserService;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Users")
 @RestController
 @RequestMapping("/api/users")
-public class UserResource {
+public class UserController {
 
     private UserService userService;
 
-    public UserResource(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

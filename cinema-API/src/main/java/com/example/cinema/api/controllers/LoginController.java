@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.services.AuthService;
 import com.example.cinema.api.shared.dtos.login.RefreshTokenDTO;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "auth")
 @RestController
 @RequestMapping("/api/auth")
-public class LoginResource {
+public class LoginController {
 
     private final AuthService authService;
 
-    public LoginResource(AuthService authService) {
+    public LoginController(AuthService authService) {
         this.authService = authService;
     }
 

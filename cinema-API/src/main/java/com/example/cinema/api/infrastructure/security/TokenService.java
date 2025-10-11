@@ -11,11 +11,13 @@ import com.example.cinema.api.shared.exceptions.TokenCreationException;
 import com.example.cinema.api.shared.exceptions.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -89,8 +91,9 @@ public class TokenService {
     }
 
     public String generateJwt(String username) {
-        User user = new User();
-        user.setUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
         return generateToken(user);
     }
+
 }

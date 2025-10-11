@@ -1,4 +1,4 @@
-package com.example.cinema.api.resources;
+package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/rooms")
 @EnableMethodSecurity
-public class RoomResource {
+public class RoomController {
 
     private final RoomService roomService;
 
-    public RoomResource(RoomService roomService) {
+    public RoomController(RoomService roomService) {
         this.roomService = roomService;
     }
 
