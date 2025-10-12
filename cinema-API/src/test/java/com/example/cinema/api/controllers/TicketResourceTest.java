@@ -1,6 +1,8 @@
 package com.example.cinema.api.controllers;
 
 
+import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.domain.entities.*;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;

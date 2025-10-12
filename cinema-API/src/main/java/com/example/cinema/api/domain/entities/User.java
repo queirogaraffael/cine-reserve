@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +40,10 @@ public class User implements UserDetails {
     private String password;
     private LocalDate dataJoined;
     private LocalDate birthdate;
+
+    private Integer failedAttempt = 0;
+    private LocalDateTime lockTime;
+    private boolean isLocked = false;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -90,6 +95,14 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        if (this.isLocked) {
+            return false;
+        }
+
+        if (this.lockTime != null && this.lockTime.isAfter(LocalDateTime.now())) {
+            return false;
+        }
+
         return true;
     }
 

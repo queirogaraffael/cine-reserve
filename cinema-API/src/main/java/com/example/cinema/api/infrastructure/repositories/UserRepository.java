@@ -1,13 +1,12 @@
 package com.example.cinema.api.infrastructure.repositories;
 
 import com.example.cinema.api.domain.entities.User;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +17,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    @Modifying
+    @Query("UPDATE users u SET u.failedAttempt = 0 WHERE u.username = :username")
+    void resetFailedAttempts(String username);
+
+    @Modifying
+    @Query("UPDATE users u SET u.failedAttempt = u.failedAttempt + 1 WHERE u.username = :username")
+    void increaseFailedAttempts(String username);
+
+    @Modifying
+    @Query("UPDATE users u SET u.failedAttempt = :attempts, u.lockTime = :lockTime WHERE u.username = :username")
+    void lockUser(String username, int attempts, LocalDateTime lockTime);
 }
