@@ -142,6 +142,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Jackson Java 8 Date/Time API -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
