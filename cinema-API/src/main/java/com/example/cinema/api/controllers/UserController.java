@@ -3,16 +3,16 @@ package com.example.cinema.api.controllers;
 import com.example.cinema.api.domain.services.UserService;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
+import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Users")
 @RestController
@@ -36,6 +36,18 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdUser);
+    }
+
+    @Operation(summary = "Obter informações do usuário autenticado")
+    @ApiResponse(responseCode = "200", description = "Informações do usuário obtidas com sucesso")
+    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser() {
+        UserResponseDTO currentUser = userService.getCurrentUser();
+        return ResponseEntity.ok(currentUser);
     }
 
 }

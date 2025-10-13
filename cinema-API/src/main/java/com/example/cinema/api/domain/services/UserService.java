@@ -6,6 +6,7 @@ import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
+import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
 import com.example.cinema.api.shared.exceptions.UserAlreadyExistsException;
 import com.example.cinema.api.shared.exceptions.UserNotAuthenticatedException;
 import com.example.cinema.api.shared.mappers.UserMapper;
@@ -18,6 +19,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
+
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService  {
@@ -26,15 +30,18 @@ public class UserService implements UserDetailsService  {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserService self;
+
 
     public UserService(UserRepository userRepository,
                       PasswordEncoder passwordEncoder,
                       UserMapper userMapper,
-                      ApplicationEventPublisher eventPublisher) {
+                      ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.eventPublisher = eventPublisher;
+        this.self = self;
     }
 
 
@@ -66,7 +73,6 @@ public class UserService implements UserDetailsService  {
         return userRepository.existsByUsername(username);
     }
 
-    @Transactional(readOnly = true)
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -74,8 +80,28 @@ public class UserService implements UserDetailsService  {
             throw new UserNotAuthenticatedException("Usuário não autenticado");
         }
 
-        return (User) authentication.getPrincipal();
+        // A CORREÇÃO ESTÁ AQUI:
+        // 1. Faz o cast para Optional (o tipo real que está sendo retornado)
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Optional) {
+            // 2. Desembrulha o Optional e garante que o conteúdo é um User
+            Optional<?> optional = (Optional<?>) principal;
+
+            if (optional.isPresent() && optional.get() instanceof User) {
+                return (User) optional.get();
+            }
+        }
+
+        // Se não for um Optional ou se o Optional estiver vazio/tiver tipo errado,
+        // tenta o cast direto (caso a configuração da sua app mude)
+        if (principal instanceof User) {
+            return (User) principal;
+        }
+
+        // Caso de erro inesperado
+        throw new UserNotAuthenticatedException("Tipo de principal inesperado ou usuário não encontrado.");
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -83,4 +109,11 @@ public class UserService implements UserDetailsService  {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
     }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getCurrentUser() {
+        User user = self.getAuthenticatedUser();
+        return userMapper.toUserResponseDTO(user);
+    }
+
 }
