@@ -8,6 +8,7 @@ import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
 import com.example.cinema.api.shared.exceptions.NumeroDeQuartoJaCadastradoException;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
 import com.example.cinema.api.shared.mappers.RoomMapper;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ public class RoomService {
     }
 
     @Transactional
+    @CachePut(value = "rooms", key = "#result.id")
     public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
 
         if(roomRepository.existsByNumber(roomRequestDTO.getNumber())) {
@@ -38,6 +40,7 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
+    @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
@@ -51,6 +54,7 @@ public class RoomService {
     }
 
     @Transactional
+    @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
 
         Room room = roomRepository.findById(id)

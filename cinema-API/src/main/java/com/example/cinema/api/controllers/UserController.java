@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Tag(name = "Users")
 @RestController
@@ -34,9 +36,11 @@ public class UserController {
     @PostMapping()
     public ResponseEntity<UserCreatedResponseDTO> register(@RequestBody @Valid UserRequestDTO data) {
         UserCreatedResponseDTO createdUser = userService.createUser(data);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdUser);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(createdUser.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(createdUser);
     }
 
     @Operation(summary = "Obter informações do usuário autenticado")

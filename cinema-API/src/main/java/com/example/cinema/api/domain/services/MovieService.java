@@ -9,6 +9,8 @@ import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
 import com.example.cinema.api.shared.mappers.MovieMapper;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ public class MovieService {
     }
 
     @Transactional
+    @CachePut(value = "movies", key = "#result.id")
     public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
         Genre genre = genreRepository.findById(genreId)
                 .orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
@@ -40,6 +43,7 @@ public class MovieService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "movies", key = "#id")
     public MovieResponseDTO findById(Long id) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
@@ -71,6 +75,7 @@ public class MovieService {
     }
 
     @Transactional
+    @CachePut(value = "movies", key = "#idMovie")
     public MovieResponseDTO updateMovie(Long idMovie, MovieUpdateDTO dto) {
 
         Movie movie = movieRepository.findById(idMovie)
