@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class LoginResourceTest {
+public class UserControllerTest {
 
     @Test
     void testBasico(){

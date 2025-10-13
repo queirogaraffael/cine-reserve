@@ -39,7 +39,6 @@ public class LoginAttemptService {
             if (newAttempt >= MAX_ATTEMPTS) {
                 LocalDateTime lockTime = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
                 userRepository.lockUser(username, newAttempt, lockTime);
-                // TODO: enviar email notificando o bloqueio
             } else {
                 userRepository.increaseFailedAttempts(username);
             }
