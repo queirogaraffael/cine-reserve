@@ -1,6 +1,7 @@
 package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.services.UserService;
+import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
 import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
@@ -48,6 +49,18 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
         UserResponseDTO currentUser = userService.getCurrentUser();
         return ResponseEntity.ok(currentUser);
+    }
+
+
+    @Operation(summary = "Alterar a senha do usuário autenticado")
+    @ApiResponse(responseCode = "204", description = "Senha alterada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordData data) {
+        userService.changePassword(data);
+        return ResponseEntity.noContent().build();
     }
 
 }

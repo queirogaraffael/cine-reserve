@@ -4,6 +4,7 @@ import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
 import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
@@ -108,6 +109,19 @@ public class UserService implements UserDetailsService  {
     public UserResponseDTO getCurrentUser() {
         User user = self.getAuthenticatedUser();
         return userMapper.toUserResponseDTO(user);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordData data) {
+
+        User user= self.getAuthenticatedUser();
+
+        if (!passwordEncoder.matches(data.getCurrentPassword(), user.getPassword())) {
+            throw new UserNotAuthenticatedException("Senha atual incorreta");
+        }
+
+        user.setPassword(passwordEncoder.encode(data.getNewPassword()));
+        userRepository.save(user);
     }
 
 }
