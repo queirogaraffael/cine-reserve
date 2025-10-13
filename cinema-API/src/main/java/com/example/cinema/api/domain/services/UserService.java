@@ -11,6 +11,7 @@ import com.example.cinema.api.shared.exceptions.UserAlreadyExistsException;
 import com.example.cinema.api.shared.exceptions.UserNotAuthenticatedException;
 import com.example.cinema.api.shared.mappers.UserMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.Optional;
 
@@ -80,11 +80,8 @@ public class UserService implements UserDetailsService  {
             throw new UserNotAuthenticatedException("Usuário não autenticado");
         }
 
-        // A CORREÇÃO ESTÁ AQUI:
-        // 1. Faz o cast para Optional (o tipo real que está sendo retornado)
         Object principal = authentication.getPrincipal();
         if (principal instanceof Optional) {
-            // 2. Desembrulha o Optional e garante que o conteúdo é um User
             Optional<?> optional = (Optional<?>) principal;
 
             if (optional.isPresent() && optional.get() instanceof User) {
@@ -92,13 +89,10 @@ public class UserService implements UserDetailsService  {
             }
         }
 
-        // Se não for um Optional ou se o Optional estiver vazio/tiver tipo errado,
-        // tenta o cast direto (caso a configuração da sua app mude)
         if (principal instanceof User) {
             return (User) principal;
         }
 
-        // Caso de erro inesperado
         throw new UserNotAuthenticatedException("Tipo de principal inesperado ou usuário não encontrado.");
     }
 
