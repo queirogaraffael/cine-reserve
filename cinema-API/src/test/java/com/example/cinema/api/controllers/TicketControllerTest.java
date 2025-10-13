@@ -1,8 +1,6 @@
 package com.example.cinema.api.controllers;
 
 
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
 import com.example.cinema.api.domain.entities.*;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TicketResourceTest {
+class TicketControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -74,7 +72,7 @@ class TicketResourceTest {
     @Test
     void testCreateTicket() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala 1");
@@ -114,7 +112,7 @@ class TicketResourceTest {
     @Test
     void testCreateTicket_InvalidSeatNumber() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala Pequena");
@@ -154,7 +152,7 @@ class TicketResourceTest {
     @Test
     void testCreateTicket_SeatAlreadyTaken() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala 2");
@@ -213,7 +211,7 @@ class TicketResourceTest {
     @Test
     void testCreateTicket_MovieSessionNotFound() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(1, 9999L);
 
@@ -264,7 +262,7 @@ class TicketResourceTest {
     @Test
     void testCreateTicket_AsAdmin() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala Admin");

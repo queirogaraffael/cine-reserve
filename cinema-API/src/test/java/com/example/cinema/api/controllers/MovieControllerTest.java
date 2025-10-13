@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class MovieResourceTest {
+class MovieControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,12 +54,13 @@ class MovieResourceTest {
         movieRepository.deleteAll();
         genreRepository.deleteAll();
         userRepository.deleteAll();
+
     }
 
     @Test
     void createMovie_ReturnsCreated() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -210,7 +211,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsOk_WhenSuccessful() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre oldGenre = genreRepository.save(new Genre(null, "Thriller", null));
         Genre newGenre = genreRepository.save(new Genre(null, "Mystery", null));
@@ -251,7 +252,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenMovieMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         MovieUpdateDTO dto = new MovieUpdateDTO(
                 "Title",
@@ -272,7 +273,7 @@ class MovieResourceTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenGenreMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre genre = genreRepository.save(new Genre(null, "Original", null));
         Movie movie = movieRepository.save(new Movie(

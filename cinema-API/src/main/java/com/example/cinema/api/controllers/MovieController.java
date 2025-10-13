@@ -7,6 +7,7 @@ import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 @RestController
+@Tag(name = "Movies")
 @RequestMapping("/api/movies")
 @EnableMethodSecurity
 public class MovieController {

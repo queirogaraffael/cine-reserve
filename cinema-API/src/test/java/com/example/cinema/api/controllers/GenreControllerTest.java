@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class GenreResourceTest {
+class GenreControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,7 +50,7 @@ class GenreResourceTest {
     @Test
     void testCreateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         GenreRequestDTO genreRequestDTO = new GenreRequestDTO("Action");
 
@@ -119,7 +119,7 @@ class GenreResourceTest {
     @Test
     void testUpdateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -138,7 +138,7 @@ class GenreResourceTest {
     @Test
     void testUpdateGenreConflict() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre generoUm = new Genre();
         generoUm.setName("Action");

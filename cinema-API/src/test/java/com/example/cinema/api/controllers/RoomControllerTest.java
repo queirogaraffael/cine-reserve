@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RoomResourceTest {
+class RoomControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,7 +54,7 @@ class RoomResourceTest {
     @Test
     void createRoom_ReturnsCreated() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         RoomRequestDTO dto = new RoomRequestDTO("101", 2);
 
@@ -70,7 +70,7 @@ class RoomResourceTest {
     @Test
     void shouldNotCreateRoomWithDuplicateNumber() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         roomRepository.save(new Room(null, "101", 2, null));
 
@@ -87,7 +87,7 @@ class RoomResourceTest {
     @Test
     void getRoomById_ReturnsOk_WhenRoomExists() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room saved = roomRepository.save(new Room(null, "202", 4, null));
 
@@ -100,7 +100,7 @@ class RoomResourceTest {
     @Test
     void getRoomById_ReturnsNotFound_WhenMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         mockMvc.perform(get("/api/rooms/9999").header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
@@ -110,7 +110,7 @@ class RoomResourceTest {
     @Test
     void getAllRooms_ReturnsPagedResults() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         IntStream.rangeClosed(1, 3)
                 .forEach(i -> roomRepository.save(new Room(null, String.valueOf(300 + i), i, null)));
@@ -124,7 +124,7 @@ class RoomResourceTest {
     @Test
     void updateRoom_ReturnsOk_WhenSuccessful() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Room original = roomRepository.save(new Room(null, "401", 3, null));
         RoomRequestDTO dto = new RoomRequestDTO("402", 5);
@@ -141,7 +141,7 @@ class RoomResourceTest {
     @Test
     void updateRoom_ReturnsNotFound_WhenRoomMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         RoomRequestDTO dto = new RoomRequestDTO("501", 2);
 
@@ -155,7 +155,7 @@ class RoomResourceTest {
     @Test
     void updateRoom_ReturnsServerError_WhenDuplicateNumber() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         roomRepository.save(new Room(null, "601", 2, null));
         Room second = roomRepository.save(new Room(null, "602", 3, null));

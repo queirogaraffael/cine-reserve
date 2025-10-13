@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class MovieSessionResourceTest {
+class MovieSessionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,7 +71,7 @@ class MovieSessionResourceTest {
     @Test
     void testCreateMovieSessionSuccessfully() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Movie movie = new Movie();
         movie.setTitle("Inception");
@@ -110,7 +110,7 @@ class MovieSessionResourceTest {
     @Test
     void testCreateMovieSessionWithPastDateShouldFail() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Movie movie1 = new Movie();
         movie1.setTitle("Matrix");
@@ -143,7 +143,7 @@ class MovieSessionResourceTest {
     @Test
     void testCreateMovieSessionUnauthorizedAsRegularUser() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR);
+        String token = testUtils.authenticateAs(UserRole.USER, UserCategory.REGULAR).get("token");
 
         Movie movie1 = new Movie();
         movie1.setTitle("Avatar");
