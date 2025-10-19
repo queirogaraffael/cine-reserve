@@ -24,6 +24,7 @@ public class Ticket {
     @JoinColumn(name = "session_id")
     private MovieSession movieSession;
 
-    @OneToOne(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id")
     private Purchase purchase;
 }

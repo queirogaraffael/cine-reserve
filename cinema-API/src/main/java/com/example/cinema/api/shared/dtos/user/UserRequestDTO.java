@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
@@ -50,4 +51,10 @@ public class UserRequestDTO {
 
     @NotNull(message = "A categoria do usuário é obrigatória.")
     private UserCategory category;
+
+    @NotBlank(message = "O CPF não pode estar vazio")
+    @CPF(message = "CPF inválido")
+    private String cpf;
+
+    private UserAddressDTO address;
 }
