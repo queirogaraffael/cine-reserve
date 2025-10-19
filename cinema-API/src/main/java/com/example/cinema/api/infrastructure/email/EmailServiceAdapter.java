@@ -1,10 +1,8 @@
 package com.example.cinema.api.infrastructure.email;
 
-import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.Ticket;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.services.EmailServicePort;
+import com.example.cinema.api.domain.services.EmailService;
 import com.example.cinema.api.shared.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -21,7 +19,7 @@ import java.util.Locale;
 
 @Service
 @Slf4j
-public class EmailServiceAdapter implements EmailServicePort {
+public class EmailServiceAdapter implements EmailService {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine emailTemplateEngine;
@@ -61,18 +59,11 @@ public class EmailServiceAdapter implements EmailServicePort {
     }
 
     @Override
-    public void sendPurchaseNotificationEmail(Purchase purchase) {
-        User user = purchase.getUser();
-        Ticket ticket = purchase.getTicket();
-        MovieSession session = purchase.getMovieSession();
-
+    public void sendPurchaseNotificationEmail(User user, Purchase purchase) {
         Context context = new Context(new Locale("pt", "BR"));
         context.setVariable("userName", user.getName());
         context.setVariable("purchaseDate", purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         context.setVariable("totalPrice", purchase.getTotalPrice());
-        context.setVariable("movieTitle", session.getMovie().getTitle());
-        context.setVariable("sessionDateTime", session.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        context.setVariable("ticketSeat", ticket.getSeatNumber());
 
         String htmlContent = emailTemplateEngine.process("purchase-notification", context);
         String subject = "Confirmação da sua compra no CineMaster 🎫";

@@ -1,8 +1,9 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Purchase;
+import com.example.cinema.api.domain.entities.User;
 
-public interface EmailServicePort {
+public interface EmailService {
     void sendWelcomeEmail(String emailFromUser, String userName);
-    void sendPurchaseNotificationEmail(Purchase purchase);
+    void sendPurchaseNotificationEmail(User user, Purchase purchase);
 }

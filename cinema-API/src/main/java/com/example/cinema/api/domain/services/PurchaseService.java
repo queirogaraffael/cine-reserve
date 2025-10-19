@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class PurchaseService {
@@ -41,27 +43,35 @@ public class PurchaseService {
     }
 
     @Transactional
+    // TODO: REFATORAR PARA MELHORAR A LOGICA DE CALCULO DE PRECO
     public PurchaseResponseDTO createPurchase(PurchaseRequestDTO purchaseRequestDTO) {
-
-        Ticket ticket = ticketRepository.findById(purchaseRequestDTO.getTicketId()).orElseThrow(() -> new ResourceNotFoundException("Ticket nao encontrado"));
-        MovieSession movieSession = movieSessionRepository.findById(purchaseRequestDTO.getMovieSessionId()).orElseThrow(() -> new ResourceNotFoundException("MovieSession nao encontrado"));
-
-        Purchase purchase = purchaseMapper.toEntity(purchaseRequestDTO);
-        purchase.setTicket(ticket);
-        purchase.setMovieSession(movieSession);
-        purchase.setPurchaseDate(LocalDateTime.now());
 
         User user = userService.getAuthenticatedUser();
 
+        Set<Ticket> tickets = new HashSet<>();
+        Purchase purchase = new Purchase();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for(Long ticketId : purchaseRequestDTO.getTicketIds()) {
+            Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new ResourceNotFoundException("Ticket nao encontrado"));
+            tickets.add(ticket);
+
+            MovieSession movieSession = movieSessionRepository.findById(ticket.getMovieSession().getId()).orElseThrow(() -> new ResourceNotFoundException("MovieSession nao encontrado"));
+
+            BigDecimal ticketPrice = ticketService.calculateTicketPrice(user.getCategory(), movieSession);
+
+            totalPrice = totalPrice.add(ticketPrice);
+
+        }
+
+        purchase.setTickets(tickets);
+        purchase.setPurchaseDate(LocalDateTime.now());
         purchase.setUser(user);
-
-        BigDecimal ticketPrice = ticketService.calculateTicketPrice(user.getCategory(), movieSession);
-
-        purchase.setTotalPrice(ticketPrice);
+        purchase.setTotalPrice(totalPrice);
 
         Purchase savedPurchase = purchaseRepository.save(purchase);
 
-        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, savedPurchase));
+        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, user, savedPurchase));
 
         return purchaseMapper.toResponseDTO(savedPurchase);
 

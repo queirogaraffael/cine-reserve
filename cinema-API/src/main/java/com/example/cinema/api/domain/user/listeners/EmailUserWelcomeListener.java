@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.user.listeners;
 
-import com.example.cinema.api.domain.services.EmailServicePort;
+import com.example.cinema.api.domain.services.EmailService;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -10,9 +10,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 public class EmailUserWelcomeListener {
 
-    private final EmailServicePort emailServicePort;
+    private final EmailService emailServicePort;
 
-    public EmailUserWelcomeListener(EmailServicePort emailServicePort) {
+    public EmailUserWelcomeListener(EmailService emailServicePort) {
         this.emailServicePort = emailServicePort;
     }
 
