@@ -94,4 +94,19 @@ public class CustomExceptionHandler {
         String genericMessage = "Ocorreu um erro interno inesperado no servidor.";
         return new ResponseEntity<>(genericMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<Object> handleUnsupportedOperationException(UnsupportedOperationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ApiPagamentoException.class)
+    public ResponseEntity<Object> handleApiPagamentoException(ApiPagamentoException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(WebhookException.class)
+    public ResponseEntity<Object> handleWebhookException(WebhookException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
