@@ -1,11 +1,12 @@
 package com.example.cinema.api.domain.pricing.strategy;
 
-import com.example.cinema.api.domain.entities.MovieSession;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-public class WednesdayPromoPricing implements PricingStrategy {
-    public BigDecimal calculatePrice(MovieSession session) {
-        return session.getBasePrice().subtract(new BigDecimal("5.00"));
+@Component
+public class WednesdayPromoPricing {
+    public BigDecimal calculatePrice(BigDecimal price) {
+        return price.multiply(new BigDecimal("0.5"));
     }
 }

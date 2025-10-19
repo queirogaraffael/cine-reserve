@@ -63,23 +63,4 @@ public class TicketService {
 
         return ticketMapper.toResponseDTO(savedTicket);
     }
-
-
-    public BigDecimal calculateTicketPrice(UserCategory userCategory, MovieSession session) {
-        PricingStrategy strategy;
-
-        if (session.getShowDate().getDayOfWeek() == DayOfWeek.WEDNESDAY) {
-            strategy = new WednesdayPromoPricing();
-        } else if (userCategory == UserCategory.STUDENT) {
-            strategy = new StudentPricing();
-        } else if (userCategory == UserCategory.SENIOR) {
-            strategy = new SeniorPricing();
-        } else {
-            strategy = new RegularPricing();
-        }
-
-        TicketPricingContext context = new TicketPricingContext(strategy);
-        return context.executeStrategy(session);
-    }
-
 }
