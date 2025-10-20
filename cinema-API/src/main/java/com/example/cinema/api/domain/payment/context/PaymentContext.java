@@ -4,7 +4,8 @@ import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
-import com.example.cinema.api.shared.dtos.payment.requests.*;
+import com.example.cinema.api.shared.dtos.payment.requests.PaymentMasterDTO;
+import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,17 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentContext {
 
-
     private final Map<PaymentType, PaymentStrategy> strategies;
+    private final Map<PaymentType, Class<? extends PaymentRequestDTO>> paymentRequestDTOMap;
     private final ObjectMapper objectMapper;
 
-    public PaymentContext(Set<PaymentStrategy> strategies, ObjectMapper objectMapper) {
+    public PaymentContext(
+            Set<PaymentStrategy> strategies,
+            Map<PaymentType, Class<? extends PaymentRequestDTO>> paymentsMap,
+            ObjectMapper objectMapper) {
         this.strategies = strategies.stream()
                 .collect(Collectors.toMap(PaymentStrategy::getType, Function.identity()));
+        this.paymentRequestDTOMap = paymentsMap;
         this.objectMapper = objectMapper;
     }
 
@@ -42,14 +47,15 @@ public class PaymentContext {
     }
 
     private PaymentRequestDTO createSpecificRequestDTO(PaymentMasterDTO masterDTO) {
-
         Object rawDetails = masterDTO.getPaymentDetails();
-        Class<? extends PaymentRequestDTO> targetClass = switch (masterDTO.getPaymentMethod()) {
-            case PIX -> PixPaymentRequestDTO.class;
-            case CARD -> CardPaymentRequestDTO.class;
-            case BOLETO -> BoletoPaymentRequestDTO.class;
-        };
+        Class<? extends PaymentRequestDTO> targetClass = paymentRequestDTOMap.get(masterDTO.getPaymentMethod());
+
+        if (targetClass == null) {
+            throw new IllegalArgumentException("No DTO class found for payment type: " + masterDTO.getPaymentMethod());
+        }
 
         return objectMapper.convertValue(rawDetails, targetClass);
+
     }
+
 }
