@@ -21,7 +21,7 @@ public class CardPaymentRequestDTO implements PaymentRequestDTO {
     private Integer installments;
 
     @Override
-    public PaymentType getPaymentMethod() {
+    public PaymentType getPaymentType() {
         return PaymentType.CARD;
     }
 }

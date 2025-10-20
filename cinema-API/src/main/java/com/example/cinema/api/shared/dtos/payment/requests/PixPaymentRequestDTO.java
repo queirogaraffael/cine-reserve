@@ -11,7 +11,7 @@ public class PixPaymentRequestDTO implements PaymentRequestDTO {
     private String cpfCnpj;
 
     @Override
-    public PaymentType getPaymentMethod() {
+    public PaymentType getPaymentType() {
         return PaymentType.PIX;
     }
 }

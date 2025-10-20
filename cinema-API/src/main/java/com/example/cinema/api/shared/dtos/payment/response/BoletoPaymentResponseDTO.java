@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentPixResponseDTO implements PaymentResponseDTO{
+public class BoletoPaymentResponseDTO implements PaymentResponseDTO{
     private Long transactionId;
     private String paymentStatus;
-    private String pixCopiaECola;
-    private String qrCodeBase64;
-    private String instrucoesUrl;
+    private String boletoUrl;
+    private String linhaDigitavel;
+    private OffsetDateTime expirationDate;
 }

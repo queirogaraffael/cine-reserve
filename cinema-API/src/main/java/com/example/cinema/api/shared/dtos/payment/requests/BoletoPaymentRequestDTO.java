@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentBoletoRequestDTO implements PaymentRequestDTO{
+public class BoletoPaymentRequestDTO implements PaymentRequestDTO{
 
     private String zipCode;
     private String streetName;
@@ -18,7 +18,7 @@ public class PaymentBoletoRequestDTO implements PaymentRequestDTO{
     private String federalUnit;
 
     @Override
-    public PaymentType getPaymentMethod() {
+    public PaymentType getPaymentType() {
         return PaymentType.BOLETO;
     }
 }

@@ -4,10 +4,12 @@ import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.PaymentGatewayInterface;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentBoletoRequestDTO;
+import com.example.cinema.api.shared.dtos.payment.requests.BoletoPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.BoletoPaymentResponseDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BoletoPaymentStrategy implements PaymentStrategy{
 
     private final PaymentGatewayInterface paymentGatewayInterface;
@@ -17,9 +19,9 @@ public class BoletoPaymentStrategy implements PaymentStrategy{
     }
 
     @Override
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO paymentRequestDTO, String idempotencyKey) {
+    public BoletoPaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO paymentRequestDTO, String idempotencyKey) {
 
-        PaymentBoletoRequestDTO boletoDetails = (PaymentBoletoRequestDTO) paymentRequestDTO;
+        BoletoPaymentRequestDTO boletoDetails = (BoletoPaymentRequestDTO) paymentRequestDTO;
 
         return paymentGatewayInterface.createBoletoPayment(purchase, user, boletoDetails, idempotencyKey);
     }

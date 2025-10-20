@@ -4,12 +4,11 @@ import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.payment.PaymentGatewayInterface;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentBoletoRequestDTO;
+import com.example.cinema.api.shared.dtos.payment.requests.BoletoPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentBoletoResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentCardResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentPixResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.BoletoPaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.CardPaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.PixPaymentResponseDTO;
 import com.example.cinema.api.shared.exceptions.ApiPagamentoException;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
@@ -37,7 +36,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
     }
 
     @Override
-    public PaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request,  String idempotencyKey) {
+    public PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request, String idempotencyKey) {
 
         try{
             MPRequestOptions requestOptions = MPRequestOptions.builder()
@@ -74,7 +73,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
             Long paymentId = Long.parseLong(payment.getId().toString());
             String paymentStatus = payment.getStatus();
 
-            return new PaymentPixResponseDTO(
+            return new PixPaymentResponseDTO(
                     paymentId,
                     paymentStatus,
                     pixCopiaECola,
@@ -89,7 +88,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
     }
 
     @Override
-    public PaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request,  String idempotencyKey) {
+    public CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request, String idempotencyKey) {
 
         try{
             MPRequestOptions requestOptions = MPRequestOptions.builder()
@@ -126,7 +125,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
             Integer installments = payment.getInstallments();
             String paymentMethodId = payment.getPaymentMethodId();
 
-            return new PaymentCardResponseDTO(
+            return new CardPaymentResponseDTO(
                     paymentMercadoPagoId,
                     paymentStatus,
                     lastFourDigits,
@@ -140,7 +139,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
     }
 
     @Override
-    public PaymentResponseDTO createBoletoPayment(Purchase purchase, User user, PaymentBoletoRequestDTO paymentBoletoRequestDTO, String idempotencyKey) {
+    public BoletoPaymentResponseDTO createBoletoPayment(Purchase purchase, User user, BoletoPaymentRequestDTO paymentBoletoRequestDTO, String idempotencyKey) {
 
         try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
@@ -187,7 +186,7 @@ public class MercadoPagoGateway implements PaymentGatewayInterface {
             String boletoUrl = payment.getTransactionDetails().getExternalResourceUrl();
             String linhaDigitavel = payment.getTransactionDetails().getBarcode().getContent();
 
-            return new PaymentBoletoResponseDTO(
+            return new BoletoPaymentResponseDTO(
                     paymentId,
                     paymentStatus,
                     boletoUrl,

@@ -6,8 +6,10 @@ import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.PaymentGatewayInterface;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.PixPaymentResponseDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PixPaymentStrategy implements PaymentStrategy {
 
     private final PaymentGatewayInterface paymentGatewayInterface;
@@ -16,7 +18,7 @@ public class PixPaymentStrategy implements PaymentStrategy {
         this.paymentGatewayInterface = paymentGatewayInterface;
     }
 
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO details, String idempotencyKey)  {
+    public PixPaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO details, String idempotencyKey)  {
 
         PixPaymentRequestDTO pixDetails = (PixPaymentRequestDTO) details;
 

@@ -6,8 +6,10 @@ import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.PaymentGatewayInterface;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.CardPaymentResponseDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CartaoPaymentStrategy implements PaymentStrategy{
 
     private final PaymentGatewayInterface paymentGatewayInterface;
@@ -17,7 +19,7 @@ public class CartaoPaymentStrategy implements PaymentStrategy{
     }
 
     @Override
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO paymentRequestDTO, String idempotencyKey) {
+    public CardPaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO paymentRequestDTO, String idempotencyKey) {
 
         CardPaymentRequestDTO cardDetails = (CardPaymentRequestDTO) paymentRequestDTO;
 
