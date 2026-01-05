@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService  {
 
         String encryptedPassword = passwordEncoder.encode(data.getPassword());
 
-        User newUser = new User(data.getUsername(), data.getName(),
+        User newUser = new User(data.getUsername(), data.getCpf(), data.getName(),
                 data.getEmail(), encryptedPassword, data.getDataJoined(),
                 data.getBirthdate(), UserRole.USER, data.getCategory());
 

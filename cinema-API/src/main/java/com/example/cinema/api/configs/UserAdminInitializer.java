@@ -23,8 +23,11 @@ public class UserAdminInitializer implements CommandLineRunner {
     @Value("${app.admin.nome}")
     private String adminNome;
 
-    @Value("${app.admin.email:admin@exemplo.com}")
+    @Value("${app.admin.email}")
     private String adminEmail;
+
+    @Value("${app.admin.cpf}")
+    private String adminCpf;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,9 +39,11 @@ public class UserAdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
         if (!userRepository.existsByUsername(adminUsername)) {
             User admin = new User(
                     adminUsername,
+                    adminCpf,
                     adminNome,
                     adminEmail,
                     passwordEncoder.encode(adminPassword),
@@ -50,5 +55,6 @@ public class UserAdminInitializer implements CommandLineRunner {
             userRepository.save(admin);
             System.out.println("Usuário admin (" + adminUsername + ") criado!");
         }
+
     }
 }

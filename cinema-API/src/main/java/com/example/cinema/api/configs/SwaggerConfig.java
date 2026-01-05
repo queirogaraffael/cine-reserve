@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile(value = {"dev", "test"})
+@Profile(value = {"dev"})
 public class SwaggerConfig {
 
     @Bean

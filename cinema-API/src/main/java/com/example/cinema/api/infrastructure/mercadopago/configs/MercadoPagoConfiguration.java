@@ -1,8 +1,10 @@
 package com.example.cinema.api.infrastructure.mercadopago.configs;
 
 import com.mercadopago.MercadoPagoConfig;
+import com.mercadopago.client.payment.PaymentClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -18,5 +20,10 @@ public class MercadoPagoConfiguration {
     public void init() {
         MercadoPagoConfig.setAccessToken(accessToken);
         log.info("Mercado Pago SDK configurado com sucesso.");
+    }
+
+    @Bean
+    public PaymentClient paymentClient() {
+        return new PaymentClient();
     }
 }
