@@ -8,11 +8,7 @@ import java.time.DayOfWeek;
 
 public interface PricingStrategy {
 
-    BigDecimal calculatePrice(MovieSession session);
+    BigDecimal calculateBasePrice(MovieSession session);
 
     UserCategory getType();
-
-    default boolean isWednesdayPromo(MovieSession session) {
-        return session.getShowDate().getDayOfWeek() == DayOfWeek.WEDNESDAY;
-    }
 }

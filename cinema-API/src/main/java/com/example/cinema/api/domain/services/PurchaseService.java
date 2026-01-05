@@ -70,7 +70,7 @@ public class PurchaseService {
 
             MovieSession movieSession = movieSessionRepository.findById(ticket.getMovieSession().getId()).orElseThrow(() -> new ResourceNotFoundException("MovieSession nao encontrado"));
 
-            BigDecimal ticketPrice = ticketPricingContext.executeStrategy(user, movieSession);
+            BigDecimal ticketPrice = ticketPricingContext.calculate(user, movieSession);
 
             totalPrice = totalPrice.add(ticketPrice);
 

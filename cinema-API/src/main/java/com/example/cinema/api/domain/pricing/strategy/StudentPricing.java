@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 
 @Component
 public class StudentPricing implements PricingStrategy {
-    public BigDecimal calculatePrice(MovieSession session) {
+
+    public BigDecimal calculateBasePrice(MovieSession session) {
         return session.getBasePrice().multiply(new BigDecimal("0.5"));
     }
 

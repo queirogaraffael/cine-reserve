@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 
 @Component
 public class SeniorPricing implements PricingStrategy {
-    public BigDecimal calculatePrice(MovieSession session) {
+
+    public BigDecimal calculateBasePrice(MovieSession session) {
         return session.getBasePrice().multiply(new BigDecimal("0.7"));
     }
 
@@ -16,3 +17,4 @@ public class SeniorPricing implements PricingStrategy {
         return UserCategory.SENIOR;
     }
 }
+

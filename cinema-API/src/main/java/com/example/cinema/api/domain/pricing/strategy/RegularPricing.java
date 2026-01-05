@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Component
 public class RegularPricing implements PricingStrategy {
 
-    public BigDecimal calculatePrice(MovieSession session) {
+    public BigDecimal calculateBasePrice(MovieSession session) {
         return session.getBasePrice();
     }
 
@@ -17,5 +17,3 @@ public class RegularPricing implements PricingStrategy {
         return UserCategory.REGULAR;
     }
 }
-
-
