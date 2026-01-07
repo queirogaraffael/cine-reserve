@@ -17,7 +17,6 @@ public class CardPaymentRequestDTO implements PaymentRequestDTO {
     @JsonProperty("payment_method_id")
     private String paymentMethodId;
 
-    @JsonProperty("installments")
     private Integer installments;
 
     @Override

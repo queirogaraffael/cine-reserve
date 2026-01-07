@@ -3,31 +3,37 @@ package com.example.cinema.api.domain.payment.strategy;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentType;
-import com.example.cinema.api.domain.payment.PaymentGatewayInterface;
+import com.example.cinema.api.domain.services.PaymentGatewayService;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.CardPaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CartaoPaymentStrategy implements PaymentStrategy{
+public class CartaoPaymentStrategy implements PaymentStrategy<CardPaymentRequestDTO> {
 
-    private final PaymentGatewayInterface paymentGatewayInterface;
+    private final PaymentGatewayService paymentGatewayService;
 
-    public CartaoPaymentStrategy(PaymentGatewayInterface paymentGatewayInterface) {
-        this.paymentGatewayInterface = paymentGatewayInterface;
-    }
-
-    @Override
-    public CardPaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO paymentRequestDTO, String idempotencyKey) {
-
-        CardPaymentRequestDTO cardDetails = (CardPaymentRequestDTO) paymentRequestDTO;
-
-        return paymentGatewayInterface.createCardPayment(purchase, user, cardDetails, idempotencyKey);
+    public CartaoPaymentStrategy(PaymentGatewayService paymentGatewayService) {
+        this.paymentGatewayService = paymentGatewayService;
     }
 
     @Override
     public PaymentType getType() {
         return PaymentType.CARD;
+    }
+
+    @Override
+    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request, String idempotencyKey) {
+        if (!(request instanceof CardPaymentRequestDTO cardRequest)) {
+            throw new IllegalArgumentException("Request is not a CardPaymentRequestDTO");
+        }
+
+        return paymentGatewayService.createCardPayment(
+                purchase,
+                user,
+                cardRequest,
+                idempotencyKey
+        );
     }
 }

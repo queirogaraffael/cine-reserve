@@ -2,33 +2,41 @@ package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.services.PaymentService;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentMasterDTO;
+import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
 
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
-    @Operation(summary = "Processar qualquer tipo de pagamento (PIX, BOLETO, CARTÃO)")
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @Operation(summary = "Processar qualquer tipo de pagamento (PIX, CARTÃO)")
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/purchase/{purchase_id}")
+    @PostMapping("/purchases/{purchaseId}")
     public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(
-            @PathVariable("purchase_id") Long purchaseId,
-            @RequestBody PaymentMasterDTO paymentMasterDTO,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey) {
+            @PathVariable Long purchaseId,
+            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO,
+            @RequestHeader("Idempotency-Key") String idempotencyKey
+    ) {
 
         PaymentResponseDTO paymentResponse = paymentService.processPayment(
                 purchaseId,
-                paymentMasterDTO,
+                paymentMasterDTO.getPaymentDetails(),
                 idempotencyKey
         );
 
-        return ResponseEntity.ok(paymentResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponse);
     }
 }

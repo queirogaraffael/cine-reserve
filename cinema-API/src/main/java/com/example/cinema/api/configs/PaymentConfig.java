@@ -1,7 +1,6 @@
 package com.example.cinema.api.configs;
 
 import com.example.cinema.api.domain.enums.PaymentType;
-import com.example.cinema.api.shared.dtos.payment.requests.BoletoPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
@@ -20,8 +19,6 @@ public class PaymentConfig {
 
         map.put(PaymentType.CARD, CardPaymentRequestDTO.class);
         map.put(PaymentType.PIX, PixPaymentRequestDTO.class);
-        map.put(PaymentType.BOLETO, BoletoPaymentRequestDTO.class);
-
         return map;
     }
 }

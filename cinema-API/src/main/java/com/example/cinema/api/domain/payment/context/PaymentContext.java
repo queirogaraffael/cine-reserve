@@ -18,44 +18,33 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentContext {
 
-    private final Map<PaymentType, PaymentStrategy> strategies;
-    private final Map<PaymentType, Class<? extends PaymentRequestDTO>> paymentRequestDTOMap;
-    private final ObjectMapper objectMapper;
+    private final Map<PaymentType, PaymentStrategy<?>> strategies;
 
-    public PaymentContext(
-            Set<PaymentStrategy> strategies,
-            Map<PaymentType, Class<? extends PaymentRequestDTO>> paymentsMap,
-            ObjectMapper objectMapper) {
+    public PaymentContext(Set<PaymentStrategy<?>> strategies) {
         this.strategies = strategies.stream()
-                .collect(Collectors.toMap(PaymentStrategy::getType, Function.identity()));
-        this.paymentRequestDTOMap = paymentsMap;
-        this.objectMapper = objectMapper;
+                .collect(Collectors.toMap(
+                        PaymentStrategy::getType,
+                        Function.identity()
+                ));
     }
 
-    public PaymentResponseDTO executeStrategy(Purchase purchase, User user, PaymentMasterDTO paymentMasterDTO, String idempotencyKey){
+    public PaymentResponseDTO execute(
+            Purchase purchase,
+            User user,
+            PaymentRequestDTO paymentRequestDTO,
+            String idempotencyKey
+    ) {
 
-        PaymentRequestDTO details = createSpecificRequestDTO(paymentMasterDTO);
-
-        PaymentStrategy strategy = strategies.get(details.getPaymentType());
+        PaymentType paymentType = paymentRequestDTO.getPaymentType();
+        PaymentStrategy<?> strategy = strategies.get(paymentType);
 
         if (strategy == null) {
-            throw new IllegalArgumentException("No strategy found for payment type: " + details.getPaymentType());
+            throw new IllegalArgumentException(
+                    "No payment strategy found for type: " + paymentType
+            );
         }
 
-        return strategy
-                .process(purchase, user, details, idempotencyKey);
+        return strategy.process(purchase, user, paymentRequestDTO, idempotencyKey);
     }
-
-    private PaymentRequestDTO createSpecificRequestDTO(PaymentMasterDTO masterDTO) {
-        Object rawDetails = masterDTO.getPaymentDetails();
-        Class<? extends PaymentRequestDTO> targetClass = paymentRequestDTOMap.get(masterDTO.getPaymentMethod());
-
-        if (targetClass == null) {
-            throw new IllegalArgumentException("No DTO class found for payment type: " + masterDTO.getPaymentMethod());
-        }
-
-        return objectMapper.convertValue(rawDetails, targetClass);
-
-    }
-
 }
+
