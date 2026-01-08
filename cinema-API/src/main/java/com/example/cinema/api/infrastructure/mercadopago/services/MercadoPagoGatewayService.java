@@ -22,19 +22,19 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Service
-public class MercadoPagoGateway implements PaymentGatewayService {
+public class MercadoPagoGatewayService implements PaymentGatewayService {
 
     private final PaymentClient paymentClient;
     public static final String IDEMPOTENCY_KEY_HEADER = "X-Idempotency-Key";
 
-    public MercadoPagoGateway(PaymentClient paymentClient) {
+    public MercadoPagoGatewayService(PaymentClient paymentClient) {
         this.paymentClient = paymentClient;
     }
 
     @Override
     public PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request, String idempotencyKey) {
 
-        try{
+        try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
                     .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, idempotencyKey))
                     .build();
@@ -62,11 +62,22 @@ public class MercadoPagoGateway implements PaymentGatewayService {
 
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
-            String pixCopiaECola = payment.getPointOfInteraction().getTransactionData().getQrCode();
-            String qrCodeBase64 = payment.getPointOfInteraction().getTransactionData().getQrCodeBase64();
-            String instrucoesUrl = payment.getPointOfInteraction().getTransactionData().getTicketUrl();
+            ZonedDateTime expirationConfirmada = (payment.getDateOfExpiration() != null)
+                    ? payment.getDateOfExpiration().toZonedDateTime()
+                    : expirationDate;
 
-            Long paymentId = Long.parseLong(payment.getId().toString());
+            String pixCopiaECola = "";
+            String qrCodeBase64 = "";
+            String instrucoesUrl = "";
+
+            if (payment.getPointOfInteraction() != null && payment.getPointOfInteraction().getTransactionData() != null) {
+                var data = payment.getPointOfInteraction().getTransactionData();
+                pixCopiaECola = data.getQrCode();
+                qrCodeBase64 = data.getQrCodeBase64();
+                instrucoesUrl = data.getTicketUrl();
+            }
+
+            Long paymentId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
             String paymentStatus = payment.getStatus();
 
             return new PixPaymentResponseDTO(
@@ -74,19 +85,21 @@ public class MercadoPagoGateway implements PaymentGatewayService {
                     paymentStatus,
                     pixCopiaECola,
                     qrCodeBase64,
-                    instrucoesUrl
+                    instrucoesUrl,
+                    expirationConfirmada
             );
 
-        }catch (MPException | MPApiException e){
-            throw new ApiPagamentoException("Erro ao processar pagamento PIX: " + e.getMessage(), e);
+        } catch (MPException | MPApiException e) {
+            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX: " + e.getMessage(), e);
         }
-
     }
 
     @Override
     public CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request, String idempotencyKey) {
 
-        try{
+        try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
                     .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, idempotencyKey))
                     .build();
@@ -113,24 +126,27 @@ public class MercadoPagoGateway implements PaymentGatewayService {
 
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
-            Long paymentMercadoPagoId = Long.parseLong(payment.getId().toString());
+            Long paymentMercadoPagoId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
             String paymentStatus = payment.getStatus();
-
-            String lastFourDigits =  payment.getCard().getLastFourDigits();
-
+            String statusDetail = payment.getStatusDetail();
             Integer installments = payment.getInstallments();
             String paymentMethodId = payment.getPaymentMethodId();
+
+            String lastFourDigits = (payment.getCard() != null) ? payment.getCard().getLastFourDigits() : "N/A";
 
             return new CardPaymentResponseDTO(
                     paymentMercadoPagoId,
                     paymentStatus,
+                    statusDetail,
                     lastFourDigits,
                     installments,
                     paymentMethodId
             );
-        }catch (MPException | MPApiException e){
-            throw new ApiPagamentoException("Erro ao processar pagamento de CARTÃO: " + e.getMessage(), e);
-        }
 
+        } catch (MPException | MPApiException e) {
+            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar CARTÃO: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta de pagamento: " + e.getMessage(), e);
+        }
     }
 }
