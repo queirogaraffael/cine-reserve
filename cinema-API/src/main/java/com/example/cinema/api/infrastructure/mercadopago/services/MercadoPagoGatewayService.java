@@ -2,6 +2,7 @@ package com.example.cinema.api.infrastructure.mercadopago.services;
 
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.services.PaymentGatewayService;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
@@ -78,7 +79,8 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             }
 
             Long paymentId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
-            String paymentStatus = payment.getStatus();
+
+            PaymentStatus paymentStatus = PaymentStatus.valueOf(payment.getStatus());
 
             return new PixPaymentResponseDTO(
                     paymentId,
@@ -127,10 +129,11 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
             Long paymentMercadoPagoId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
-            String paymentStatus = payment.getStatus();
+            PaymentStatus paymentStatus = PaymentStatus.valueOf(payment.getStatus());
             String statusDetail = payment.getStatusDetail();
             Integer installments = payment.getInstallments();
             String paymentMethodId = payment.getPaymentMethodId();
+
 
             String lastFourDigits = (payment.getCard() != null) ? payment.getCard().getLastFourDigits() : "N/A";
 

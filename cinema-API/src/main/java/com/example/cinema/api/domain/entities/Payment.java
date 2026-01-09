@@ -32,6 +32,8 @@ public class Payment {
     @NotNull
     private PaymentStatus paymentStatus;
 
+    private String statusDetail;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id")
     private Purchase purchase;

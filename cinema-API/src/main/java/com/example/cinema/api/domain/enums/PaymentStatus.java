@@ -1,5 +1,12 @@
 package com.example.cinema.api.domain.enums;
 
+import lombok.Getter;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Getter
 public enum PaymentStatus {
     APPROVED("approved"),
     PENDING("pending"),
@@ -11,7 +18,8 @@ public enum PaymentStatus {
     PARTIALLY_REFUNDED("partially_refunded"),
     CHARGED_BACK("charged_back"),
     EXPIRED("expired"),
-    FAILED("failed");
+    FAILED("failed"),
+    UNKNOWN("unknown");
 
     private final String value;
 
@@ -19,16 +27,20 @@ public enum PaymentStatus {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public static PaymentStatus fromValue(String value) {
+        if (value == null) {
+            log.warn("O gateway de pagamento enviou um status nulo.");
+            return UNKNOWN;
+        }
+
         for (PaymentStatus status : values()) {
             if (status.value.equalsIgnoreCase(value)) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Unknown payment status: " + value);
+
+        log.error("Status de pagamento desconhecido recebido: {}", value);
+
+        return UNKNOWN;
     }
 }

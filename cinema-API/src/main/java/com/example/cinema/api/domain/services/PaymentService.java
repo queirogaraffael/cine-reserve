@@ -3,7 +3,6 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.payment.context.PaymentContext;
 import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
 import com.example.cinema.api.infrastructure.repositories.PurchaseRepository;
@@ -57,7 +56,7 @@ public class PaymentService {
         payment.setPaymentMethod(paymentRequestDTO.getPaymentType());
         payment.setPurchase(purchase);
         payment.setTransactionId(response.getTransactionId());
-        payment.setPaymentStatus(PaymentStatus.PENDING);
+        payment.setPaymentStatus(response.getPaymentStatus());
         payment.setPaymentDate(LocalDateTime.now());
 
         paymentRepository.save(payment);

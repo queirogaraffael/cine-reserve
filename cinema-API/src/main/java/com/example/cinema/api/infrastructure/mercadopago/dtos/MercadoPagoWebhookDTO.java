@@ -22,6 +22,6 @@ public class MercadoPagoWebhookDTO {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PaymentData {
-        private String id;
+        private Long id;
     }
 }

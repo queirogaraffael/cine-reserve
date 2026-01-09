@@ -2,11 +2,13 @@ package com.example.cinema.api.infrastructure.mercadopago.services;
 
 import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.services.WebhookService;
-import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookNotificationDTO;
+import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
 import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
+import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
 import com.example.cinema.api.shared.exceptions.WebhookException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercadopago.client.payment.PaymentClient;
+import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.resources.payment.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,39 +29,51 @@ public class WebhookMercadoPagoService implements WebhookService {
 
     @Override
     public void processWebhook(String payload) {
-        MercadoPagoWebhookNotificationDTO webhookPayload;
+        MercadoPagoWebhookDTO webhook;
+
         try {
-            webhookPayload = objectMapper.readValue(payload, MercadoPagoWebhookNotificationDTO.class);
+            webhook = objectMapper.readValue(payload, MercadoPagoWebhookDTO.class);
         } catch (Exception e) {
-            log.error("Erro ao desserializar payload do webhook do Mercado Pago: {}", e.getMessage());
-            throw new WebhookException("Erro ao processar webhook do Mercado Pago", e);
+            log.error("Erro crítico de desserialização: {}", e.getMessage());
+            return;
+        }
+
+        if (!"payment".equals(webhook.getType())) {
+            log.info("Webhook recebido de tipo ignorado: {}", webhook.getType());
+            return;
         }
 
         try {
-            Payment payment = paymentClient.get(webhookPayload.getResourceId());
+            Payment paymentMercadoPago = paymentClient.get(webhook.getData().getId());
 
-            Long externalReference = Long.parseLong(payment.getExternalReference());
-            String status = payment.getStatus();
+            if (paymentMercadoPago.getExternalReference() == null) {
+                log.warn("Pagamento {} do MP sem external_reference. Ignorando.", paymentMercadoPago.getId());
+                return;
+            }
 
-            com.example.cinema.api.domain.entities.Payment paymentEntity = paymentRepository.findById(externalReference)
-                    .orElseThrow(() -> new RuntimeException(
-                            "Pagamento não encontrado para o ID externo: " + externalReference
-                    ));
+            Long purchaseId = Long.parseLong(paymentMercadoPago.getExternalReference());
 
-            PaymentStatus paymentStatus = PaymentStatus.fromValue(status);
-            paymentEntity.setPaymentStatus(paymentStatus);
+            com.example.cinema.api.domain.entities.Payment paymentLocal = paymentRepository.findByPurchaseId(purchaseId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado para PurchaseId: " + purchaseId));
 
-            paymentRepository.save(paymentEntity);
+            PaymentStatus novoStatus = PaymentStatus.fromValue(paymentMercadoPago.getStatus());
+            String statusDetail = paymentMercadoPago.getStatusDetail();
 
+            log.info("Processando Webhook - PurchaseId: {} | Status: {} | Detalhe: {}", purchaseId, novoStatus, statusDetail);
+
+            paymentLocal.setPaymentStatus(novoStatus);
+            paymentLocal.setStatusDetail(statusDetail);
+
+            paymentRepository.save(paymentLocal);
+
+        } catch (NumberFormatException e) {
+            log.error("ID externo (PurchaseId) inválido vindo do Mercado Pago: {}", e.getMessage());
+        } catch (MPApiException e) {
+            log.error("Erro na API do Mercado Pago ao consultar ID {}: Status {}", webhook.getData().getId(), e.getStatusCode());
+            throw new WebhookException("Erro ao consultar Mercado Pago", e);
         } catch (Exception e) {
-            log.error("Erro ao processar pagamento do webhook do Mercado Pago: {}", e.getMessage(), e);
-            throw new WebhookException("Erro ao processar pagamento", e);
+            log.error("Erro inesperado ao processar webhook: {}", e.getMessage(), e);
+            throw new WebhookException("Erro processamento", e);
         }
-
-        // TODO: enviar email de atualização de status de compra para o usuário SE status mudou para aprovado
-
     }
-
-
-
 }
