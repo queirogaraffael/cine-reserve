@@ -8,6 +8,6 @@ import com.example.cinema.api.shared.dtos.payment.response.CardPaymentResponseDT
 import com.example.cinema.api.shared.dtos.payment.response.PixPaymentResponseDTO;
 
 public interface PaymentGatewayService {
-    PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request, String idempotencyKey);
-    CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request, String idempotencyKey);
+    PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request);
+    CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request);
 }

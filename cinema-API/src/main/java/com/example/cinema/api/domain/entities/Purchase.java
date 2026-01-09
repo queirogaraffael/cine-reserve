@@ -23,6 +23,9 @@ public class Purchase {
     private LocalDateTime purchaseDate;
     private BigDecimal totalPrice;
 
+    @Column(name = "idempotency_key", nullable = false, unique = true)
+    private String idempotencyKey = java.util.UUID.randomUUID().toString();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -33,5 +36,4 @@ public class Purchase {
 
     @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment;
-
 }

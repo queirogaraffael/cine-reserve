@@ -24,7 +24,7 @@ public class CartaoPaymentStrategy implements PaymentStrategy<CardPaymentRequest
     }
 
     @Override
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request, String idempotencyKey) {
+    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request) {
         if (!(request instanceof CardPaymentRequestDTO cardRequest)) {
             throw new IllegalArgumentException("Request is not a CardPaymentRequestDTO");
         }
@@ -32,8 +32,7 @@ public class CartaoPaymentStrategy implements PaymentStrategy<CardPaymentRequest
         return paymentGatewayService.createCardPayment(
                 purchase,
                 user,
-                cardRequest,
-                idempotencyKey
+                cardRequest
         );
     }
 }

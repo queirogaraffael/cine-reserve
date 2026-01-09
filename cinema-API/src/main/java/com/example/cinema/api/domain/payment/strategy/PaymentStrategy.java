@@ -13,7 +13,6 @@ public interface PaymentStrategy<T extends PaymentRequestDTO> {
     PaymentResponseDTO process(
             Purchase purchase,
             User user,
-            PaymentRequestDTO request,
-            String idempotencyKey
+            PaymentRequestDTO request
     );
 }

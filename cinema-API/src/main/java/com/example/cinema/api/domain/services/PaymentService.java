@@ -36,8 +36,7 @@ public class PaymentService {
     @Transactional
     public PaymentResponseDTO processPayment(
             Long purchaseId,
-            PaymentRequestDTO paymentRequestDTO,
-            String idempotencyKey
+            PaymentRequestDTO paymentRequestDTO
     ) {
 
         User user = userService.getAuthenticatedUser();
@@ -48,8 +47,7 @@ public class PaymentService {
         PaymentResponseDTO response = paymentContext.execute(
                 purchase,
                 user,
-                paymentRequestDTO,
-                idempotencyKey
+                paymentRequestDTO
         );
 
         Payment payment = new Payment();

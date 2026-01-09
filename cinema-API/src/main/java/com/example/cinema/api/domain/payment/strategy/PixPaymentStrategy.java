@@ -24,7 +24,7 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
     }
 
     @Override
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request, String idempotencyKey) {
+    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request) {
         if (!(request instanceof PixPaymentRequestDTO pixRequest)) {
             throw new IllegalArgumentException("Request is not a PixPaymentRequestDTO");
         }
@@ -32,8 +32,7 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
         return paymentGatewayService.createPixPayment(
                 purchase,
                 user,
-                pixRequest,
-                idempotencyKey
+                pixRequest
         );
     }
 }

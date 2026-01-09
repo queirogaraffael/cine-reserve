@@ -33,11 +33,11 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request, String idempotencyKey) {
+    public PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request) {
 
         try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
-                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, idempotencyKey))
+                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, purchase.getIdempotencyKey()))
                     .build();
 
             IdentificationRequest identificationRequest = IdentificationRequest.builder()
@@ -99,11 +99,11 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request, String idempotencyKey) {
+    public CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request) {
 
         try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
-                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, idempotencyKey))
+                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, purchase.getIdempotencyKey()))
                     .build();
 
             IdentificationRequest identificationRequest = IdentificationRequest.builder()

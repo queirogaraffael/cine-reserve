@@ -31,8 +31,7 @@ public class PaymentContext {
     public PaymentResponseDTO execute(
             Purchase purchase,
             User user,
-            PaymentRequestDTO paymentRequestDTO,
-            String idempotencyKey
+            PaymentRequestDTO paymentRequestDTO
     ) {
 
         PaymentType paymentType = paymentRequestDTO.getPaymentType();
@@ -44,7 +43,7 @@ public class PaymentContext {
             );
         }
 
-        return strategy.process(purchase, user, paymentRequestDTO, idempotencyKey);
+        return strategy.process(purchase, user, paymentRequestDTO);
     }
 }
 

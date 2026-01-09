@@ -27,14 +27,12 @@ public class PaymentController {
     @PostMapping("/purchases/{purchaseId}")
     public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(
             @PathVariable Long purchaseId,
-            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO,
-            @RequestHeader("Idempotency-Key") String idempotencyKey
+            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO
     ) {
 
         PaymentResponseDTO paymentResponse = paymentService.processPayment(
                 purchaseId,
-                paymentMasterDTO.getPaymentDetails(),
-                idempotencyKey
+                paymentMasterDTO.getPaymentDetails()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponse);
