@@ -44,7 +44,21 @@ public class WebhookMercadoPagoService implements WebhookService {
         }
 
         try {
-            Payment paymentMercadoPago = paymentClient.get(webhook.getData().getId());
+            Payment paymentMercadoPago;
+            int tentativas = 0;
+
+            while (true) {
+                try {
+                    paymentMercadoPago = paymentClient.get(webhook.getData().getId());
+                    break;
+                } catch (MPApiException e) {
+                    tentativas++;
+                    if (tentativas >= 3 || e.getStatusCode() != 404) throw e;
+
+                    log.warn("Pagamento não encontrado (tentativa {}/3). Aguardando para reprocessar...", tentativas);
+                    Thread.sleep(2000);
+                }
+            }
 
             if (paymentMercadoPago.getExternalReference() == null) {
                 log.warn("Pagamento {} do MP sem external_reference. Ignorando.", paymentMercadoPago.getId());
