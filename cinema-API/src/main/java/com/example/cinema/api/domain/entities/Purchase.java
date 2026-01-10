@@ -23,8 +23,8 @@ public class Purchase {
     private LocalDateTime purchaseDate;
     private BigDecimal totalPrice;
 
-    @Column(name = "idempotency_key", nullable = false, unique = true)
-    private String idempotencyKey = java.util.UUID.randomUUID().toString();
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 36)
+    private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

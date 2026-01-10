@@ -56,7 +56,7 @@ public class PurchaseService {
 
     @Transactional
     // TODO: REFATORAR PARA MELHORAR A LOGICA DE CALCULO DE PRECO
-    public PurchaseResponseDTO createPurchase(PurchaseRequestDTO purchaseRequestDTO) {
+    public PurchaseResponseDTO createPurchase(PurchaseRequestDTO purchaseRequestDTO, String idempotencyKey) {
 
         User user = userService.getAuthenticatedUser();
 
@@ -77,6 +77,7 @@ public class PurchaseService {
         }
 
         purchase.setTickets(tickets);
+        purchase.setIdempotencyKey(idempotencyKey);
         purchase.setPurchaseDate(LocalDateTime.now());
         purchase.setUser(user);
         purchase.setTotalPrice(totalPrice);

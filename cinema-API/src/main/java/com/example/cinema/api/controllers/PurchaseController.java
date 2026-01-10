@@ -4,17 +4,18 @@ import com.example.cinema.api.shared.dtos.purchase.PurchaseRequestDTO;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.domain.services.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Purchases")
 @RestController
@@ -28,17 +29,32 @@ public class PurchaseController {
         this.purchaseService = purchaseService;
     }
 
-    @Operation(summary = "Criar nova compra", description = "Cria uma nova compra")
+    @Operation(
+            summary = "Criar nova compra",
+            description = "Cria uma nova compra. O header X-Idempotency-Key é obrigatório para evitar duplicidade em caso de falhas de rede.",
+            parameters = {
+                    @Parameter(
+                            name = "X-Idempotency-Key",
+                            description = "Chave única para garantir a idempotência da requisição (ex: UUID)",
+                            required = true,
+                            in = ParameterIn.HEADER,
+                            schema = @Schema(type = "string", format = "uuid")
+                    )
+            }
+    )
     @ApiResponse(responseCode = "201", description = "Purchase created successfully")
-    @ApiResponse(responseCode = "400", description = "Validation error")
-    @ApiResponse(responseCode = "500", description = "Internal server error | Business validation error")
+    @ApiResponse(responseCode = "400", description = "Validation error or missing Idempotency Key")
+    @ApiResponse(responseCode = "409", description = "Conflict - Idempotency Key already processed")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
-    public ResponseEntity<PurchaseResponseDTO> createPurchase(@RequestBody PurchaseRequestDTO purchaseRequest) {
-        PurchaseResponseDTO purchase = purchaseService.createPurchase(purchaseRequest);
+    public ResponseEntity<PurchaseResponseDTO> createPurchase(
+            @RequestHeader("X-Idempotency-Key") String idempotencyKey,
+            @Valid @RequestBody PurchaseRequestDTO purchaseRequest) {
+
+        PurchaseResponseDTO purchase = purchaseService.createPurchase(purchaseRequest, idempotencyKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
     }
-
 
 }
