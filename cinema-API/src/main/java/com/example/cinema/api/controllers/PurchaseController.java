@@ -57,4 +57,18 @@ public class PurchaseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
     }
 
+    @PatchMapping("/{id}/idempotency-key")
+    @Operation(summary = "Atualizar idempotency key da compra")
+    public ResponseEntity<Void> atualizarIdempotencyKey(
+            @Parameter(description = "ID da compra", example = "10")
+            @PathVariable("id") Long idPurchase,
+
+            @Parameter(description = "Nova idempotency key", example = "abc-123-xyz")
+            @RequestParam String idempotencyKey) {
+
+        purchaseService.modificarIdempotencyKeyPurchase(idPurchase, idempotencyKey);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

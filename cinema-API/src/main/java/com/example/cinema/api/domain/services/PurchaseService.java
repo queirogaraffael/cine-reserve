@@ -4,11 +4,7 @@ import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.Ticket;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.PaymentType;
-import com.example.cinema.api.domain.enums.UserCategory;
-import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
 import com.example.cinema.api.domain.pricing.context.TicketPricingContext;
-import com.example.cinema.api.domain.pricing.strategy.PricingStrategy;
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
 import com.example.cinema.api.infrastructure.repositories.PurchaseRepository;
@@ -24,11 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 @Service
 public class PurchaseService {
@@ -89,4 +83,18 @@ public class PurchaseService {
         return purchaseMapper.toResponseDTO(savedPurchase);
 
     }
+
+    @Transactional
+    public void modificarIdempotencyKeyPurchase(Long idPurchase, String idempotencyKey) {
+
+        int updated = purchaseRepository
+                .updateIdempotencyKey(idPurchase, idempotencyKey);
+
+        if (updated == 0) {
+            throw new ResourceNotFoundException(
+                    "Purchase " + idPurchase + " não encontrada."
+            );
+        }
+    }
+
 }
