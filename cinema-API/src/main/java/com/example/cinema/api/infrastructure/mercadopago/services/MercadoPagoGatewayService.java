@@ -83,6 +83,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             PaymentStatus paymentStatus = PaymentStatus.valueOf(payment.getStatus());
 
             return new PixPaymentResponseDTO(
+                    null,
                     paymentId,
                     paymentStatus,
                     pixCopiaECola,
@@ -138,6 +139,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             String lastFourDigits = (payment.getCard() != null) ? payment.getCard().getLastFourDigits() : "N/A";
 
             return new CardPaymentResponseDTO(
+                    null,
                     paymentMercadoPagoId,
                     paymentStatus,
                     statusDetail,

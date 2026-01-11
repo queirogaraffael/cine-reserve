@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 public class PixPaymentResponseDTO implements PaymentResponseDTO {
 
+    private Long paymentId;
     private Long transactionId;
     private PaymentStatus paymentStatus;
 

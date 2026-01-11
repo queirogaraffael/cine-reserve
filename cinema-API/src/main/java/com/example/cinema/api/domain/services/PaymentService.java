@@ -60,7 +60,9 @@ public class PaymentService {
         payment.setPaymentStatus(response.getPaymentStatus());
         payment.setPaymentDate(LocalDateTime.now());
 
-        paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+
+        response.setPaymentId(savedPayment.getId());
 
         return response;
     }
