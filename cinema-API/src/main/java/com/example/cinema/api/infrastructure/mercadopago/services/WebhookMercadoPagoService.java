@@ -1,6 +1,7 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
 import com.example.cinema.api.domain.enums.PaymentStatus;
+import com.example.cinema.api.domain.services.EmailService;
 import com.example.cinema.api.domain.services.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
 import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
@@ -20,11 +21,13 @@ public class WebhookMercadoPagoService implements WebhookService {
     private final PaymentRepository paymentRepository;
     private final PaymentClient paymentClient;
     private final ObjectMapper objectMapper;
+    private EmailService emailService;
 
-    public WebhookMercadoPagoService(PaymentRepository paymentRepository, PaymentClient paymentClient, ObjectMapper objectMapper) {
+    public WebhookMercadoPagoService(PaymentRepository paymentRepository, PaymentClient paymentClient, ObjectMapper objectMapper, EmailService emailService) {
         this.paymentRepository = paymentRepository;
         this.paymentClient = paymentClient;
         this.objectMapper = objectMapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -77,6 +80,10 @@ public class WebhookMercadoPagoService implements WebhookService {
 
             paymentLocal.setPaymentStatus(novoStatus);
             paymentLocal.setStatusDetail(statusDetail);
+
+            if(novoStatus.equals(PaymentStatus.APPROVED)){
+                emailService.sendOrderApprovedEmail(user, purchase, paymentLocal);
+            }
 
             paymentRepository.save(paymentLocal);
 

@@ -1,11 +1,10 @@
-package com.example.cinema.api.shared.dtos.payment.response;
+package com.example.cinema.api.shared.dtos.payment.response.gateway.pix;
 
-import com.example.cinema.api.domain.enums.PaymentStatus;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import lombok.Builder;
 
 import java.time.ZonedDateTime;
 
@@ -13,15 +12,14 @@ import java.time.ZonedDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PixPaymentResponseDTO implements PaymentResponseDTO {
-
-    private Long paymentId;
+public class PixGatewayResult implements PaymentGatewayResponseDTO {
     private Long transactionId;
-    private PaymentStatus paymentStatus;
-
+    private String status;
+    private String statusDetail;
     private String pixCopiaECola;
+    private String qrCode;
     private String qrCodeBase64;
     private String instrucoesUrl;
-
     private ZonedDateTime expirationDate;
+
 }

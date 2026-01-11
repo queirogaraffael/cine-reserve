@@ -2,12 +2,11 @@ package com.example.cinema.api.infrastructure.mercadopago.services;
 
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.services.PaymentGatewayService;
 import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.CardPaymentResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PixPaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.card.CardGatewayResult;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.pix.PixGatewayResult;
 import com.example.cinema.api.shared.exceptions.ApiPagamentoException;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
@@ -33,7 +32,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public PixPaymentResponseDTO createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request) {
+    public PixGatewayResult createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request) {
 
         try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
@@ -68,25 +67,30 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
                     : expirationDate;
 
             String pixCopiaECola = "";
+            String qrCode = "";
             String qrCodeBase64 = "";
             String instrucoesUrl = "";
 
             if (payment.getPointOfInteraction() != null && payment.getPointOfInteraction().getTransactionData() != null) {
                 var data = payment.getPointOfInteraction().getTransactionData();
                 pixCopiaECola = data.getQrCode();
+                qrCode = data.getQrCode();
                 qrCodeBase64 = data.getQrCodeBase64();
                 instrucoesUrl = data.getTicketUrl();
             }
 
-            Long paymentId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
+            String statusDetails = payment.getStatusDetail();
 
-            PaymentStatus paymentStatus = PaymentStatus.valueOf(payment.getStatus());
+            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
 
-            return new PixPaymentResponseDTO(
-                    null,
-                    paymentId,
-                    paymentStatus,
+            String status = payment.getStatus();
+
+            return new PixGatewayResult(
+                    transactionId,
+                    status,
+                    statusDetails,
                     pixCopiaECola,
+                    qrCode,
                     qrCodeBase64,
                     instrucoesUrl,
                     expirationConfirmada
@@ -100,7 +104,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public CardPaymentResponseDTO createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request) {
+    public CardGatewayResult createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request) {
 
         try {
             MPRequestOptions requestOptions = MPRequestOptions.builder()
@@ -129,19 +133,17 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
 
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
-            Long paymentMercadoPagoId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
-            PaymentStatus paymentStatus = PaymentStatus.valueOf(payment.getStatus());
+            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
+            String status = payment.getStatus();
             String statusDetail = payment.getStatusDetail();
             Integer installments = payment.getInstallments();
             String paymentMethodId = payment.getPaymentMethodId();
 
-
             String lastFourDigits = (payment.getCard() != null) ? payment.getCard().getLastFourDigits() : "N/A";
 
-            return new CardPaymentResponseDTO(
-                    null,
-                    paymentMercadoPagoId,
-                    paymentStatus,
+            return new CardGatewayResult(
+                    transactionId,
+                    status,
                     statusDetail,
                     lastFourDigits,
                     installments,

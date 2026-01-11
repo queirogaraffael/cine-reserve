@@ -4,10 +4,8 @@ import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentMasterDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -28,7 +26,7 @@ public class PaymentContext {
                 ));
     }
 
-    public PaymentResponseDTO execute(
+    public PaymentGatewayResponseDTO execute(
             Purchase purchase,
             User user,
             PaymentRequestDTO paymentRequestDTO

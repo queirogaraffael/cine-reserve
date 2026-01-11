@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/webhooks/mercadopago")
+@RequestMapping("/api/webhooks")
 public class WebhookPagamentoController {
 
     WebhookService webhookService;
@@ -20,7 +20,7 @@ public class WebhookPagamentoController {
     }
 
     @Operation(summary = "Recebe notificações de webhooks de Pagemento")
-    @PostMapping
+    @PostMapping("/payment")
     public ResponseEntity<Void> receiveNotification(@RequestBody String notificationJson) {
         webhookService.processWebhook(notificationJson);
 

@@ -1,6 +1,7 @@
 package com.example.cinema.api.shared.exceptions;
 
 import com.mercadopago.exceptions.MPApiException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -115,5 +116,11 @@ public class CustomExceptionHandler {
     public ResponseEntity<Object> handleMercadoPagoException(MPApiException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrity(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Violação de integridade");
+    }
+
 
 }

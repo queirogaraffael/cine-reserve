@@ -2,8 +2,10 @@ package com.example.cinema.api.domain.purchase.event;
 
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
+import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
+@Getter
 public class PurchaseCreatedEvent extends ApplicationEvent {
 
     private final Purchase purchase;
@@ -15,11 +17,4 @@ public class PurchaseCreatedEvent extends ApplicationEvent {
         this.purchase = purchase;
     }
 
-    public Purchase getPurchase() {
-        return purchase;
-    }
-
-    public User getUser() {
-        return user;
-    }
 }

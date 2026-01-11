@@ -6,7 +6,7 @@ import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.services.PaymentGatewayService;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,7 +24,7 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
     }
 
     @Override
-    public PaymentResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request) {
+    public PaymentGatewayResponseDTO process(Purchase purchase, User user, PaymentRequestDTO request) {
         if (!(request instanceof PixPaymentRequestDTO pixRequest)) {
             throw new IllegalArgumentException("Request is not a PixPaymentRequestDTO");
         }

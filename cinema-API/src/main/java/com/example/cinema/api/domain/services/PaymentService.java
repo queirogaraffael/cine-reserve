@@ -8,6 +8,7 @@ import com.example.cinema.api.domain.payment.context.PaymentContext;
 import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
 import com.example.cinema.api.infrastructure.repositories.PurchaseRepository;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
@@ -47,20 +48,23 @@ public class PaymentService {
         Purchase purchase = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
 
-        PaymentResponseDTO response = paymentContext.execute(
+        PaymentGatewayResponseDTO response = paymentContext.execute(
                 purchase,
                 user,
                 paymentRequestDTO
         );
 
+
+
         Payment payment = new Payment();
         payment.setPaymentMethod(paymentRequestDTO.getPaymentType());
         payment.setPurchase(purchase);
-        payment.setTransactionId(response.getTransactionId());
-        payment.setPaymentStatus(response.getPaymentStatus());
+        payment.setTransactionId(response.);
+        payment.setPaymentStatus(PaymentStatus.fromValue(response.getStatus()));
         payment.setPaymentDate(LocalDateTime.now());
 
         Payment savedPayment = paymentRepository.save(payment);
+
 
         response.setPaymentId(savedPayment.getId());
 
