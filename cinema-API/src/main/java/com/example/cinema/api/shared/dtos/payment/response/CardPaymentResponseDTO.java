@@ -14,6 +14,7 @@ import lombok.Builder;
 @AllArgsConstructor
 public class CardPaymentResponseDTO implements PaymentResponseDTO {
 
+    private Long paymentId;
     private Long transactionId;
     private PaymentStatus paymentStatus;
 
