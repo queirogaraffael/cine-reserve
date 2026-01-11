@@ -3,6 +3,7 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.payment.context.PaymentContext;
 import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
 import com.example.cinema.api.infrastructure.repositories.PurchaseRepository;
@@ -60,5 +61,11 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         return response;
+    }
+
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public PaymentStatus getPaymentStatus(Long idPayment){
+        return paymentRepository.findStatusById(idPayment).orElseThrow(()-> new ResourceNotFoundException("Payment " + idPayment + " não encontrado."));
     }
 }
