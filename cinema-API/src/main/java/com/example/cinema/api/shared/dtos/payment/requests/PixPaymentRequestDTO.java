@@ -8,13 +8,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class PixPaymentRequestDTO implements PaymentRequestDTO {
-
-    private BigDecimal amount;
-    private String payerEmail;
-    private String cpfCnpj;
 
     @Override
     public PaymentType getPaymentType() {
