@@ -38,33 +38,18 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDTO processPayment(
-            Long purchaseId,
-            PaymentRequestDTO paymentRequestDTO
-    ) {
-
+    public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO) {
         User user = userService.getAuthenticatedUser();
-
-        Purchase purchase = purchaseRepository.findById(purchaseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
-
-        PaymentGatewayResponseDTO response = paymentContext.execute(
-                purchase,
-                user,
-                paymentRequestDTO
-        );
-
-
+        Purchase purchase = purchaseRepository.findById(purchaseId).orElseThrow();
 
         Payment payment = new Payment();
-        payment.setPaymentMethod(paymentRequestDTO.getPaymentType());
         payment.setPurchase(purchase);
-        payment.setTransactionId(response.);
-        payment.setPaymentStatus(PaymentStatus.fromValue(response.getStatus()));
+        payment.setPaymentMethod(paymentRequestDTO.getPaymentType());
         payment.setPaymentDate(LocalDateTime.now());
 
-        Payment savedPayment = paymentRepository.save(payment);
+        PaymentResponseDTO response = paymentContext.execute(purchase, user, paymentRequestDTO, payment);
 
+        Payment savedPayment = paymentRepository.save(payment);
 
         response.setPaymentId(savedPayment.getId());
 

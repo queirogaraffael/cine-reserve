@@ -20,6 +20,7 @@ public class PixPaymentResponseDTO implements PaymentResponseDTO {
     private PaymentStatus paymentStatus;
 
     private String pixCopiaECola;
+    private String qrCode;
     private String qrCodeBase64;
     private String instrucoesUrl;
 

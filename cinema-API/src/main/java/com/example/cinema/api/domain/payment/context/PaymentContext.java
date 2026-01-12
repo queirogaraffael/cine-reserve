@@ -1,10 +1,12 @@
 package com.example.cinema.api.domain.payment.context;
 
+import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentType;
 import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +28,11 @@ public class PaymentContext {
                 ));
     }
 
-    public PaymentGatewayResponseDTO execute(
+    public PaymentResponseDTO execute(
             Purchase purchase,
             User user,
-            PaymentRequestDTO paymentRequestDTO
+            PaymentRequestDTO paymentRequestDTO,
+            Payment payment
     ) {
 
         PaymentType paymentType = paymentRequestDTO.getPaymentType();
@@ -41,7 +44,7 @@ public class PaymentContext {
             );
         }
 
-        return strategy.process(purchase, user, paymentRequestDTO);
+        return strategy.process(purchase, user, paymentRequestDTO, payment);
     }
 }
 
