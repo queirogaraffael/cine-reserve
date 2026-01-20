@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.infrastructure.repositories.GenreRepository;
+import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreResponseDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
@@ -21,10 +21,10 @@ import java.util.Objects;
 @Service
 public class GenreService {
 
-    private final GenreRepository genreRepository;
+    private final GenreRepositoryJpa genreRepository;
     private final GenreMapper genreMapper;
 
-    public GenreService(GenreRepository genreRepository, GenreMapper genreMapper) {
+    public GenreService(GenreRepositoryJpa genreRepository, GenreMapper genreMapper) {
         this.genreRepository = genreRepository;
         this.genreMapper = genreMapper;
     }

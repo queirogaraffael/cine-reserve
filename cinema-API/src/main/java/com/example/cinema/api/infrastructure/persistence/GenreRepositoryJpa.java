@@ -1,14 +1,14 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.infrastructure.repositories.projection.GenreResponseDTOProjection;
+import com.example.cinema.api.infrastructure.persistence.projection.GenreResponseDTOProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GenreRepository extends JpaRepository<Genre, Long> {
+public interface GenreRepositoryJpa extends JpaRepository<Genre, Long> {
 
     Page<GenreResponseDTOProjection> findAllBy(Pageable pageable);
 

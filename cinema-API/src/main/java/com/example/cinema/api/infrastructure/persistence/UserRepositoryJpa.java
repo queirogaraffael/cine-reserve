@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepositoryJpa extends JpaRepository<User, UUID> {
 
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);

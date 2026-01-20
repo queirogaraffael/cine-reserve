@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@Scope("singleton") // apesar de ser singleton por padrão, deixado explícito
 public class SecurityConfigurations {
 
     private final SecurityFilter securityFilter;

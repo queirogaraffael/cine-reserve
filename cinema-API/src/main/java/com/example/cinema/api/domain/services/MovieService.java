@@ -2,8 +2,8 @@ package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.infrastructure.repositories.GenreRepository;
-import com.example.cinema.api.infrastructure.repositories.MovieRepository;
+import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
@@ -20,12 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieService {
 
-    private final MovieRepository movieRepository;
-    private final GenreRepository genreRepository;
+    private final MovieRepositoryJpa movieRepositoryJpa;
+    private final GenreRepositoryJpa genreRepository;
     private final MovieMapper movieMapper;
 
-    public MovieService(MovieRepository movieRepository, GenreRepository genreRepository, MovieMapper movieMapper) {
-        this.movieRepository = movieRepository;
+    public MovieService(MovieRepositoryJpa movieRepositoryJpa, GenreRepositoryJpa genreRepository, MovieMapper movieMapper) {
+        this.movieRepositoryJpa = movieRepositoryJpa;
         this.genreRepository = genreRepository;
         this.movieMapper = movieMapper;
     }
@@ -38,14 +38,14 @@ public class MovieService {
 
         Movie movie = movieMapper.toEntity(dto);
         movie.setGenre(genre);
-        Movie movieSaved = movieRepository.save(movie);
+        Movie movieSaved = movieRepositoryJpa.save(movie);
         return movieMapper.toDTO(movieSaved);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "movies", key = "#id")
     public MovieResponseDTO findById(Long id) {
-        Movie movie = movieRepository.findById(id)
+        Movie movie = movieRepositoryJpa.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
         return movieMapper.toDTO(movie);
     }
@@ -53,32 +53,32 @@ public class MovieService {
     @Transactional(readOnly = true)
     public Page<MovieResponseDTO> findAllPageable(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return movieRepository.findAllPaginado(pageable);
+        return movieRepositoryJpa.findAllPaginado(pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<MovieResponseDTO> findByGenreId(Long genreId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return movieRepository.findByGenreId(genreId, pageable);
+        return movieRepositoryJpa.findByGenreId(genreId, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<MovieResponseDTO> findByTitleAndGenreId(String title, Long genreId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return movieRepository.findByTitleContainingAndGenreId(title, genreId, pageable);
+        return movieRepositoryJpa.findByTitleContainingAndGenreId(title, genreId, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<MovieResponseDTO> findByTitleContainingIgnoreCase(String title, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return movieRepository.findByTitleContainingIgnoreCase(title, pageable).map(movieMapper::projectionToDTO);
+        return movieRepositoryJpa.findByTitleContainingIgnoreCase(title, pageable).map(movieMapper::projectionToDTO);
     }
 
     @Transactional
     @CachePut(value = "movies", key = "#idMovie")
     public MovieResponseDTO updateMovie(Long idMovie, MovieUpdateDTO dto) {
 
-        Movie movie = movieRepository.findById(idMovie)
+        Movie movie = movieRepositoryJpa.findById(idMovie)
                 .orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
 
         Genre genre = genreRepository.findById(dto.getGenreId())
@@ -87,7 +87,7 @@ public class MovieService {
         movie.setGenre(genre);
 
         movieMapper.updateEntityFromDTO(dto, movie);
-        Movie movieUpdated = movieRepository.save(movie);
+        Movie movieUpdated = movieRepositoryJpa.save(movie);
 
         return movieMapper.toDTO(movieUpdated);
     }

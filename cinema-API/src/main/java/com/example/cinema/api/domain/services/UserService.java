@@ -3,7 +3,7 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
@@ -27,18 +27,18 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService  {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryJpa userRepositoryJpa;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final UserService self;
 
 
-    public UserService(UserRepository userRepository,
-                      PasswordEncoder passwordEncoder,
-                      UserMapper userMapper,
-                      ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
-        this.userRepository = userRepository;
+    public UserService(UserRepositoryJpa userRepositoryJpa,
+                       PasswordEncoder passwordEncoder,
+                       UserMapper userMapper,
+                       ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
+        this.userRepositoryJpa = userRepositoryJpa;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.eventPublisher = eventPublisher;
@@ -51,7 +51,7 @@ public class UserService implements UserDetailsService  {
 
         System.out.println("Creating user with username: " + data.getUsername() + " and email: " + data.getEmail());
 
-        if (userRepository.existsByUsername(data.getUsername()) || userRepository.existsByEmail(data.getEmail())) {
+        if (userRepositoryJpa.existsByUsername(data.getUsername()) || userRepositoryJpa.existsByEmail(data.getEmail())) {
             throw new UserAlreadyExistsException("Usuário já existe");
         }
 
@@ -61,7 +61,7 @@ public class UserService implements UserDetailsService  {
                 data.getEmail(), encryptedPassword, data.getDataJoined(),
                 data.getBirthdate(), UserRole.USER, data.getCategory());
 
-        User user = userRepository.save(newUser);
+        User user = userRepositoryJpa.save(newUser);
 
         eventPublisher.publishEvent(new UserCreatedEvent(this, user.getEmail(), user.getName()));
 
@@ -71,7 +71,7 @@ public class UserService implements UserDetailsService  {
 
     @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
+        return userRepositoryJpa.existsByUsername(username);
     }
 
     public User getAuthenticatedUser() {
@@ -101,7 +101,7 @@ public class UserService implements UserDetailsService  {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        return userRepository.findByUsername(username)
+        return userRepositoryJpa.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
     }
 
@@ -121,7 +121,7 @@ public class UserService implements UserDetailsService  {
         }
 
         user.setPassword(passwordEncoder.encode(data.getNewPassword()));
-        userRepository.save(user);
+        userRepositoryJpa.save(user);
     }
 
 }

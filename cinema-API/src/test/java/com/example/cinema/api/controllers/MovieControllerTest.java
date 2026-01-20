@@ -4,9 +4,9 @@ import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.GenreRepository;
-import com.example.cinema.api.infrastructure.repositories.MovieRepository;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;
 import com.example.cinema.api.utils.TestUtils;
@@ -35,10 +35,10 @@ class MovieControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private MovieRepository movieRepository;
+    private MovieRepositoryJpa movieRepositoryJpa;
 
     @Autowired
-    private GenreRepository genreRepository;
+    private GenreRepositoryJpa genreRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -47,13 +47,13 @@ class MovieControllerTest {
     private TestUtils testUtils;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @BeforeEach
     void setup() throws Exception {
-        movieRepository.deleteAll();
+        movieRepositoryJpa.deleteAll();
         genreRepository.deleteAll();
-        userRepository.deleteAll();
+        userRepositoryJpa.deleteAll();
 
     }
 
@@ -97,7 +97,7 @@ class MovieControllerTest {
         filme.setDuration(142);
         filme.setImageUrl("http://image.url/shawshank.jpg");
         filme.setGenre(genre);
-        Movie movie = movieRepository.save(filme);
+        Movie movie = movieRepositoryJpa.save(filme);
 
         mockMvc.perform(get("/api/movies/" + movie.getId()))
                 .andExpect(status().isOk())
@@ -121,7 +121,7 @@ class MovieControllerTest {
             filme.setImageUrl("http://image.url/movie" + i + ".jpg");
             filme.setGenre(genre);
 
-            movieRepository.save(filme);
+            movieRepositoryJpa.save(filme);
         }
 
         mockMvc.perform(get("/api/movies?page=0&size=2"))
@@ -144,7 +144,7 @@ class MovieControllerTest {
         filme1.setDuration(124);
         filme1.setImageUrl("http://image.url/jurassicworld.jpg");
         filme1.setGenre(genre);
-        movieRepository.save(filme1);
+        movieRepositoryJpa.save(filme1);
 
         Movie filme2 = new Movie();
         filme2.setTitle("Jumanji");
@@ -153,7 +153,7 @@ class MovieControllerTest {
         filme2.setDuration(119);
         filme2.setImageUrl("http://image.url/jumanji.jpg");
         filme2.setGenre(genre);
-        movieRepository.save(filme2);
+        movieRepositoryJpa.save(filme2);
 
         mockMvc.perform(get("/api/movies/search?title=ju&page=0&size=10"))
                 .andExpect(status().isOk())
@@ -178,7 +178,7 @@ class MovieControllerTest {
         filme1.setDuration(90);
         filme1.setImageUrl("http://image.url/funny.jpg");
         filme1.setGenre(g1);
-        movieRepository.save(filme1);
+        movieRepositoryJpa.save(filme1);
 
         Movie filme2 = new Movie();
         filme2.setTitle("Scary Movie");
@@ -187,7 +187,7 @@ class MovieControllerTest {
         filme2.setDuration(95);
         filme2.setImageUrl("http://image.url/scary.jpg");
         filme2.setGenre(g2);
-        movieRepository.save(filme2);
+        movieRepositoryJpa.save(filme2);
 
         mockMvc.perform(get("/api/movies/genre/" + g1.getId() + "?page=0&size=10"))
                 .andExpect(status().isOk())
@@ -199,8 +199,8 @@ class MovieControllerTest {
     @Test
     void findByTitleAndGenreId_ReturnsFiltered() throws Exception {
         Genre genre = genreRepository.save(new Genre(null, "Action", null));
-        movieRepository.save(new Movie(null, "Avengers", "", LocalDate.now(), 143, "", genre, null));
-        movieRepository.save(new Movie(null, "Avatar", "", LocalDate.now(), 162, "", genre, null));
+        movieRepositoryJpa.save(new Movie(null, "Avengers", "", LocalDate.now(), 143, "", genre, null));
+        movieRepositoryJpa.save(new Movie(null, "Avatar", "", LocalDate.now(), 162, "", genre, null));
 
         mockMvc.perform(get("/api/movies/search/genre/" + genre.getId() + "?title=av&page=0&size=5"))
                 .andExpect(status().isOk())
@@ -215,7 +215,7 @@ class MovieControllerTest {
 
         Genre oldGenre = genreRepository.save(new Genre(null, "Thriller", null));
         Genre newGenre = genreRepository.save(new Genre(null, "Mystery", null));
-        Movie movie = movieRepository.save(new Movie(
+        Movie movie = movieRepositoryJpa.save(new Movie(
                 null,
                 "Old Title",
                 "Old Desc",
@@ -276,7 +276,7 @@ class MovieControllerTest {
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         Genre genre = genreRepository.save(new Genre(null, "Original", null));
-        Movie movie = movieRepository.save(new Movie(
+        Movie movie = movieRepositoryJpa.save(new Movie(
                 null,
                 "Title",
                 "Desc",

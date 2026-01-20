@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
 import com.example.cinema.api.domain.entities.Room;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Long> {
+public interface RoomRepositoryJpa extends JpaRepository<Room, Long> {
 
     @Query(
             value = "SELECT new com.example.cinema.api.shared.dtos.room.RoomResponseDTO(r.id, r.number, r.capacity) FROM Room r",

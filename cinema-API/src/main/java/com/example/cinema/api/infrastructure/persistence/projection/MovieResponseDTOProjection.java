@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories.projection;
+package com.example.cinema.api.infrastructure.persistence.projection;
 
 import java.time.LocalDate;
 

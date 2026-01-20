@@ -3,7 +3,7 @@ package com.example.cinema.api.configs;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,18 +29,18 @@ public class UserAdminInitializer implements CommandLineRunner {
     @Value("${app.admin.cpf}")
     private String adminCpf;
 
-    private final UserRepository userRepository;
+    private final UserRepositoryJpa userRepositoryJpa;
     private final PasswordEncoder passwordEncoder;
 
-    public UserAdminInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public UserAdminInitializer(UserRepositoryJpa userRepositoryJpa, PasswordEncoder passwordEncoder) {
+        this.userRepositoryJpa = userRepositoryJpa;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
-        if (!userRepository.existsByUsername(adminUsername)) {
+        if (!userRepositoryJpa.existsByUsername(adminUsername)) {
             User admin = new User(
                     adminUsername,
                     adminCpf,
@@ -52,7 +52,7 @@ public class UserAdminInitializer implements CommandLineRunner {
                     UserRole.ADMIN,
                     UserCategory.REGULAR
             );
-            userRepository.save(admin);
+            userRepositoryJpa.save(admin);
             System.out.println("Usuário admin (" + adminUsername + ") criado!");
         }
 

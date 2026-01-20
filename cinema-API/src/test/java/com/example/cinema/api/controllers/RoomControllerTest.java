@@ -4,8 +4,8 @@ package com.example.cinema.api.controllers;
 import com.example.cinema.api.domain.entities.Room;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.RoomRepository;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +33,7 @@ class RoomControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private RoomRepository roomRepository;
+    private RoomRepositoryJpa roomRepositoryJpa;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -42,12 +42,12 @@ class RoomControllerTest {
     private TestUtils testUtils;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @BeforeEach
     void setUp() {
-        roomRepository.deleteAll();
-        userRepository.deleteAll();
+        roomRepositoryJpa.deleteAll();
+        userRepositoryJpa.deleteAll();
     }
 
 
@@ -72,7 +72,7 @@ class RoomControllerTest {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
-        roomRepository.save(new Room(null, "101", 2, null));
+        roomRepositoryJpa.save(new Room(null, "101", 2, null));
 
         RoomRequestDTO room = new RoomRequestDTO("101", 5);
 
@@ -89,7 +89,7 @@ class RoomControllerTest {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
-        Room saved = roomRepository.save(new Room(null, "202", 4, null));
+        Room saved = roomRepositoryJpa.save(new Room(null, "202", 4, null));
 
         mockMvc.perform(get("/api/rooms/" + saved.getId()).header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class RoomControllerTest {
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
         IntStream.rangeClosed(1, 3)
-                .forEach(i -> roomRepository.save(new Room(null, String.valueOf(300 + i), i, null)));
+                .forEach(i -> roomRepositoryJpa.save(new Room(null, String.valueOf(300 + i), i, null)));
 
         mockMvc.perform(get("/api/rooms?page=0&size=2").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -126,7 +126,7 @@ class RoomControllerTest {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
-        Room original = roomRepository.save(new Room(null, "401", 3, null));
+        Room original = roomRepositoryJpa.save(new Room(null, "401", 3, null));
         RoomRequestDTO dto = new RoomRequestDTO("402", 5);
 
         mockMvc.perform(put("/api/rooms/" + original.getId())
@@ -157,8 +157,8 @@ class RoomControllerTest {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
 
-        roomRepository.save(new Room(null, "601", 2, null));
-        Room second = roomRepository.save(new Room(null, "602", 3, null));
+        roomRepositoryJpa.save(new Room(null, "601", 2, null));
+        Room second = roomRepositoryJpa.save(new Room(null, "602", 3, null));
 
         RoomRequestDTO dto = new RoomRequestDTO("601", 3);
 

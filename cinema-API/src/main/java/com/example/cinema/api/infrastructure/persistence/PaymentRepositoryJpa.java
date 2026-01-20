@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.enums.PaymentStatus;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
     Optional<Payment> findByPurchaseId(Long purchaseId);
 
     @Query("""

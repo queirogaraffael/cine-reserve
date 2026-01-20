@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 
 import com.example.cinema.api.domain.entities.Purchase;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
+public interface PurchaseRepositoryJpa extends JpaRepository<Purchase, Long> {
 
 
     @Modifying

@@ -3,7 +3,7 @@ package com.example.cinema.api.utils;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ public class TestUtils {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,7 +49,7 @@ public class TestUtils {
         user.setRole(role);
         user.setCategory(userCategory);
 
-        userRepository.save(user);
+        userRepositoryJpa.save(user);
 
         var loginDTO = new UserLoginDTO(username, "senha123");
 

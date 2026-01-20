@@ -5,9 +5,9 @@ import com.example.cinema.api.domain.entities.Room;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.domain.services.MovieSessionService;
-import com.example.cinema.api.infrastructure.repositories.MovieRepository;
-import com.example.cinema.api.infrastructure.repositories.RoomRepository;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,10 +36,10 @@ class MovieSessionControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private MovieRepository movieRepository;
+    private MovieRepositoryJpa movieRepositoryJpa;
 
     @Autowired
-    private RoomRepository roomRepository;
+    private RoomRepositoryJpa roomRepositoryJpa;
 
     @Autowired
     private MovieSessionService movieSessionService;
@@ -51,20 +51,20 @@ class MovieSessionControllerTest {
     private TestUtils testUtils;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @BeforeEach
     void setup() throws Exception {
-        userRepository.deleteAll();
-        movieRepository.deleteAll();
-        roomRepository.deleteAll();
+        userRepositoryJpa.deleteAll();
+        movieRepositoryJpa.deleteAll();
+        roomRepositoryJpa.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
-        userRepository.deleteAll();
-        movieRepository.deleteAll();
-        roomRepository.deleteAll();
+        userRepositoryJpa.deleteAll();
+        movieRepositoryJpa.deleteAll();
+        roomRepositoryJpa.deleteAll();
     }
 
 
@@ -76,12 +76,12 @@ class MovieSessionControllerTest {
         Movie movie = new Movie();
         movie.setTitle("Inception");
         movie.setDuration(148);
-        movieRepository.save(movie);
+        movieRepositoryJpa.save(movie);
 
         Room room = new Room();
         room.setNumber("1");
         room.setCapacity(100);
-        roomRepository.save(room);
+        roomRepositoryJpa.save(room);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(1));
@@ -120,8 +120,8 @@ class MovieSessionControllerTest {
         room1.setNumber("2");
         room1.setCapacity(50);
 
-        Movie movie = movieRepository.save(movie1);
-        Room room = roomRepository.save(room1);
+        Movie movie = movieRepositoryJpa.save(movie1);
+        Room room = roomRepositoryJpa.save(room1);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().minusDays(1)); // data inválida
@@ -153,8 +153,8 @@ class MovieSessionControllerTest {
         room1.setNumber("3");
         room1.setCapacity(80);
 
-        Movie movie = movieRepository.save(movie1);
-        Room room = roomRepository.save(room1);
+        Movie movie = movieRepositoryJpa.save(movie1);
+        Room room = roomRepositoryJpa.save(room1);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(1));

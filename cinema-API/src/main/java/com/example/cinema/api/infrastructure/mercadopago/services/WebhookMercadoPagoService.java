@@ -3,7 +3,7 @@ package com.example.cinema.api.infrastructure.mercadopago.services;
 import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.services.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
-import com.example.cinema.api.infrastructure.repositories.PaymentRepository;
+import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
 import com.example.cinema.api.shared.exceptions.WebhookException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class WebhookMercadoPagoService implements WebhookService {
 
-    private final PaymentRepository paymentRepository;
+    private final PaymentRepositoryJpa paymentRepositoryJpa;
     private final PaymentClient paymentClient;
     private final ObjectMapper objectMapper;
 
-    public WebhookMercadoPagoService(PaymentRepository paymentRepository, PaymentClient paymentClient, ObjectMapper objectMapper) {
-        this.paymentRepository = paymentRepository;
+    public WebhookMercadoPagoService(PaymentRepositoryJpa paymentRepositoryJpa, PaymentClient paymentClient, ObjectMapper objectMapper) {
+        this.paymentRepositoryJpa = paymentRepositoryJpa;
         this.paymentClient = paymentClient;
         this.objectMapper = objectMapper;
     }
@@ -67,7 +67,7 @@ public class WebhookMercadoPagoService implements WebhookService {
 
             Long purchaseId = Long.parseLong(paymentMercadoPago.getExternalReference());
 
-            com.example.cinema.api.domain.entities.Payment paymentLocal = paymentRepository.findByPurchaseId(purchaseId)
+            com.example.cinema.api.domain.entities.Payment paymentLocal = paymentRepositoryJpa.findByPurchaseId(purchaseId)
                     .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado para PurchaseId: " + purchaseId));
 
             PaymentStatus novoStatus = PaymentStatus.fromValue(paymentMercadoPago.getStatus());
@@ -78,7 +78,7 @@ public class WebhookMercadoPagoService implements WebhookService {
             paymentLocal.setPaymentStatus(novoStatus);
             paymentLocal.setStatusDetail(statusDetail);
 
-            paymentRepository.save(paymentLocal);
+            paymentRepositoryJpa.save(paymentLocal);
 
         } catch (NumberFormatException e) {
             log.error("ID externo (PurchaseId) inválido vindo do Mercado Pago: {}", e.getMessage());

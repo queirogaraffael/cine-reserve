@@ -4,7 +4,7 @@ package com.example.cinema.api.controllers;
 import com.example.cinema.api.domain.entities.*;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.*;
+import com.example.cinema.api.infrastructure.persistence.*;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,19 +36,19 @@ class TicketControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private TicketRepository ticketRepository;
+    private TicketRepositoryJpa ticketRepositoryJpa;
 
     @Autowired
-    private MovieSessionRepository movieSessionRepository;
+    private MovieSessionRepositoryJpa movieSessionRepositoryJpa;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @Autowired
-    private MovieRepository movieRepository;
+    private MovieRepositoryJpa movieRepositoryJpa;
 
     @Autowired
-    private RoomRepository roomRepository;
+    private RoomRepositoryJpa roomRepositoryJpa;
 
     @Autowired
     private TestUtils testUtils;
@@ -57,15 +57,15 @@ class TicketControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private GenreRepository genreRepository;
+    private GenreRepositoryJpa genreRepository;
 
     @BeforeEach
     void setup() {
-        ticketRepository.deleteAll();
-        movieSessionRepository.deleteAll();
-        userRepository.deleteAll();
-        movieRepository.deleteAll();
-        roomRepository.deleteAll();
+        ticketRepositoryJpa.deleteAll();
+        movieSessionRepositoryJpa.deleteAll();
+        userRepositoryJpa.deleteAll();
+        movieRepositoryJpa.deleteAll();
+        roomRepositoryJpa.deleteAll();
         genreRepository.deleteAll();
     }
 
@@ -77,7 +77,7 @@ class TicketControllerTest {
         Room room = new Room();
         room.setNumber("Sala 1");
         room.setCapacity(10);
-        Room savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepositoryJpa.save(room);
 
         Genre genre = new Genre();
         genre.setName("Sci-Fi");
@@ -88,7 +88,7 @@ class TicketControllerTest {
         movie.setDuration(120);
         movie.setReleaseDate(LocalDate.of(2010, 7, 16));
         movie.setGenre(genreCreated);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie savedMovie = movieRepositoryJpa.save(movie);
 
         MovieSession session = new MovieSession();
         session.setCinemaRoom(savedRoom);
@@ -97,7 +97,7 @@ class TicketControllerTest {
         session.setStartTime(LocalTime.of(20, 0));
         session.setEndTime(LocalTime.of(22, 30));
         session.setBasePrice(BigDecimal.valueOf(30.00));
-        MovieSession savedSession = movieSessionRepository.save(session);
+        MovieSession savedSession = movieSessionRepositoryJpa.save(session);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(5, savedSession.getId());
 
@@ -117,7 +117,7 @@ class TicketControllerTest {
         Room room = new Room();
         room.setNumber("Sala Pequena");
         room.setCapacity(2);
-        Room savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepositoryJpa.save(room);
 
         Genre genre = new Genre();
         genre.setName("Action");
@@ -128,7 +128,7 @@ class TicketControllerTest {
         movie.setDuration(150);
         movie.setReleaseDate(LocalDate.of(1999, 3, 31));
         movie.setGenre(genreCreated);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie savedMovie = movieRepositoryJpa.save(movie);
 
         MovieSession session = new MovieSession();
         session.setCinemaRoom(savedRoom);
@@ -137,7 +137,7 @@ class TicketControllerTest {
         session.setStartTime(LocalTime.of(18, 0));
         session.setEndTime(LocalTime.of(20, 30));
         session.setBasePrice(BigDecimal.valueOf(25.00));
-        MovieSession savedSession = movieSessionRepository.save(session);
+        MovieSession savedSession = movieSessionRepositoryJpa.save(session);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(3, savedSession.getId());
 
@@ -157,7 +157,7 @@ class TicketControllerTest {
         Room room = new Room();
         room.setNumber("Sala 2");
         room.setCapacity(5);
-        Room savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepositoryJpa.save(room);
 
         Genre genre = new Genre();
         genre.setName("Drama");
@@ -168,7 +168,7 @@ class TicketControllerTest {
         movie.setDuration(142);
         movie.setReleaseDate(LocalDate.of(1994, 7, 6));
         movie.setGenre(genreCreated);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie savedMovie = movieRepositoryJpa.save(movie);
 
         MovieSession session = new MovieSession();
         session.setCinemaRoom(savedRoom);
@@ -177,7 +177,7 @@ class TicketControllerTest {
         session.setStartTime(LocalTime.of(19, 0));
         session.setEndTime(LocalTime.of(21, 30));
         session.setBasePrice(BigDecimal.valueOf(28.00));
-        MovieSession savedSession = movieSessionRepository.save(session);
+        MovieSession savedSession = movieSessionRepositoryJpa.save(session);
 
         // Criar um usuário para o ticket existente
         String existingTicketUsername = "existing_user_" + System.currentTimeMillis();
@@ -190,13 +190,13 @@ class TicketControllerTest {
         existingTicketUser.setBirthdate(LocalDate.parse("1990-01-01"));
         existingTicketUser.setRole(UserRole.USER);
         existingTicketUser.setCategory(UserCategory.REGULAR);
-        userRepository.save(existingTicketUser);
+        userRepositoryJpa.save(existingTicketUser);
 
         Ticket existingTicket = new Ticket();
         existingTicket.setSeatNumber(2);
         existingTicket.setMovieSession(savedSession);
         existingTicket.setUser(existingTicketUser);
-        ticketRepository.save(existingTicket);
+        ticketRepositoryJpa.save(existingTicket);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(2, savedSession.getId());
 
@@ -229,7 +229,7 @@ class TicketControllerTest {
         Room room = new Room();
         room.setNumber("Sala 3");
         room.setCapacity(8);
-        Room savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepositoryJpa.save(room);
 
         Genre genre = new Genre();
         genre.setName("Comedy");
@@ -240,7 +240,7 @@ class TicketControllerTest {
         movie.setDuration(100);
         movie.setReleaseDate(LocalDate.of(2009, 6, 5));
         movie.setGenre(genreCreated);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie savedMovie = movieRepositoryJpa.save(movie);
 
         MovieSession session = new MovieSession();
         session.setCinemaRoom(savedRoom);
@@ -249,7 +249,7 @@ class TicketControllerTest {
         session.setStartTime(LocalTime.of(21, 0));
         session.setEndTime(LocalTime.of(22, 40));
         session.setBasePrice(BigDecimal.valueOf(20.00));
-        MovieSession savedSession = movieSessionRepository.save(session);
+        MovieSession savedSession = movieSessionRepositoryJpa.save(session);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(1, savedSession.getId());
 
@@ -267,7 +267,7 @@ class TicketControllerTest {
         Room room = new Room();
         room.setNumber("Sala Admin");
         room.setCapacity(15);
-        Room savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepositoryJpa.save(room);
 
         Genre genre = new Genre();
         genre.setName("Thriller");
@@ -278,7 +278,7 @@ class TicketControllerTest {
         movie.setDuration(132);
         movie.setReleaseDate(LocalDate.of(2019, 5, 30));
         movie.setGenre(genreCreated);
-        Movie savedMovie = movieRepository.save(movie);
+        Movie savedMovie = movieRepositoryJpa.save(movie);
 
         MovieSession session = new MovieSession();
         session.setCinemaRoom(savedRoom);
@@ -287,7 +287,7 @@ class TicketControllerTest {
         session.setStartTime(LocalTime.of(17, 0));
         session.setEndTime(LocalTime.of(19, 12));
         session.setBasePrice(BigDecimal.valueOf(35.00));
-        MovieSession savedSession = movieSessionRepository.save(session);
+        MovieSession savedSession = movieSessionRepositoryJpa.save(session);
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(7, savedSession.getId());
 

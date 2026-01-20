@@ -6,7 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.exceptions.TokenCreationException;
 import com.example.cinema.api.shared.exceptions.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +36,11 @@ public class TokenService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final UserRepository userRepository;
+    private final UserRepositoryJpa userRepositoryJpa;
 
-    public TokenService(RedisTemplate<String, Object> redisTemplate, UserRepository userRepository) {
+    public TokenService(RedisTemplate<String, Object> redisTemplate, UserRepositoryJpa userRepositoryJpa) {
         this.redisTemplate = redisTemplate;
-        this.userRepository = userRepository;
+        this.userRepositoryJpa = userRepositoryJpa;
     }
 
     public String generateToken(User user) {
@@ -89,7 +89,7 @@ public class TokenService {
     }
 
     public String generateJwt(String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepositoryJpa.findByUsername(username)
                 .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
         return generateToken(user);
     }

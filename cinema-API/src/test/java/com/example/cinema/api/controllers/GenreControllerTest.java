@@ -3,8 +3,8 @@ package com.example.cinema.api.controllers;
 import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.infrastructure.repositories.GenreRepository;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
 import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
 import com.example.cinema.api.utils.TestUtils;
@@ -32,10 +32,10 @@ class GenreControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private GenreRepository genreRepository;
+    private GenreRepositoryJpa genreRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
     @Autowired
     private TestUtils testUtils;
@@ -43,7 +43,7 @@ class GenreControllerTest {
 
     @BeforeEach
     void setup() throws Exception {
-        userRepository.deleteAll();
+        userRepositoryJpa.deleteAll();
         genreRepository.deleteAll();
     }
 

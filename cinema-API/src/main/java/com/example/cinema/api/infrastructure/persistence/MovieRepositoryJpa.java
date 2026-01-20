@@ -1,7 +1,7 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.infrastructure.repositories.projection.MovieResponseDTOProjection;
+import com.example.cinema.api.infrastructure.persistence.projection.MovieResponseDTOProjection;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface MovieRepository extends JpaRepository<Movie, Long> {
+public interface MovieRepositoryJpa extends JpaRepository<Movie, Long> {
 
     @Query(
             value = "SELECT new com.example.cinema.api.shared.dtos.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m",

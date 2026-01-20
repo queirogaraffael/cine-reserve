@@ -3,10 +3,9 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.enums.MovieSessionStatus;
-import com.example.cinema.api.infrastructure.repositories.MovieRepository;
-import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
-import com.example.cinema.api.infrastructure.repositories.RoomRepository;
+import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
 
@@ -18,18 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieSessionService {
 
-    private final MovieSessionRepository movieSessionRepository;
-    private final MovieRepository movieRepository;
-    private final RoomRepository roomRepository;
+    private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
+    private final MovieRepositoryJpa movieRepositoryJpa;
+    private final RoomRepositoryJpa roomRepositoryJpa;
     private final SessionMapper sessionMapper;
 
-    public MovieSessionService(MovieSessionRepository movieSessionRepository,
-                               MovieRepository movieRepository,
-                               RoomRepository roomRepository,
+    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa,
+                               MovieRepositoryJpa movieRepositoryJpa,
+                               RoomRepositoryJpa roomRepositoryJpa,
                                SessionMapper sessionMapper) {
-        this.movieSessionRepository = movieSessionRepository;
-        this.movieRepository = movieRepository;
-        this.roomRepository = roomRepository;
+        this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
+        this.movieRepositoryJpa = movieRepositoryJpa;
+        this.roomRepositoryJpa = roomRepositoryJpa;
         this.sessionMapper = sessionMapper;
     }
 
@@ -40,11 +39,11 @@ public class MovieSessionService {
             throw new IllegalArgumentException("A hora de início deve ser antes da hora de término.");
         }
 
-        Movie movie = movieRepository.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
+        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
 
-        Room room = roomRepository.findById(dto.getRoomId()).orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
+        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
 
-        boolean conflict = movieSessionRepository.existsSessionConflict(
+        boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(
                 dto.getRoomId(),
                 dto.getShowDate(),
                 dto.getStartTime(),
@@ -61,7 +60,7 @@ public class MovieSessionService {
         movieSession.setMovie(movie);
         movieSession.setCinemaRoom(room);
 
-        movieSession = movieSessionRepository.save(movieSession);
+        movieSession = movieSessionRepositoryJpa.save(movieSession);
 
         return sessionMapper.toResponseDTO(movieSession);
 

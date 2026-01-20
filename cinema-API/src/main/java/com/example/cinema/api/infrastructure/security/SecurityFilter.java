@@ -1,12 +1,11 @@
 package com.example.cinema.api.infrastructure.security;
 
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.infrastructure.repositories.UserRepository;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.annotation.Scope;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,15 +15,14 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
-@Scope("singleton") // apesar de ser um singleton por padrão, coloquei só para deixar explícito
 public class SecurityFilter extends OncePerRequestFilter {
 
     private TokenService tokenService;
-    private UserRepository userRepository;
+    private UserRepositoryJpa userRepositoryJpa;
 
-    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilter(TokenService tokenService, UserRepositoryJpa userRepositoryJpa) {
         this.tokenService = tokenService;
-        this.userRepository = userRepository;
+        this.userRepositoryJpa = userRepositoryJpa;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             if (token != null) {
                 String username = tokenService.validateToken(token);
                 if (username != null) {
-                    Optional<User> user = userRepository.findByUsername(username);
+                    Optional<User> user = userRepositoryJpa.findByUsername(username);
                     if (user.isPresent()) {
 
                         var authentication = new UsernamePasswordAuthenticationToken(

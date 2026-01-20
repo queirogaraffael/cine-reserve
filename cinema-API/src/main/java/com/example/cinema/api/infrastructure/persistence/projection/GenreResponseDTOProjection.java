@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories.projection;
+package com.example.cinema.api.infrastructure.persistence.projection;
 
 public interface GenreResponseDTOProjection {
     Long getId();

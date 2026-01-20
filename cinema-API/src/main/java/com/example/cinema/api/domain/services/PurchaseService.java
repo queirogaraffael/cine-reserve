@@ -6,9 +6,9 @@ import com.example.cinema.api.domain.entities.Ticket;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.pricing.context.TicketPricingContext;
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
-import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
-import com.example.cinema.api.infrastructure.repositories.PurchaseRepository;
-import com.example.cinema.api.infrastructure.repositories.TicketRepository;
+import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseRequestDTO;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
@@ -27,21 +27,21 @@ import java.util.Set;
 @Service
 public class PurchaseService {
 
-    private final PurchaseRepository purchaseRepository;
+    private final PurchaseRepositoryJpa purchaseRepository;
     private final TicketService ticketService;
-    private final TicketRepository ticketRepository;
-    private final MovieSessionRepository movieSessionRepository;
+    private final TicketRepositoryJpa ticketRepositoryJpa;
+    private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
     private final PurchaseMapper purchaseMapper;
     private final UserService userService;
     private final TicketPricingContext ticketPricingContext;
     private final ApplicationEventPublisher eventPublisher;
 
 
-    public PurchaseService(PurchaseRepository purchaseRepository, TicketService ticketService, TicketRepository ticketRepository, MovieSessionRepository movieSessionRepository, PurchaseMapper purchaseMapper, UserService userService, TicketPricingContext ticketPricingContext, ApplicationEventPublisher eventPublisher) {
+    public PurchaseService(PurchaseRepositoryJpa purchaseRepository, TicketService ticketService, TicketRepositoryJpa ticketRepositoryJpa, MovieSessionRepositoryJpa movieSessionRepositoryJpa, PurchaseMapper purchaseMapper, UserService userService, TicketPricingContext ticketPricingContext, ApplicationEventPublisher eventPublisher) {
         this.purchaseRepository = purchaseRepository;
         this.ticketService = ticketService;
-        this.ticketRepository = ticketRepository;
-        this.movieSessionRepository = movieSessionRepository;
+        this.ticketRepositoryJpa = ticketRepositoryJpa;
+        this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
         this.purchaseMapper = purchaseMapper;
         this.userService = userService;
         this.ticketPricingContext = ticketPricingContext;
@@ -59,10 +59,10 @@ public class PurchaseService {
         BigDecimal totalPrice = BigDecimal.ZERO;
 
         for(Long ticketId : purchaseRequestDTO.getTicketIds()) {
-            Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new ResourceNotFoundException("Ticket nao encontrado"));
+            Ticket ticket = ticketRepositoryJpa.findById(ticketId).orElseThrow(() -> new ResourceNotFoundException("Ticket nao encontrado"));
             tickets.add(ticket);
 
-            MovieSession movieSession = movieSessionRepository.findById(ticket.getMovieSession().getId()).orElseThrow(() -> new ResourceNotFoundException("MovieSession nao encontrado"));
+            MovieSession movieSession = movieSessionRepositoryJpa.findById(ticket.getMovieSession().getId()).orElseThrow(() -> new ResourceNotFoundException("MovieSession nao encontrado"));
 
             BigDecimal ticketPrice = ticketPricingContext.calculate(user, movieSession);
 

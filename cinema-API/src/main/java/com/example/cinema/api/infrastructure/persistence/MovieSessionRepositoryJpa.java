@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.repositories;
+package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.MovieSession;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Repository
-public interface MovieSessionRepository extends JpaRepository<MovieSession, Long> {
+public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, Long> {
 
     @Query("""
                 SELECT COUNT(ms) > 0

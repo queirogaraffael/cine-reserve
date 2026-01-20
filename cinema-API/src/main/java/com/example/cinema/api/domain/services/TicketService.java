@@ -3,11 +3,8 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Ticket;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.UserCategory;
-import com.example.cinema.api.domain.pricing.context.TicketPricingContext;
-import com.example.cinema.api.domain.pricing.strategy.*;
-import com.example.cinema.api.infrastructure.repositories.MovieSessionRepository;
-import com.example.cinema.api.infrastructure.repositories.TicketRepository;
+import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
 import com.example.cinema.api.shared.dtos.tickets.TicketResponseDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
@@ -15,20 +12,17 @@ import com.example.cinema.api.shared.mappers.TicketMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.DayOfWeek;
-
 @Service
 public class TicketService {
 
-    private final TicketRepository ticketRepository;
-    private final MovieSessionRepository movieSessionRepository;
+    private final TicketRepositoryJpa ticketRepositoryJpa;
+    private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
     private final TicketMapper ticketMapper;
     private final UserService userService;
 
-    public TicketService(TicketRepository ticketRepository, MovieSessionRepository movieSessionRepository, TicketMapper ticketMapper, UserService userService) {
-        this.ticketRepository = ticketRepository;
-        this.movieSessionRepository = movieSessionRepository;
+    public TicketService(TicketRepositoryJpa ticketRepositoryJpa, MovieSessionRepositoryJpa movieSessionRepositoryJpa, TicketMapper ticketMapper, UserService userService) {
+        this.ticketRepositoryJpa = ticketRepositoryJpa;
+        this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
         this.ticketMapper = ticketMapper;
         this.userService = userService;
     }
@@ -36,16 +30,16 @@ public class TicketService {
     @Transactional
     public TicketResponseDTO criarTickt(TicketRequestDTO ticketRequestDTO) {
 
-        MovieSession movieSession = movieSessionRepository.findById(ticketRequestDTO.getMovieSessionId())
+        MovieSession movieSession = movieSessionRepositoryJpa.findById(ticketRequestDTO.getMovieSessionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Sessão de filme não encontrada"));
 
-        Integer roomCapacity = movieSessionRepository.findRoomCapacityByMovieSessionId(ticketRequestDTO.getMovieSessionId());
+        Integer roomCapacity = movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(ticketRequestDTO.getMovieSessionId());
 
         if (ticketRequestDTO.getSeatNumber() > roomCapacity) {
             throw new IllegalArgumentException("Assento inválido");
         }
 
-        boolean isSeatTaken = ticketRepository.isSeatTaken(ticketRequestDTO.getSeatNumber(), ticketRequestDTO.getMovieSessionId());
+        boolean isSeatTaken = ticketRepositoryJpa.isSeatTaken(ticketRequestDTO.getSeatNumber(), ticketRequestDTO.getMovieSessionId());
 
         if (isSeatTaken) {
             throw new IllegalArgumentException("Assento já reservado");
@@ -59,7 +53,7 @@ public class TicketService {
 
         ticket.setUser(user);
 
-        Ticket savedTicket = ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepositoryJpa.save(ticket);
 
         return ticketMapper.toResponseDTO(savedTicket);
     }

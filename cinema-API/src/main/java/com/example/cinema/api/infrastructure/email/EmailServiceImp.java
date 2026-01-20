@@ -19,12 +19,12 @@ import java.util.Locale;
 
 @Service
 @Slf4j
-public class EmailServiceAdapter implements EmailService {
+public class EmailServiceImp implements EmailService {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine emailTemplateEngine;
 
-    public EmailServiceAdapter(JavaMailSender mailSender, SpringTemplateEngine emailTemplateEngine) {
+    public EmailServiceImp(JavaMailSender mailSender, SpringTemplateEngine emailTemplateEngine) {
         this.mailSender = mailSender;
         this.emailTemplateEngine = emailTemplateEngine;
     }
