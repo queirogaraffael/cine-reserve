@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "Genres")
 @RestController
 @RequestMapping("/api/genres")
-@EnableMethodSecurity
 public class GenreController {
 
     private final GenreService genreService;

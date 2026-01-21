@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 @Tag(name = "Rooms")
 @RestController
 @RequestMapping("/api/rooms")
-@EnableMethodSecurity
 public class RoomController {
 
     private final RoomService roomService;

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Movie Sessions")
 @RequestMapping("/api/sessions")
-@EnableMethodSecurity
 public class MovieSessionController {
 
     private final MovieSessionService movieSessionService;

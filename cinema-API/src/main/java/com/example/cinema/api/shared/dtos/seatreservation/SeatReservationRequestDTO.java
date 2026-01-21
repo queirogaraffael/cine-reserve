@@ -12,9 +12,6 @@ import lombok.NoArgsConstructor;
 public class SeatReservationRequestDTO {
 
     @NotNull
-    private Long movieSessionId;
-
-    @NotNull
     @Min(1)
     private Integer seatNumber;
 }

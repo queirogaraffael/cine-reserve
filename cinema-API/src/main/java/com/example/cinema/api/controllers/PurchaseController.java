@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Purchases")
 @RestController
 @RequestMapping("/api/purchases")
-@EnableMethodSecurity
 public class PurchaseController {
 
     private final PurchaseService purchaseService;

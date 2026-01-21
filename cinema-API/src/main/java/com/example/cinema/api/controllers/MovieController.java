@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @Tag(name = "Movies")
 @RequestMapping("/api/movies")
-@EnableMethodSecurity
 public class MovieController {
 
     private final MovieService movieService;

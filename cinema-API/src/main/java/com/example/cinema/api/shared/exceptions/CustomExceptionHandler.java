@@ -122,5 +122,9 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Violação de integridade");
     }
 
+    @ExceptionHandler(SeatAlreadyReservedException.class)
+    public ResponseEntity<?> handleDataIntegrity(SeatAlreadyReservedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Assento já reservado.");
+    }
 
 }
