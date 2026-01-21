@@ -2,6 +2,9 @@ package com.example.cinema.api.domain.entities;
 
 import com.example.cinema.api.domain.enums.ReservationStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -10,10 +13,13 @@ import java.time.LocalDateTime;
         name = "seat_reservations",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        columnNames = {"movie_session_id", "seat_number", "status"}
+                        columnNames = {"session_id", "seat_number", "status"}
                 )
         }
 )
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SeatReservation {
 
     @Id
