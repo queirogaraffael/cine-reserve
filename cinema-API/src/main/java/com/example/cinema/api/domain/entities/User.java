@@ -59,6 +59,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SeatReservation> seatReservations = new ArrayList<>();
+
     public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role, UserCategory category) {
         this.username = username;
         this.cpf = cpf;
