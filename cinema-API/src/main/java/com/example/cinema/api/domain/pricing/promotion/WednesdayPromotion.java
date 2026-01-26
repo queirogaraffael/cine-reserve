@@ -10,7 +10,7 @@ import java.time.DayOfWeek;
 @Component
 public class WednesdayPromotion implements Promotion {
 
-    public boolean applies(User user, MovieSession session) {
+    public boolean applies(MovieSession session) {
         return session.getShowDate().getDayOfWeek() == DayOfWeek.WEDNESDAY;
     }
 

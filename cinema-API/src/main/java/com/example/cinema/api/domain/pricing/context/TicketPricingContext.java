@@ -2,7 +2,7 @@ package com.example.cinema.api.domain.pricing.context;
 
 import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.pricing.promotion.Promotion;
 import com.example.cinema.api.domain.pricing.strategy.PricingStrategy;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 public class TicketPricingContext {
 
-    private final Map<UserCategory, PricingStrategy> pricingStrategies;
+    private final Map<TicketCategory, PricingStrategy> pricingStrategies;
     private final List<Promotion> promotions;
 
     public TicketPricingContext(
@@ -28,18 +28,18 @@ public class TicketPricingContext {
         this.promotions = promotions;
     }
 
-    public BigDecimal calculate(User user, MovieSession session) {
+    public BigDecimal calculate(TicketCategory ticketCategory, MovieSession session) {
 
-        PricingStrategy strategy = pricingStrategies.get(user.getCategory());
+        PricingStrategy strategy = pricingStrategies.get(ticketCategory);
 
         if (strategy == null) {
-            throw new IllegalArgumentException("Categoria inválida: " + user.getCategory());
+            throw new IllegalArgumentException("Categoria inválida: " + ticketCategory);
         }
 
         BigDecimal price = strategy.calculateBasePrice(session);
 
         for (Promotion promotion : promotions) {
-            if (promotion.applies(user, session)) {
+            if (promotion.applies(session)) {
                 price = promotion.apply(price);
             }
         }

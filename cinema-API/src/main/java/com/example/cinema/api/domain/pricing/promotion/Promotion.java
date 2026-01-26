@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public interface Promotion {
 
-    boolean applies(User user, MovieSession session);
+    boolean applies(MovieSession session);
 
     BigDecimal apply(BigDecimal currentPrice);
 }

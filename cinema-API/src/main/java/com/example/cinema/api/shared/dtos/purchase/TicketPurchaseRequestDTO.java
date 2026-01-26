@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PurchaseRequestDTO {
+public class TicketPurchaseRequestDTO {
 
-    private Set<Long> ticketIds;
-
+    private List<TicketItemDTO> items;
 }
