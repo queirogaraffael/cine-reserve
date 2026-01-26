@@ -2,7 +2,7 @@ package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.domain.services.MovieSessionService;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
@@ -71,7 +71,7 @@ class MovieSessionControllerTest {
     @Test
     void testCreateMovieSessionSuccessfully() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Movie movie = new Movie();
         movie.setTitle("Inception");
@@ -110,7 +110,7 @@ class MovieSessionControllerTest {
     @Test
     void testCreateMovieSessionWithPastDateShouldFail() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Movie movie1 = new Movie();
         movie1.setTitle("Matrix");
@@ -143,7 +143,7 @@ class MovieSessionControllerTest {
     @Test
     void testCreateMovieSessionUnauthorizedAsRegularUser() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.USER, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.USER, TicketCategory.REGULAR).get("token");
 
         Movie movie1 = new Movie();
         movie1.setTitle("Avatar");

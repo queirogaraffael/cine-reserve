@@ -2,7 +2,7 @@ package com.example.cinema.api.controllers;
 
 
 import com.example.cinema.api.domain.entities.*;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.persistence.*;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
@@ -72,7 +72,7 @@ class TicketControllerTest {
     @Test
     void testCreateTicket() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala 1");
@@ -112,7 +112,7 @@ class TicketControllerTest {
     @Test
     void testCreateTicket_InvalidSeatNumber() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala Pequena");
@@ -152,7 +152,7 @@ class TicketControllerTest {
     @Test
     void testCreateTicket_SeatAlreadyTaken() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala 2");
@@ -189,7 +189,7 @@ class TicketControllerTest {
         existingTicketUser.setDataJoined(LocalDate.parse("2024-01-01"));
         existingTicketUser.setBirthdate(LocalDate.parse("1990-01-01"));
         existingTicketUser.setRole(UserRole.USER);
-        existingTicketUser.setCategory(UserCategory.REGULAR);
+        existingTicketUser.setCategory(TicketCategory.REGULAR);
         userRepositoryJpa.save(existingTicketUser);
 
         Ticket existingTicket = new Ticket();
@@ -211,7 +211,7 @@ class TicketControllerTest {
     @Test
     void testCreateTicket_MovieSessionNotFound() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         TicketRequestDTO ticketRequestDTO = new TicketRequestDTO(1, 9999L);
 
@@ -262,7 +262,7 @@ class TicketControllerTest {
     @Test
     void testCreateTicket_AsAdmin() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Room room = new Room();
         room.setNumber("Sala Admin");

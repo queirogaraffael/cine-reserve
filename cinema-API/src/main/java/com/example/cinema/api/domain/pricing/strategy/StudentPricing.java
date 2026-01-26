@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.pricing.strategy;
 
 import com.example.cinema.api.domain.entities.MovieSession;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ public class StudentPricing implements PricingStrategy {
         return session.getBasePrice().multiply(new BigDecimal("0.5"));
     }
 
-    public UserCategory getType() {
-        return UserCategory.STUDENT;
+    public TicketCategory getType() {
+        return TicketCategory.STUDENT;
     }
 }

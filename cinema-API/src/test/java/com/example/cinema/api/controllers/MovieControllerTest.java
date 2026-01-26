@@ -2,7 +2,7 @@ package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.entities.Genre;
 import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
@@ -60,7 +60,7 @@ class MovieControllerTest {
     @Test
     void createMovie_ReturnsCreated() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -211,7 +211,7 @@ class MovieControllerTest {
     @Test
     void updateMovie_ReturnsOk_WhenSuccessful() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Genre oldGenre = genreRepository.save(new Genre(null, "Thriller", null));
         Genre newGenre = genreRepository.save(new Genre(null, "Mystery", null));
@@ -252,7 +252,7 @@ class MovieControllerTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenMovieMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         MovieUpdateDTO dto = new MovieUpdateDTO(
                 "Title",
@@ -273,7 +273,7 @@ class MovieControllerTest {
     @Test
     void updateMovie_ReturnsNotFound_WhenGenreMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Genre genre = genreRepository.save(new Genre(null, "Original", null));
         Movie movie = movieRepositoryJpa.save(new Movie(

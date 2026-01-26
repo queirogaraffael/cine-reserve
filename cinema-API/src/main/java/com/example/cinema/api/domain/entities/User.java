@@ -1,6 +1,5 @@
 package com.example.cinema.api.domain.entities;
 
-import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,9 +47,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Enumerated(EnumType.STRING)
-    private UserCategory category;
-
     @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Purchase> purchases;
@@ -63,7 +59,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
-    public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role, UserCategory category) {
+    public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
         this.username = username;
         this.cpf = cpf;
         this.name = name;
@@ -72,7 +68,6 @@ public class User implements UserDetails {
         this.dataJoined = dataJoined;
         this.birthdate = birthdate;
         this.role = role;
-        this.category = category;
     }
 
     @Override

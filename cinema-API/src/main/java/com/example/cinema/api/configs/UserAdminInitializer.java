@@ -1,7 +1,7 @@
 package com.example.cinema.api.configs;
 
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +50,7 @@ public class UserAdminInitializer implements CommandLineRunner {
                     LocalDate.now(),
                     LocalDate.of(1990, 1, 1),
                     UserRole.ADMIN,
-                    UserCategory.REGULAR
+                    TicketCategory.REGULAR
             );
             userRepositoryJpa.save(admin);
             System.out.println("Usuário admin (" + adminUsername + ") criado!");

@@ -1,7 +1,7 @@
 package com.example.cinema.api.utils;
 
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
@@ -36,7 +36,7 @@ public class TestUtils {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Map<String, String> authenticateAs(UserRole role, UserCategory userCategory) throws Exception {
+    public Map<String, String> authenticateAs(UserRole role, TicketCategory userCategory) throws Exception {
         String username = "user_" + role.name().toLowerCase() + "_" + UUID.randomUUID().toString().substring(0, 8);
 
         User user = new User();

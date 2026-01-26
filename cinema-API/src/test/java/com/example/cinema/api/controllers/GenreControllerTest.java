@@ -1,7 +1,7 @@
 package com.example.cinema.api.controllers;
 
 import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.domain.enums.UserCategory;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
@@ -50,7 +50,7 @@ class GenreControllerTest {
     @Test
     void testCreateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         GenreRequestDTO genreRequestDTO = new GenreRequestDTO("Action");
 
@@ -119,7 +119,7 @@ class GenreControllerTest {
     @Test
     void testUpdateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Genre genero = new Genre();
         genero.setName("Action");
@@ -138,7 +138,7 @@ class GenreControllerTest {
     @Test
     void testUpdateGenreConflict() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, UserCategory.REGULAR).get("token");
+        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         Genre generoUm = new Genre();
         generoUm.setName("Action");

@@ -1,7 +1,6 @@
 package com.example.cinema.api.shared.dtos.user;
 
-import com.example.cinema.api.domain.enums.UserCategory;
-import com.example.cinema.api.domain.enums.UserRole;
+import com.example.cinema.api.domain.enums.TicketCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,12 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.br.CPF;
-
-import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -48,9 +42,6 @@ public class UserRequestDTO {
     @NotNull(message = "A data de nascimento é obrigatória.")
     @Past(message = "A data de nascimento deve ser uma data no passado.")
     private LocalDate birthdate;
-
-    @NotNull(message = "A categoria do usuário é obrigatória.")
-    private UserCategory category;
 
     @NotBlank(message = "O CPF não pode estar vazio")
     @CPF(message = "CPF inválido")
