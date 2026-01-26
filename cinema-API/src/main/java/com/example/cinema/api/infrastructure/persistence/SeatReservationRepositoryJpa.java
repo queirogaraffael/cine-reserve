@@ -18,4 +18,7 @@ public interface SeatReservationRepositoryJpa extends JpaRepository<SeatReservat
 """)
     void expireOldReservations(LocalDateTime now);
 
+
+
+
 }

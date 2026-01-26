@@ -127,4 +127,9 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Assento já reservado.");
     }
 
+    @ExceptionHandler(SeatReservationExpiredException.class)
+    public ResponseEntity<?> handleSeatReservationExpired(SeatReservationExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SeatReservation expirado!");
+    }
+
 }
