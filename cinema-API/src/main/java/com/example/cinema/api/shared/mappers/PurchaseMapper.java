@@ -6,7 +6,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface PurchaseMapper {
 
-    Purchase toEntity(PurchaseRequestDTO purchaseRequestDTO);
-
     PurchaseResponseDTO toResponseDTO(Purchase purchase);
 }

@@ -1,5 +1,7 @@
 package com.example.cinema.api.domain.entities;
 
+import com.example.cinema.api.domain.enums.TicketCategory;
+import com.example.cinema.api.shared.exceptions.SeatReservationExpiredException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -34,6 +36,24 @@ public class Purchase {
     @Size(min = 1)
     private Set<Ticket> tickets = new HashSet<>();
 
-    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL)
     private Payment payment;
+
+    public Purchase(User user, String idempotencyKey) {
+        this.user = user;
+        this.idempotencyKey = idempotencyKey;
+        this.purchaseDate = LocalDateTime.now();
+    }
+
+    public void addTicket(SeatReservation reservation, TicketCategory category, BigDecimal price) {
+
+        if (reservation.isExpired()) {
+            throw new SeatReservationExpiredException("Reserva expirada");
+        }
+
+        Ticket ticket = new Ticket(reservation.getSeatNumber(), reservation.getMovieSession(), category, price, this);
+
+        this.tickets.add(ticket);
+        this.totalPrice = this.totalPrice.add(price);
+    }
 }

@@ -119,7 +119,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrity(DataIntegrityViolationException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Violação de integridade");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     @ExceptionHandler(SeatAlreadyReservedException.class)
@@ -129,7 +129,11 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(SeatReservationExpiredException.class)
     public ResponseEntity<?> handleSeatReservationExpired(SeatReservationExpiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SeatReservation expirado!");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

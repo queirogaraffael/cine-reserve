@@ -10,17 +10,12 @@ import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.shared.dtos.purchase.TicketItemDTO;
 import com.example.cinema.api.shared.dtos.purchase.TicketPurchaseRequestDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
-import com.example.cinema.api.shared.exceptions.SeatReservationExpiredException;
 import com.example.cinema.api.shared.mappers.PurchaseMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-
-import java.util.Set;
 
 @Service
 public class PurchaseService {
@@ -42,53 +37,40 @@ public class PurchaseService {
     }
 
     @Transactional
-    public PurchaseResponseDTO createPurchase(TicketPurchaseRequestDTO ticketPurchaseRequestDTO, String idempotencyKey) {
-
+    public PurchaseResponseDTO createPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey) {
         User user = userService.getAuthenticatedUser();
 
-        Set<Ticket> tickets = new HashSet<>();
-        Purchase purchase = new Purchase();
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        return purchaseRepository
+                .findByIdempotencyKeyAndUser(idempotencyKey, user)
+                .map(purchaseMapper::toResponseDTO)
+                .orElseGet(() -> processNewPurchase(dto, idempotencyKey, user));
+    }
 
-        for(TicketItemDTO item: ticketPurchaseRequestDTO.getItems()) {
+    private PurchaseResponseDTO processNewPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey, User user) {
 
-            SeatReservation reserva = seatReservationRepositoryJpa.findById(item.getReservationId()).orElseThrow(()-> new ResourceNotFoundException("SeatReservation com id " + item.getReservationId() + " não encontrado."));
+        Purchase purchase = new Purchase(user, idempotencyKey);
 
-            if(reserva.isExpired()){
-                throw new SeatReservationExpiredException("SeatReservation expirada!");
+        for (TicketItemDTO item : dto.getItems()) {
+
+            SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(item.getReservationId(), user)
+                            .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
+
+            if (reservation.getStatus() != ReservationStatus.RESERVED) {
+                throw new IllegalStateException("Reserva inválida para consumo");
             }
 
-            reserva.setStatus(ReservationStatus.CONSUMED);
+            BigDecimal price = ticketPricingContext.calculate(item.getTicketCategory(), reservation.getMovieSession());
 
-            seatReservationRepositoryJpa.save(reserva);
+            purchase.addTicket(reservation, item.getTicketCategory(), price);
 
-            Ticket ticket = new Ticket();
-
-            ticket.setSeatNumber(reserva.getSeatNumber());
-            ticket.setUser(user);
-            ticket.setCategory(item.getTicketCategory());
-            ticket.setMovieSession(reserva.getMovieSession());
-
-            tickets.add(ticket);
-
-            BigDecimal ticketPrice = ticketPricingContext.calculate(item.getTicketCategory(), reserva.getMovieSession());
-
-            totalPrice = totalPrice.add(ticketPrice);
-
+            reservation.setStatus(ReservationStatus.CONSUMED);
         }
 
-        purchase.setTickets(tickets);
-        purchase.setIdempotencyKey(idempotencyKey);
-        purchase.setPurchaseDate(LocalDateTime.now());
-        purchase.setUser(user);
-        purchase.setTotalPrice(totalPrice);
+        Purchase saved = purchaseRepository.save(purchase);
 
-        Purchase savedPurchase = purchaseRepository.save(purchase);
+        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, user, saved));
 
-        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, user, savedPurchase));
-
-        return purchaseMapper.toResponseDTO(savedPurchase);
-
+        return purchaseMapper.toResponseDTO(saved);
     }
 
     @Transactional

@@ -1,11 +1,13 @@
 package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.SeatReservation;
+import com.example.cinema.api.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface SeatReservationRepositoryJpa extends JpaRepository<SeatReservation, Long> {
 
@@ -18,7 +20,5 @@ public interface SeatReservationRepositoryJpa extends JpaRepository<SeatReservat
 """)
     void expireOldReservations(LocalDateTime now);
 
-
-
-
+    Optional<SeatReservation> findByIdAndUser(Long reservationId, User user);
 }

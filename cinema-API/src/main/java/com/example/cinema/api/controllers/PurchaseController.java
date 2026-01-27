@@ -1,8 +1,8 @@
 package com.example.cinema.api.controllers;
 
-import com.example.cinema.api.shared.dtos.purchase.PurchaseRequestDTO;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.domain.services.PurchaseService;
+import com.example.cinema.api.shared.dtos.purchase.TicketPurchaseRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Purchases")
@@ -50,9 +49,9 @@ public class PurchaseController {
     @PostMapping
     public ResponseEntity<PurchaseResponseDTO> createPurchase(
             @RequestHeader("X-Idempotency-Key") String idempotencyKey,
-            @Valid @RequestBody PurchaseRequestDTO purchaseRequest) {
+            @Valid @RequestBody TicketPurchaseRequestDTO ticketPurchaseRequestDTO) {
 
-        PurchaseResponseDTO purchase = purchaseService.createPurchase(purchaseRequest, idempotencyKey);
+        PurchaseResponseDTO purchase = purchaseService.createPurchase(ticketPurchaseRequestDTO, idempotencyKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
     }
 

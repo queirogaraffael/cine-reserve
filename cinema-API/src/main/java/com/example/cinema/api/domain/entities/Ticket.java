@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -17,10 +19,6 @@ public class Ticket {
     private Long id;
     private int seatNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @Enumerated(EnumType.STRING)
     private TicketCategory category;
 
@@ -31,4 +29,14 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id")
     private Purchase purchase;
+
+    private BigDecimal price;
+
+    public Ticket(Integer seatNumber, MovieSession movieSession, TicketCategory category, BigDecimal price, Purchase purchase) {
+        this.seatNumber = seatNumber;
+        this.movieSession = movieSession;
+        this.category = category;
+        this.price = price;
+        this.purchase = purchase;
+    }
 }

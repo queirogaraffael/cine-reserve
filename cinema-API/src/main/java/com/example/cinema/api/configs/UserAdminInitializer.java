@@ -49,9 +49,7 @@ public class UserAdminInitializer implements CommandLineRunner {
                     passwordEncoder.encode(adminPassword),
                     LocalDate.now(),
                     LocalDate.of(1990, 1, 1),
-                    UserRole.ADMIN,
-                    TicketCategory.REGULAR
-            );
+                    UserRole.ADMIN);
             userRepositoryJpa.save(admin);
             System.out.println("Usuário admin (" + adminUsername + ") criado!");
         }
