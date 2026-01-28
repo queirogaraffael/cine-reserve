@@ -1,5 +1,6 @@
 package com.example.cinema.api.infrastructure.email;
 
+import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.services.EmailService;
@@ -67,4 +68,24 @@ public class EmailServiceImp implements EmailService {
 
         sendHtmlMessage(user.getEmail(), subject, htmlContent);
     }
+
+    @Override
+    public void notifyPaymentCardInitiated(User user, Purchase purchase, Payment payment) {
+
+        Context context = new Context(new Locale("pt", "BR"));
+        context.setVariable("userName", user.getName());
+        context.setVariable(
+                "paymentDate",
+                payment.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+        context.setVariable("totalPrice", purchase.getTotalPrice());
+
+        String htmlContent =
+                emailTemplateEngine.process("payment-card-initiated", context);
+
+        String subject = "Recebemos seu pagamento – aguardando confirmação";
+
+        sendHtmlMessage(user.getEmail(), subject, htmlContent);
+    }
+
 }

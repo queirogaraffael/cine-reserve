@@ -8,4 +8,6 @@ public interface EmailService {
     void sendWelcomeEmail(String emailFromUser, String userName);
 
     void notifyPurchaseCreated(User user, Purchase purchase);
+
+    void notifyPaymentCardInitiated(User user, Purchase purchase, Payment payment);
 }

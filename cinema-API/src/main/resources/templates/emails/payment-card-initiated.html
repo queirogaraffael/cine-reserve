@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagamento em processamento</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+<table align="center" width="600" cellpadding="0" cellspacing="0"
+       style="background-color: #ffffff; border-radius: 8px; padding: 20px; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+
+    <tr>
+        <td style="text-align: center; padding-bottom: 20px;">
+            <h1 style="color: #2c3e50;">CineMaster 🎬</h1>
+            <p style="color: #7f8c8d; font-size: 14px;">
+                Pagamento em processamento
+            </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <h2 style="color: #2c3e50;">
+                Olá, <span th:text="${userName}">Cliente</span>!
+            </h2>
+
+            <p style="color: #34495e;">
+                Recebemos o pagamento da sua compra realizada anteriormente.
+                O pagamento foi iniciado em
+                <strong th:text="${paymentDate}">data</strong>
+                e está em processamento.
+            </p>
+
+            <p style="color: #34495e;">
+                No momento, o pagamento está <strong>em processamento</strong> e aguardando
+                a confirmação da operadora do cartão.
+            </p>
+
+            <table width="100%" cellpadding="10" cellspacing="0"
+                   style="border: 1px solid #ecf0f1; border-radius: 5px; margin-top: 15px;">
+                <tr style="background-color: #ecf0f1;">
+                    <td style="font-weight: bold;">Valor total</td>
+                    <td style="text-align: right;">
+                        R$ <span th:text="${totalPrice}">0,00</span>
+                    </td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px; color: #27ae60; font-size: 13px;">
+                ✔️ Assim que o pagamento for confirmado, você receberá um novo e-mail com a confirmação da compra.
+            </p>
+
+            <p style="margin-top: 10px; color: #7f8c8d; font-size: 12px;">
+                Caso o pagamento não seja autorizado, você também será notificado.
+            </p>
+
+            <p style="margin-top: 15px; color: #7f8c8d; font-size: 12px;">
+                &copy; 2025 CineMaster. Todos os direitos reservados.
+            </p>
+        </td>
+    </tr>
+
+</table>
+</body>
+</html>

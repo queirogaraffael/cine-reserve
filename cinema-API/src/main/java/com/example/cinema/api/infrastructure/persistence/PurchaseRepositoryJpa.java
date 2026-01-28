@@ -2,6 +2,7 @@ package com.example.cinema.api.infrastructure.persistence;
 
 
 import com.example.cinema.api.domain.entities.Purchase;
+import com.example.cinema.api.domain.entities.SeatReservation;
 import com.example.cinema.api.domain.entities.User;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,6 @@ public interface PurchaseRepositoryJpa extends JpaRepository<Purchase, Long> {
                              @Param("idempotencyKey") String idempotencyKey);
 
     Optional<Purchase> findByIdempotencyKeyAndUser(String idempotencyKey, User user);
+
+    Optional<Purchase> findByIdAndUser(Long purchaseId, User user);
 }
