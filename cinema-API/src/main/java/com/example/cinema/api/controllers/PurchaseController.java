@@ -40,9 +40,8 @@ public class PurchaseController {
                     )
             }
     )
-    @ApiResponse(responseCode = "201", description = "Purchase created successfully")
-    @ApiResponse(responseCode = "400", description = "Validation error or missing Idempotency Key")
-    @ApiResponse(responseCode = "409", description = "Conflict - Idempotency Key already processed")
+    @ApiResponse(responseCode = "201", description = "Purchase criada com sucesso.")
+    @ApiResponse(responseCode = "400", description = "Erro de validação ou chave de idempotência ausente")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "Bearer Authentication")

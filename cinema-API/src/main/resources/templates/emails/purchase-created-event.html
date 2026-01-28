@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmação de compra</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+
+<table align="center" width="600" cellpadding="0" cellspacing="0"
+       style="background-color: #ffffff; border-radius: 8px; padding: 24px; margin-top: 24px; box-shadow: 0 0 12px rgba(0,0,0,0.08);">
+
+    <tr>
+        <td style="text-align: center; padding-bottom: 20px;">
+            <h1 style="margin: 0; color: #2c3e50;">CineMaster 🎬</h1>
+            <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">
+                Confirmação de pedido
+            </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <h2 style="color: #2c3e50; margin-top: 0;">
+                Olá, <span th:text="${userName}">Usuário</span> 👋
+            </h2>
+
+            <p style="color: #34495e; line-height: 1.6;">
+                Recebemos sua solicitação de compra em
+                <strong th:text="${purchaseDate}">00/00/0000 00:00</strong>.
+            </p>
+
+            <p style="color: #34495e; line-height: 1.6;">
+                Seu pedido foi registrado com sucesso e, no momento,
+                estamos <strong>aguardando a confirmação do pagamento</strong>.
+            </p>
+
+            <table width="100%" cellpadding="12" cellspacing="0"
+                   style="background-color: #f8f9fa; border-radius: 6px; margin: 20px 0;">
+                <tr>
+                    <td style="color: #7f8c8d; font-size: 13px;">
+                        Valor total do pedido
+                    </td>
+                    <td style="text-align: right; font-size: 16px; font-weight: bold; color: #2c3e50;">
+                        R$
+                        <span th:text="${#numbers.formatDecimal(totalPrice, 1, 'POINT', 2, 'COMMA')}">
+                            0,00
+                        </span>
+                    </td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px; color: #e67e22; font-size: 13px;">
+                ⚠️ Importante: os ingressos só serão liberados após a confirmação do pagamento.
+            </p>
+
+            <p style="margin-top: 12px; color: #7f8c8d; font-size: 12px;">
+                Caso você não reconheça este pedido, entre em contato com nosso suporte imediatamente.
+            </p>
+
+            <p style="margin-top: 20px; color: #bdc3c7; font-size: 11px; text-align: center;">
+                &copy; 2025 CineMaster — Todos os direitos reservados
+            </p>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

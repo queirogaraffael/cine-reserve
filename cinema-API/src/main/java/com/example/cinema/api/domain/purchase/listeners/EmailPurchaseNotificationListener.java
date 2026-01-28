@@ -2,6 +2,7 @@ package com.example.cinema.api.domain.purchase.listeners;
 
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.domain.services.EmailService;
+import com.example.cinema.api.shared.exceptions.EmailSendException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,9 @@ public class EmailPurchaseNotificationListener {
     public void handlePurchase(PurchaseCreatedEvent event) {
 
         try {
-            emailServicePort.sendPurchaseNotificationEmail(event.getUser(), event.getPurchase());
-        } catch (Exception e) {
-            log.error("Erro ao enviar email da compra {}", event.getPurchase().getId(), e);
+            emailServicePort.notifyPurchaseCreated(event.getUser(), event.getPurchase());
+        } catch (EmailSendException e) {
+            log.error("Falha ao enviar email da compra {} para {}", event.getPurchase().getId(), event.getUser().getEmail(), e);
         }
 
     }

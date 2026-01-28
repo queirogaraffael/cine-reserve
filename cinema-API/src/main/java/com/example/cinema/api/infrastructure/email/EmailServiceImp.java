@@ -6,7 +6,6 @@ import com.example.cinema.api.domain.services.EmailService;
 import com.example.cinema.api.shared.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 @Service
-@Slf4j
 public class EmailServiceImp implements EmailService {
 
     private final JavaMailSender mailSender;
@@ -40,14 +38,13 @@ public class EmailServiceImp implements EmailService {
 
             mailSender.send(message);
         } catch (MessagingException | MailException e) {
-            log.error("Erro enviando e-mail HTML para {}", to, e);
             throw new EmailSendException("Não foi possível enviar e-mail HTML para " + to, e);
         }
     }
 
     @Override
     public void sendWelcomeEmail(String toEmail, String userName) {
-        String subject = "Bem-vindo(a) ao CineMaster! 🎉";
+        String subject = "Bem-vindo(a) ao CineMaster!";
         String templateName = "welcome-user";
 
         Context context = new Context(new Locale("pt", "BR"));
@@ -59,14 +56,14 @@ public class EmailServiceImp implements EmailService {
     }
 
     @Override
-    public void sendPurchaseNotificationEmail(User user, Purchase purchase) {
+    public void notifyPurchaseCreated(User user, Purchase purchase) {
         Context context = new Context(new Locale("pt", "BR"));
         context.setVariable("userName", user.getName());
         context.setVariable("purchaseDate", purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         context.setVariable("totalPrice", purchase.getTotalPrice());
 
-        String htmlContent = emailTemplateEngine.process("purchase-notification", context);
-        String subject = "Confirmação da sua compra no CineMaster 🎫";
+        String htmlContent = emailTemplateEngine.process("purchase-created-event", context);
+        String subject = "Confirmação da sua compra no CineMaster";
 
         sendHtmlMessage(user.getEmail(), subject, htmlContent);
     }
