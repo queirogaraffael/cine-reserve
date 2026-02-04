@@ -3,9 +3,9 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.Movie;
 import com.example.cinema.api.domain.entities.MovieSession;
 import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.repositories.MovieRepository;
-import com.example.cinema.api.domain.repositories.MovieSessionRepository;
-import com.example.cinema.api.domain.repositories.RoomRepository;
+import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
 
@@ -17,32 +17,42 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovieSessionService {
 
-    private final MovieSessionRepository movieSessionRepository;
-    private final MovieRepository movieRepository;
-    private final RoomRepository roomRepository;
+    private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
+    private final MovieRepositoryJpa movieRepositoryJpa;
+    private final RoomRepositoryJpa roomRepositoryJpa;
     private final SessionMapper sessionMapper;
-    private final MovieSessionValidator movieSessionValidator;
 
-    public MovieSessionService(MovieSessionRepository movieSessionRepository,
-                               MovieRepository movieRepository,
-                               RoomRepository roomRepository,
-                               SessionMapper sessionMapper, MovieSessionValidator movieSessionValidator) {
-        this.movieSessionRepository = movieSessionRepository;
-        this.movieRepository = movieRepository;
-        this.roomRepository = roomRepository;
+    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa,
+                               MovieRepositoryJpa movieRepositoryJpa,
+                               RoomRepositoryJpa roomRepositoryJpa,
+                               SessionMapper sessionMapper) {
+        this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
+        this.movieRepositoryJpa = movieRepositoryJpa;
+        this.roomRepositoryJpa = roomRepositoryJpa;
         this.sessionMapper = sessionMapper;
-        this.movieSessionValidator = movieSessionValidator;
     }
 
     @Transactional
     public MovieSessionResponseDTO createSession(MovieSessionRequestDTO dto) {
-        movieSessionValidator.validateSessionRequest(dto);
 
-        Movie movie = movieRepository.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
+        if (!dto.getStartTime().isBefore(dto.getEndTime())) {
+            throw new IllegalArgumentException("A hora de início deve ser antes da hora de término.");
+        }
 
-        Room room = roomRepository.findById(dto.getRoomId()).orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
+        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
 
-        movieSessionValidator.validateSessionConflicts(dto);
+        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
+
+        boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(
+                dto.getRoomId(),
+                dto.getShowDate(),
+                dto.getStartTime(),
+                dto.getEndTime()
+        );
+
+        if (conflict) {
+            throw new IllegalArgumentException("A sala já está reservada para esse horário.");
+        }
 
         MovieSession movieSession = sessionMapper.toEntity(dto);
 
@@ -50,7 +60,7 @@ public class MovieSessionService {
         movieSession.setMovie(movie);
         movieSession.setCinemaRoom(room);
 
-        movieSession = movieSessionRepository.save(movieSession);
+        movieSession = movieSessionRepositoryJpa.save(movieSession);
 
         return sessionMapper.toResponseDTO(movieSession);
 

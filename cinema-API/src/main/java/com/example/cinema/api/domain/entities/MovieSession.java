@@ -42,11 +42,10 @@ public class MovieSession {
     private Movie movie;
 
     @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Purchase> purchases = new ArrayList<>();
-
-    @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SeatReservation> seatReservations = new ArrayList<>();
 
     // Método calcula o Status dinamicamene: SCHEDULED, ACTIVE, FINISHED ou CANCELED.
     @Transient
@@ -68,7 +67,7 @@ public class MovieSession {
     }
 
 
-    // Metodo indica se MovieSession etá aberta para a venda de ingressos.
+    // Metodo indica se MovieSession está aberta para a venda de ingressos.
     @Transient
     public boolean isAvailableForPurchase() {
         return !canceled && getStatus() == MovieSessionStatus.SCHEDULED;

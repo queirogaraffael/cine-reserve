@@ -1,13 +1,17 @@
 package com.example.cinema.api.domain.entities;
 
+import com.example.cinema.api.domain.enums.TicketCategory;
+import com.example.cinema.api.shared.exceptions.SeatReservationExpiredException;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -21,16 +25,35 @@ public class Purchase {
     private LocalDateTime purchaseDate;
     private BigDecimal totalPrice;
 
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 36)
+    private String idempotencyKey;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "ticket_id")
-    @NotNull
-    private Ticket ticket;
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Size(min = 1)
+    private Set<Ticket> tickets = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id")
-    private MovieSession movieSession;
+    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL)
+    private Payment payment;
+
+    public Purchase(User user, String idempotencyKey) {
+        this.user = user;
+        this.idempotencyKey = idempotencyKey;
+        this.purchaseDate = LocalDateTime.now();
+    }
+
+    public void addTicket(SeatReservation reservation, TicketCategory category, BigDecimal price) {
+
+        if (reservation.isExpired()) {
+            throw new SeatReservationExpiredException("Reserva expirada");
+        }
+
+        Ticket ticket = new Ticket(reservation.getSeatNumber(), reservation.getMovieSession(), category, price, this);
+
+        this.tickets.add(ticket);
+        this.totalPrice = this.totalPrice.add(price);
+    }
 }

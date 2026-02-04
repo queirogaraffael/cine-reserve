@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo(a) ao CineMaster! 🎬🍿</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background: #fff; }
+        .header { background-color: #222; color: #f1c40f; padding: 15px 0; text-align: center; border-radius: 5px 5px 0 0; }
+        .header h1 { margin: 0; font-size: 1.8em; }
+        .content { padding: 20px; }
+        .content ul { padding-left: 20px; }
+        .footer { text-align: center; font-size: 0.8em; color: #777; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>CineMaster</h1>
+    </div>
+    <div class="content">
+        <p>Olá <strong th:text="${userName}">[Nome do Usuário]</strong>,</p>
+        <p>Seja muito bem-vindo(a) ao <strong>CineMaster</strong>, a sua plataforma para viver a melhor experiência do cinema!</p>
+        <p>Aqui você pode:</p>
+        <ul>
+            <li>Explorar os filmes em cartaz e os próximos lançamentos.</li>
+            <li>Reservar ingressos de forma rápida e prática.</li>
+            <li>Escolher seus assentos favoritos na sala de exibição.</li>
+            <li>Avaliar os filmes que assistiu e ver recomendações personalizadas.</li>
+        </ul>
+        <p>Prepare a pipoca 🍿 e aproveite sua jornada cinematográfica conosco!</p>
+        <p>Atenciosamente,<br>Equipe CineMaster</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 CineMaster. Todos os direitos reservados.</p>
+    </div>
+</div>
+</body>
+</html>

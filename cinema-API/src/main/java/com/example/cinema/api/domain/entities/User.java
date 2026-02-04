@@ -1,17 +1,14 @@
 package com.example.cinema.api.domain.entities;
 
-import com.example.cinema.api.domain.enums.UserCategory;
 import com.example.cinema.api.domain.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,24 +25,46 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true, nullable = false)
     private String username;
+
     private String name;
+
+    @Column(unique = true, nullable = false)
+    private String cpf;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
     private LocalDate dataJoined;
     private LocalDate birthdate;
 
+    private Integer failedAttempt = 0;
+    private LocalDateTime lockTime;
+    private boolean isLocked = false;
+
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Enumerated(EnumType.STRING)
-    private UserCategory category;
-
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Purchase> purchases;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Ticket> tickets = new ArrayList<>();
+    private List<SeatReservation> seatReservations = new ArrayList<>();
+
+    public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
+        this.username = username;
+        this.cpf = cpf;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.dataJoined = dataJoined;
+        this.birthdate = birthdate;
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,6 +93,14 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        if (this.isLocked) {
+            return false;
+        }
+
+        if (this.lockTime != null && this.lockTime.isAfter(LocalDateTime.now())) {
+            return false;
+        }
+
         return true;
     }
 

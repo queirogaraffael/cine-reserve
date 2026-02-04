@@ -2,6 +2,7 @@ package com.example.cinema.api.infrastructure.security;
 
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -21,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@Scope("singleton") // apesar de ser singleton por padrão, deixado explícito
 public class SecurityConfigurations {
 
     private final SecurityFilter securityFilter;
@@ -36,27 +36,26 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/login", "/users").permitAll()
 
-                        // Endpoints públicos do GenreResource
+                        // Endpoints públicos do GenreController
                         .requestMatchers(HttpMethod.GET, "/api/genres").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/genres/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/genres/search").permitAll()
 
-                        // Endpoints públicos do MovieResource
+                        // Endpoints públicos do MovieController
                         .requestMatchers(HttpMethod.GET, "/api/movies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/movies/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/movies/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/movies/genre/{genreId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/movies/search/genre/{genreId}").permitAll()
 
-                        // Endpoints públicos do UserResource
+                        // Endpoints públicos do UserController
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
 
-                        // Endpoints públicos do LoginResource
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        // Endpoints públicos do LoginController
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-                        // Swagger (também público)
+                        // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 
                         // O restante exige autenticação

@@ -1,15 +1,18 @@
 package com.example.cinema.api.domain.services;
 
 import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.repositories.UserRepository;
+import com.example.cinema.api.domain.enums.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
-import com.example.cinema.api.domain.user.factories.UserFactory;
+import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
+import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
+import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
 import com.example.cinema.api.shared.exceptions.UserAlreadyExistsException;
 import com.example.cinema.api.shared.exceptions.UserNotAuthenticatedException;
 import com.example.cinema.api.shared.mappers.UserMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,40 +22,46 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class UserService implements UserDetailsService {
+import java.util.Optional;
 
-    private final UserRepository userRepository;
+@Service
+public class UserService implements UserDetailsService  {
+
+    private final UserRepositoryJpa userRepositoryJpa;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserService self;
 
-    public UserService(UserRepository userRepository,
-                      PasswordEncoder passwordEncoder,
-                      UserMapper userMapper,
-                      ApplicationEventPublisher eventPublisher) {
-        this.userRepository = userRepository;
+
+    public UserService(UserRepositoryJpa userRepositoryJpa,
+                       PasswordEncoder passwordEncoder,
+                       UserMapper userMapper,
+                       ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
+        this.userRepositoryJpa = userRepositoryJpa;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.eventPublisher = eventPublisher;
+        this.self = self;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
-    }
 
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 
-        if (userRepository.existsByUsername(data.getUsername())) {
+        System.out.println("Creating user with username: " + data.getUsername() + " and email: " + data.getEmail());
+
+        if (userRepositoryJpa.existsByUsername(data.getUsername()) || userRepositoryJpa.existsByEmail(data.getEmail())) {
             throw new UserAlreadyExistsException("Usuário já existe");
         }
 
         String encryptedPassword = passwordEncoder.encode(data.getPassword());
-        User newUser = UserFactory.createFromDto(data, encryptedPassword);
 
-        User user = userRepository.save(newUser);
+        User newUser = new User(data.getUsername(), data.getCpf(), data.getName(),
+                data.getEmail(), encryptedPassword, data.getDataJoined(),
+                data.getBirthdate(), UserRole.USER);
+
+        User user = userRepositoryJpa.save(newUser);
 
         eventPublisher.publishEvent(new UserCreatedEvent(this, user.getEmail(), user.getName()));
 
@@ -62,10 +71,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
+        return userRepositoryJpa.existsByUsername(username);
     }
 
-    @Transactional(readOnly = true)
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -73,7 +81,47 @@ public class UserService implements UserDetailsService {
             throw new UserNotAuthenticatedException("Usuário não autenticado");
         }
 
-        return (User) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Optional) {
+            Optional<?> optional = (Optional<?>) principal;
+
+            if (optional.isPresent() && optional.get() instanceof User) {
+                return (User) optional.get();
+            }
+        }
+
+        if (principal instanceof User) {
+            return (User) principal;
+        }
+
+        throw new UserNotAuthenticatedException("Tipo de principal inesperado ou usuário não encontrado.");
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        return userRepositoryJpa.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getCurrentUser() {
+        User user = self.getAuthenticatedUser();
+        return userMapper.toUserResponseDTO(user);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordData data) {
+
+        User user= self.getAuthenticatedUser();
+
+        if (!passwordEncoder.matches(data.getCurrentPassword(), user.getPassword())) {
+            throw new UserNotAuthenticatedException("Senha atual incorreta");
+        }
+
+        user.setPassword(passwordEncoder.encode(data.getNewPassword()));
+        userRepositoryJpa.save(user);
     }
 
 }
