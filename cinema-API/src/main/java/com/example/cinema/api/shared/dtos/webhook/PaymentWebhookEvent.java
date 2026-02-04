@@ -1,0 +1,16 @@
+package com.example.cinema.api.shared.dtos.webhook;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.OffsetDateTime;
+
+@Getter
+@Setter
+public class PaymentWebhookEvent {
+
+    private Long paymentId;
+    private String rawPayload;
+    private OffsetDateTime receivedAt;
+
+}
