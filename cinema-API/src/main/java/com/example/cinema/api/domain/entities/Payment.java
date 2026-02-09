@@ -24,6 +24,8 @@ public class Payment {
 
     private Long transactionId;
 
+    private int version;
+
     @Enumerated
     @NotNull
     private PaymentType paymentMethod;

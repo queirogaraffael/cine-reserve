@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.configs.RabbitMQConfig;
+import com.example.cinema.api.configs.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.domain.services.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
 import com.example.cinema.api.shared.dtos.webhook.PaymentWebhookEvent;
@@ -50,13 +50,14 @@ public class WebhookMercadoPagoService implements WebhookService {
 
         PaymentWebhookEvent event = new PaymentWebhookEvent();
         event.setPaymentId(webhook.getData().getId());
+        event.setVersion(webhook.getVersion());
         event.setRawPayload(payload);
         event.setReceivedAt(OffsetDateTime.from(LocalDateTime.now()));
 
         try {
             rabbitTemplate.convertAndSend(
-                    RabbitMQConfig.PAYMENT_WEBHOOK_EXCHANGE,
-                    RabbitMQConfig.PAYMENT_WEBHOOK_ROUTING_KEY,
+                    RabbitMQPaymentWebhookConfig.PAYMENT_WEBHOOK_EXCHANGE,
+                    RabbitMQPaymentWebhookConfig.PAYMENT_WEBHOOK_QUEUE,
                     event
             );
             log.info("Evento {} enviado para processamento", event.getPaymentId());

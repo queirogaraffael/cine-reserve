@@ -26,55 +26,29 @@ public enum PaymentStatus {
     UNKNOWN("unknown");
 
     private final String value;
-    private Set<PaymentStatus> allowedTransitions =
-            EnumSet.noneOf(PaymentStatus.class);
+    private Set<PaymentStatus> allowedTransitions;
 
     PaymentStatus(String value) {
         this.value = value;
+        this.allowedTransitions = Collections.emptySet();
     }
 
     static {
-        PENDING.allowedTransitions = unmodifiable(
-                IN_PROCESS, AUTHORIZED, APPROVED, REJECTED, CANCELLED, EXPIRED
-        );
+        PENDING.allowedTransitions = of(IN_PROCESS, AUTHORIZED, APPROVED, REJECTED, CANCELLED, EXPIRED);
+        IN_PROCESS.allowedTransitions = of(APPROVED, REJECTED, CANCELLED);
+        AUTHORIZED.allowedTransitions = of(APPROVED, CANCELLED, EXPIRED);
+        APPROVED.allowedTransitions = of(REFUNDED, PARTIALLY_REFUNDED, CHARGED_BACK);
+        PARTIALLY_REFUNDED.allowedTransitions = of(REFUNDED);
 
-        IN_PROCESS.allowedTransitions = unmodifiable(
-                APPROVED, REJECTED, CANCELLED
-        );
-
-        AUTHORIZED.allowedTransitions = unmodifiable(
-                APPROVED, CANCELLED, EXPIRED
-        );
-
-        APPROVED.allowedTransitions = unmodifiable(
-                REFUNDED, PARTIALLY_REFUNDED, CHARGED_BACK
-        );
-
-        PARTIALLY_REFUNDED.allowedTransitions = unmodifiable(
-                REFUNDED
-        );
-
-        REFUNDED.allowedTransitions = empty();
-        REJECTED.allowedTransitions = empty();
-        CANCELLED.allowedTransitions = empty();
-        CHARGED_BACK.allowedTransitions = empty();
-        EXPIRED.allowedTransitions = empty();
-
-        FAILED.allowedTransitions = unmodifiable(
-                PENDING, IN_PROCESS
-        );
-
-        UNKNOWN.allowedTransitions = unmodifiable(
-                PENDING, IN_PROCESS, AUTHORIZED, APPROVED
-        );
+        FAILED.allowedTransitions = of(PENDING, IN_PROCESS);
+        UNKNOWN.allowedTransitions = of(PENDING, IN_PROCESS, AUTHORIZED, APPROVED);
     }
 
-    private static Set<PaymentStatus> unmodifiable(PaymentStatus... statuses) {
+    private static Set<PaymentStatus> of(PaymentStatus... statuses) {
+        if (statuses == null || statuses.length == 0) {
+            return Collections.emptySet();
+        }
         return Collections.unmodifiableSet(EnumSet.of(statuses[0], statuses));
-    }
-
-    private static Set<PaymentStatus> empty() {
-        return Collections.unmodifiableSet(EnumSet.noneOf(PaymentStatus.class));
     }
 
     public boolean canTransitionTo(PaymentStatus next) {
@@ -83,25 +57,17 @@ public enum PaymentStatus {
 
     public PaymentStatus transitionTo(PaymentStatus next) {
         if (!canTransitionTo(next)) {
-            log.error("Transição inválida de pagamento. Estado atual={}, próximo={}", this, next);
+            log.error("Transição inválida: {} -> {}", this, next);
             throw new IllegalStateException("Transição inválida: " + this + " -> " + next);
         }
         return next;
     }
 
     public static PaymentStatus fromValue(String value) {
-        if (value == null) {
-            log.warn("O gateway de pagamento enviou um status nulo.");
-            return UNKNOWN;
+        if (value == null) return UNKNOWN;
+        for (PaymentStatus status : values()) {
+            if (status.value.equalsIgnoreCase(value)) return status;
         }
-
-        for (PaymentStatus status : PaymentStatus.values()) {
-            if (status.value.equalsIgnoreCase(value)) {
-                return status;
-            }
-        }
-
-        log.error("Status de pagamento desconhecido recebido: {}", value);
         return UNKNOWN;
     }
 }
