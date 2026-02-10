@@ -136,4 +136,10 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(PurchaseAlreadyHasPaymentException.class)
+    public ResponseEntity<?> handlePurchaseAlreadyHasPaymentException(PurchaseAlreadyHasPaymentException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
 }

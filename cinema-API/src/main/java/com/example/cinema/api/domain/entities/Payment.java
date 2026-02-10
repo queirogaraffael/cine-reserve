@@ -37,6 +37,7 @@ public class Payment {
     private String statusDetail;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_id")
+    @JoinColumn(name = "purchase_id", unique = true)
     private Purchase purchase;
+
 }

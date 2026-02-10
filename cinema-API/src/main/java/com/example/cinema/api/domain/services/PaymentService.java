@@ -1,8 +1,8 @@
 package com.example.cinema.api.domain.services;
 
+import com.example.cinema.api.shared.exceptions.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.entities.Payment;
 import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.SeatReservation;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.domain.enums.PaymentType;
@@ -44,6 +44,10 @@ public class PaymentService {
         // garante que a compra seja de fato do usuário.
         Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada ou não pertence ao usuário"));
+
+        if (paymentRepositoryJpa.existsByPurchase(purchase)) {
+            throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
+        }
 
         Payment payment = new Payment();
         payment.setPurchase(purchase);

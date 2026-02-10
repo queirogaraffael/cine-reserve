@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.security;
+package com.example.cinema.api.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

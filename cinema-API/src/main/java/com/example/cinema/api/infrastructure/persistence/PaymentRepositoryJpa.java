@@ -1,6 +1,7 @@
 package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.entities.Payment;
+import com.example.cinema.api.domain.entities.Purchase;
 import com.example.cinema.api.domain.enums.PaymentStatus;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,6 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
         WHERE p.id = :id
     """)
     Optional<PaymentGetResponseDTO> findPaymentById(@Param("id") Long id);
+
+    boolean existsByPurchase(Purchase purchase);
 }
