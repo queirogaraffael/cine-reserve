@@ -1,4 +1,4 @@
-package com.example.cinema.api.security;
+package com.example.cinema.api.infrastructure.security;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;

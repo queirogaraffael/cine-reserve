@@ -3,7 +3,7 @@ package com.example.cinema.api.domain.services;
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.shared.dtos.login.RefreshTokenDTO;
 import com.example.cinema.api.shared.dtos.login.TokenRefreshResponseDTO;
-import com.example.cinema.api.security.TokenService;
+import com.example.cinema.api.infrastructure.security.TokenService;
 import com.example.cinema.api.shared.dtos.login.TokenResponseDTO;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,4 +1,4 @@
-package com.example.cinema.api.security;
+package com.example.cinema.api.infrastructure.security;
 
 import com.example.cinema.api.domain.entities.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;

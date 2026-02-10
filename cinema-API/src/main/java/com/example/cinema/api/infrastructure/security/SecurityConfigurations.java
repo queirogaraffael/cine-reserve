@@ -1,4 +1,4 @@
-package com.example.cinema.api.security;
+package com.example.cinema.api.infrastructure.security;
 
 
 import jakarta.servlet.http.HttpServletResponse;
