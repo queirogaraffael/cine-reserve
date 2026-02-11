@@ -2,6 +2,7 @@ package com.example.cinema.api.domain.user.listeners;
 
 import com.example.cinema.api.domain.service.EmailService;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
+import com.example.cinema.api.shared.dtos.email.WelcomeNotificationData;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -19,7 +20,7 @@ public class EmailUserWelcomeListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserCreated(UserCreatedEvent event) {
-        emailServicePort.sendWelcomeEmail(event.getEmail(), event.getName());
+        emailServicePort.sendWelcomeEmail(event.getWelcomeNotificationData());
 
     }
 }

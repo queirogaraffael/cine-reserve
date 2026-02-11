@@ -24,9 +24,9 @@ public class EmailPurchaseNotificationListener {
     public void handlePurchase(PurchaseCreatedEvent event) {
 
         try {
-            emailServicePort.notifyPurchaseCreated(event.getUser(), event.getPurchase());
+            emailServicePort.notifyPurchaseCreatedEmail(event.getPurchaseCreatedNotificationData());
         } catch (EmailSendException e) {
-            log.error("Falha ao enviar email da compra {} para {}", event.getPurchase().getId(), event.getUser().getEmail(), e);
+            log.error("Falha ao enviar email da compra {} para {}", event.getPurchaseCreatedNotificationData().getIdPurchase(), event.getPurchaseCreatedNotificationData().getEmail(), e);
         }
 
     }

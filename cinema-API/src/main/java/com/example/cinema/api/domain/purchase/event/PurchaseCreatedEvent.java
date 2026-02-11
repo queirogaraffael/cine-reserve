@@ -1,20 +1,17 @@
 package com.example.cinema.api.domain.purchase.event;
 
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
 public class PurchaseCreatedEvent extends ApplicationEvent {
 
-    private final Purchase purchase;
-    private final User user;
+    private final PurchaseCreatedNotificationData purchaseCreatedNotificationData;
 
-    public PurchaseCreatedEvent(Object source, User user, Purchase purchase) {
+    public PurchaseCreatedEvent(Object source, PurchaseCreatedNotificationData purchaseCreatedNotificationData) {
         super(source);
-        this.user = user;
-        this.purchase = purchase;
+        this.purchaseCreatedNotificationData = purchaseCreatedNotificationData;
     }
 
 }

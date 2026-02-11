@@ -6,6 +6,7 @@ import com.example.cinema.api.domain.pricing.context.TicketPricingContext;
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
+import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.shared.dtos.purchase.TicketItemDTO;
 import com.example.cinema.api.shared.dtos.purchase.TicketPurchaseRequestDTO;
@@ -68,7 +69,10 @@ public class PurchaseService {
 
         Purchase saved = purchaseRepository.save(purchase);
 
-        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, user, saved));
+
+        PurchaseCreatedNotificationData purchaseCreatedNotificationData = new PurchaseCreatedNotificationData(purchase.getId(), user.getName(), purchase.getPurchaseDate(), purchase.getTotalPrice(), user.getEmail());
+
+        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, purchaseCreatedNotificationData));
 
         return purchaseMapper.toResponseDTO(saved);
     }

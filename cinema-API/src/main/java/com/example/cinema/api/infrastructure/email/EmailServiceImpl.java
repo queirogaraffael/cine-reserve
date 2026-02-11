@@ -1,8 +1,8 @@
 package com.example.cinema.api.infrastructure.email;
 
-import com.example.cinema.api.domain.entities.Payment;
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.shared.dtos.email.PaymentCardInitiatedNotificationData;
+import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
+import com.example.cinema.api.shared.dtos.email.WelcomeNotificationData;
 import com.example.cinema.api.domain.service.EmailService;
 import com.example.cinema.api.shared.exceptions.EmailSendException;
 import jakarta.mail.MessagingException;
@@ -44,48 +44,46 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendWelcomeEmail(String toEmail, String userName) {
+    public void sendWelcomeEmail(WelcomeNotificationData dto) {
         String subject = "Bem-vindo(a) ao CineMaster!";
         String templateName = "welcome-user";
 
         Context context = new Context(new Locale("pt", "BR"));
-        context.setVariable("userName", userName);
+        context.setVariable("userName", dto.getName());
 
         String htmlContent = emailTemplateEngine.process(templateName, context);
 
-        sendHtmlMessage(toEmail, subject, htmlContent);
+        sendHtmlMessage(dto.getEmail(), subject, htmlContent);
     }
 
     @Override
-    public void notifyPurchaseCreated(User user, Purchase purchase) {
+    public void notifyPurchaseCreatedEmail(PurchaseCreatedNotificationData dto) {
         Context context = new Context(new Locale("pt", "BR"));
-        context.setVariable("userName", user.getName());
-        context.setVariable("purchaseDate", purchase.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        context.setVariable("totalPrice", purchase.getTotalPrice());
+        context.setVariable("userName", dto.getName());
+        context.setVariable("purchaseDate", dto.getPurchaseDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        context.setVariable("totalPrice", dto.getTotalPrice());
 
         String htmlContent = emailTemplateEngine.process("purchase-created-event", context);
         String subject = "Confirmação da sua compra no CineMaster";
 
-        sendHtmlMessage(user.getEmail(), subject, htmlContent);
+        sendHtmlMessage(dto.getEmail(), subject, htmlContent);
     }
 
     @Override
-    public void notifyPaymentCardInitiated(User user, Purchase purchase, Payment payment) {
+    public void notifyPaymentCardInitiatedEmail(PaymentCardInitiatedNotificationData dto) {
 
         Context context = new Context(new Locale("pt", "BR"));
-        context.setVariable("userName", user.getName());
-        context.setVariable(
-                "paymentDate",
-                payment.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        context.setVariable("userName", dto.getName());
+        context.setVariable("paymentDate", dto.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
         );
-        context.setVariable("totalPrice", purchase.getTotalPrice());
+        context.setVariable("totalPrice", dto.getTotalPrice());
 
         String htmlContent =
                 emailTemplateEngine.process("payment-card-initiated", context);
 
         String subject = "Recebemos seu pagamento – aguardando confirmação";
 
-        sendHtmlMessage(user.getEmail(), subject, htmlContent);
+        sendHtmlMessage(dto.getEmail(), subject, htmlContent);
     }
 
 }

@@ -24,9 +24,9 @@ public class EmailPaymentCardInitiatedListener {
     public void handlePaymentInitiated(PaymentCardInitiatedEvent event) {
 
         try {
-            emailService.notifyPaymentCardInitiated(event.getUser(), event.getPurchase(), event.getPayment());
+            emailService.notifyPaymentCardInitiatedEmail(event.getPaymentCardInitiatedNotificationData());
         } catch (EmailSendException e) {
-            log.error("Falha ao enviar email de Pagamento de Cartão iniciado {} para {}", event.getPayment().getId(), event.getUser().getEmail(), e);
+            log.error("Falha ao enviar email de Pagamento de Cartão iniciado {} para {}", event.getPaymentCardInitiatedNotificationData().getIdPayment(), event.getPaymentCardInitiatedNotificationData().getEmail(), e);
         }
 
     }

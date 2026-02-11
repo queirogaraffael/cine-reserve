@@ -1,13 +1,13 @@
 package com.example.cinema.api.domain.service;
 
-import com.example.cinema.api.domain.entities.Payment;
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.shared.dtos.email.PaymentCardInitiatedNotificationData;
+import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
+import com.example.cinema.api.shared.dtos.email.WelcomeNotificationData;
 
 public interface EmailService {
-    void sendWelcomeEmail(String emailFromUser, String userName);
+    void sendWelcomeEmail(WelcomeNotificationData dto);
 
-    void notifyPurchaseCreated(User user, Purchase purchase);
+    void notifyPurchaseCreatedEmail(PurchaseCreatedNotificationData dto);
 
-    void notifyPaymentCardInitiated(User user, Purchase purchase, Payment payment);
+    void notifyPaymentCardInitiatedEmail(PaymentCardInitiatedNotificationData dto);
 }
