@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.domain.services.ExternalPaymentProvider;
+import com.example.cinema.api.domain.service.ExternalPaymentProvider;
 import com.example.cinema.api.shared.dtos.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.shared.exceptions.ExternalServicePermanentException;
 import com.example.cinema.api.shared.exceptions.ExternalServiceTemporaryException;

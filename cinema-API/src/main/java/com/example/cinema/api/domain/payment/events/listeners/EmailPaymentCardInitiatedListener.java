@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.payment.events.listeners;
 
 import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
-import com.example.cinema.api.domain.services.EmailService;
+import com.example.cinema.api.domain.service.EmailService;
 import com.example.cinema.api.shared.exceptions.EmailSendException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

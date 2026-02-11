@@ -1,7 +1,7 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.configs.RabbitMQPaymentWebhookConfig;
-import com.example.cinema.api.domain.services.WebhookService;
+import com.example.cinema.api.infrastructure.messaging.config.RabbitMQPaymentWebhookConfig;
+import com.example.cinema.api.domain.service.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
 import com.example.cinema.api.shared.dtos.webhook.PaymentWebhookEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;

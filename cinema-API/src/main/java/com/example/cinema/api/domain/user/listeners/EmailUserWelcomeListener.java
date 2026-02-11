@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.user.listeners;
 
-import com.example.cinema.api.domain.services.EmailService;
+import com.example.cinema.api.domain.service.EmailService;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
