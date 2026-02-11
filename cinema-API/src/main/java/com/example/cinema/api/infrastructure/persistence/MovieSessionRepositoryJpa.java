@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.MovieSession;
+import com.example.cinema.api.domain.movie.MovieSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

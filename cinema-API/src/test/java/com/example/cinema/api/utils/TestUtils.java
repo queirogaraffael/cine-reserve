@@ -1,8 +1,8 @@
 package com.example.cinema.api.utils;
 
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.TicketCategory;
-import com.example.cinema.api.domain.enums.UserRole;
+import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.ticket.TicketCategory;
+import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import com.fasterxml.jackson.databind.JsonNode;

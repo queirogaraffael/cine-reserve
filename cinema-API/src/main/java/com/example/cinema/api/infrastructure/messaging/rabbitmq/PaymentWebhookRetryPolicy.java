@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.messaging.rabbitmq;
 
-import com.example.cinema.api.infrastructure.messaging.config.RabbitMQPaymentWebhookConfig;
+import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.shared.dtos.webhook.PaymentWebhookEvent;
 import com.example.cinema.api.shared.exceptions.MaxRetriesExceededException;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.example.cinema.api.application.initialization;
 
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.UserRole;
+import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

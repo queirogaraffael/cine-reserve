@@ -1,6 +1,6 @@
 package com.example.cinema.api.shared.dtos.movieSession;
 
-import com.example.cinema.api.domain.enums.MovieSessionStatus;
+import com.example.cinema.api.domain.movie.MovieSessionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

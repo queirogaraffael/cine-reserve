@@ -1,6 +1,6 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.service.UserService;
+import com.example.cinema.api.application.service.UserService;
 import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserRequestDTO;

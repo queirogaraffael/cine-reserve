@@ -1,9 +1,14 @@
 package com.example.cinema.api.controller;
 
 
-import com.example.cinema.api.domain.entities.*;
-import com.example.cinema.api.domain.enums.TicketCategory;
-import com.example.cinema.api.domain.enums.UserRole;
+import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.domain.room.Room;
+import com.example.cinema.api.domain.ticket.TicketCategory;
+import com.example.cinema.api.domain.ticket.Ticket;
+import com.example.cinema.api.domain.user.UserRole;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.*;
 import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
 import com.example.cinema.api.utils.TestUtils;

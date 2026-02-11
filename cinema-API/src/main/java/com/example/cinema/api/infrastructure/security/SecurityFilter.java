@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.security;
 
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

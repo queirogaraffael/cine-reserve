@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.Genre;
+import com.example.cinema.api.domain.genre.Genre;
 import com.example.cinema.api.infrastructure.persistence.projection.GenreResponseDTOProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

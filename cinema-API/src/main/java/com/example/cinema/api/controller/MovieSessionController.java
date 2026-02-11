@@ -2,7 +2,7 @@ package com.example.cinema.api.controller;
 
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
-import com.example.cinema.api.domain.service.MovieSessionService;
+import com.example.cinema.api.application.service.MovieSessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

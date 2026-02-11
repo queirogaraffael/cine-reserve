@@ -1,8 +1,8 @@
 package com.example.cinema.api.infrastructure.messaging.rabbitmq;
 
-import com.example.cinema.api.infrastructure.messaging.config.RabbitMQPaymentWebhookConfig;
-import com.example.cinema.api.domain.service.ExternalPaymentProvider;
-import com.example.cinema.api.domain.service.PaymentUpdateService;
+import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
+import com.example.cinema.api.application.service.ExternalPaymentProvider;
+import com.example.cinema.api.application.service.PaymentUpdateService;
 import com.example.cinema.api.shared.dtos.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.shared.dtos.webhook.PaymentWebhookEvent;
 import com.example.cinema.api.shared.exceptions.ExternalServiceTemporaryException;

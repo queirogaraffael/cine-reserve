@@ -1,7 +1,7 @@
 package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
-import com.example.cinema.api.domain.entities.Room;
+import com.example.cinema.api.domain.room.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

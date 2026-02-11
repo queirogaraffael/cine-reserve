@@ -1,7 +1,7 @@
 package com.example.cinema.api.shared.dtos.payment.response;
 
-import com.example.cinema.api.domain.enums.PaymentStatus;
-import com.example.cinema.api.domain.enums.PaymentType;
+import com.example.cinema.api.domain.payment.PaymentStatus;
+import com.example.cinema.api.domain.payment.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

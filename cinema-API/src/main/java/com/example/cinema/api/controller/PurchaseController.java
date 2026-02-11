@@ -1,7 +1,7 @@
 package com.example.cinema.api.controller;
 
 import com.example.cinema.api.shared.dtos.purchase.PurchaseResponseDTO;
-import com.example.cinema.api.domain.service.PurchaseService;
+import com.example.cinema.api.application.service.PurchaseService;
 import com.example.cinema.api.shared.dtos.purchase.TicketPurchaseRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

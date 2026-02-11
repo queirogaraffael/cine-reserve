@@ -1,11 +1,9 @@
 package com.example.cinema.api.shared.dtos.payment.requests;
 
-import com.example.cinema.api.domain.enums.PaymentType;
+import com.example.cinema.api.domain.payment.PaymentType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class PaymentMasterDTO {

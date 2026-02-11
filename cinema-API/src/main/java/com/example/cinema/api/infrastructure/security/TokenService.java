@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.exceptions.TokenCreationException;
 import com.example.cinema.api.shared.exceptions.TokenValidationException;

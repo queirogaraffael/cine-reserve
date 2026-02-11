@@ -1,10 +1,10 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.entities.Movie;
-import com.example.cinema.api.domain.entities.Room;
-import com.example.cinema.api.domain.enums.TicketCategory;
-import com.example.cinema.api.domain.enums.UserRole;
-import com.example.cinema.api.domain.service.MovieSessionService;
+import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.room.Room;
+import com.example.cinema.api.domain.ticket.TicketCategory;
+import com.example.cinema.api.domain.user.UserRole;
+import com.example.cinema.api.application.service.MovieSessionService;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;

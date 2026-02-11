@@ -1,7 +1,7 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.SeatReservation;
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.seatreservation.SeatReservation;
+import com.example.cinema.api.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

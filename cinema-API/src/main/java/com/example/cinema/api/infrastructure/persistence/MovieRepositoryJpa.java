@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.Movie;
+import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.infrastructure.persistence.projection.MovieResponseDTOProjection;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import org.springframework.data.domain.Page;

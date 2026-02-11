@@ -1,6 +1,6 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.service.TicketService;
+import com.example.cinema.api.application.service.TicketService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

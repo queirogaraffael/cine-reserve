@@ -1,6 +1,6 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.service.AuthService;
+import com.example.cinema.api.application.service.AuthService;
 import com.example.cinema.api.shared.dtos.login.RefreshTokenDTO;
 import com.example.cinema.api.shared.dtos.login.TokenRefreshResponseDTO;
 import com.example.cinema.api.shared.dtos.login.TokenResponseDTO;

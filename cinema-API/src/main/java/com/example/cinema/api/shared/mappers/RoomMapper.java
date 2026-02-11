@@ -1,6 +1,6 @@
 package com.example.cinema.api.shared.mappers;
 
-import com.example.cinema.api.domain.entities.Room;
+import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
 import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
 import org.mapstruct.Mapper;

@@ -1,6 +1,6 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.service.MovieService;
+import com.example.cinema.api.application.service.MovieService;
 import com.example.cinema.api.shared.dtos.movie.MovieRequestDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
 import com.example.cinema.api.shared.dtos.movie.MovieUpdateDTO;

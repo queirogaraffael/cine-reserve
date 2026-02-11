@@ -1,8 +1,8 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.entities.Genre;
-import com.example.cinema.api.domain.enums.TicketCategory;
-import com.example.cinema.api.domain.enums.UserRole;
+import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.ticket.TicketCategory;
+import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;

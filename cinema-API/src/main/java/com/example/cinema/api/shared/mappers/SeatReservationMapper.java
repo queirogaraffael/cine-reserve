@@ -1,7 +1,7 @@
 package com.example.cinema.api.shared.mappers;
 
 
-import com.example.cinema.api.domain.entities.SeatReservation;
+import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.shared.dtos.seatreservation.SeatReservationRequestDTO;
 import com.example.cinema.api.shared.dtos.seatreservation.SeatReservationResponseDTO;
 import org.mapstruct.Mapper;

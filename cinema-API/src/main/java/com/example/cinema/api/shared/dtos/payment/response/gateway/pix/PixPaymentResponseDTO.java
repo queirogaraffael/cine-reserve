@@ -1,6 +1,6 @@
 package com.example.cinema.api.shared.dtos.payment.response.gateway.pix;
 
-import com.example.cinema.api.domain.enums.PaymentStatus;
+import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;

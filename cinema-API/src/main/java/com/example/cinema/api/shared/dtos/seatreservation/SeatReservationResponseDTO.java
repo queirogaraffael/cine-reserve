@@ -1,6 +1,6 @@
 package com.example.cinema.api.shared.dtos.seatreservation;
 
-import com.example.cinema.api.domain.enums.ReservationStatus;
+import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,5 @@
 package com.example.cinema.api.shared.dtos.user;
 
-import com.example.cinema.api.domain.enums.TicketCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package com.example.cinema.api.shared.dtos.purchase;
 
 
-import com.example.cinema.api.domain.enums.TicketCategory;
+import com.example.cinema.api.domain.ticket.TicketCategory;
 import lombok.Data;
 
 @Data

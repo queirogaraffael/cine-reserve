@@ -1,8 +1,8 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.Payment;
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.enums.PaymentStatus;
+import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

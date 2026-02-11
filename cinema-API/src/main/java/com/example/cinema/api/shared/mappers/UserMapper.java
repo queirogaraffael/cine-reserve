@@ -1,6 +1,6 @@
 package com.example.cinema.api.shared.mappers;
 
-import com.example.cinema.api.domain.entities.User;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
 import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
 import org.mapstruct.Mapper;

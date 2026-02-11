@@ -1,7 +1,7 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.domain.enums.PaymentStatus;
-import com.example.cinema.api.domain.service.PaymentService;
+import com.example.cinema.api.domain.payment.PaymentStatus;
+import com.example.cinema.api.application.service.PaymentService;
 import com.example.cinema.api.shared.dtos.payment.requests.PaymentMasterDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
