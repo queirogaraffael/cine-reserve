@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.config;
+package com.example.cinema.api.infrastructure.caching;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

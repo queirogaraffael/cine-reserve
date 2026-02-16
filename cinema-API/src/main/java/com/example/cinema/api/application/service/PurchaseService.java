@@ -71,7 +71,6 @@ public class PurchaseService {
 
         Purchase saved = purchaseRepository.save(purchase);
 
-
         PurchaseCreatedNotificationData purchaseCreatedNotificationData = new PurchaseCreatedNotificationData(purchase.getId(), user.getName(), purchase.getPurchaseDate(), purchase.getTotalPrice(), user.getEmail());
 
         eventPublisher.publishEvent(new PurchaseCreatedEvent(this, purchaseCreatedNotificationData));

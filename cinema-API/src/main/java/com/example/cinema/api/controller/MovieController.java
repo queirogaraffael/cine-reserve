@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @Tag(name = "Movies")
@@ -26,11 +25,11 @@ import java.util.concurrent.TimeUnit;
 public class MovieController {
 
     private final MovieService movieService;
-    private final CacheControl cacheControl;
+    private final CacheControl shortCache;
 
-    public MovieController(MovieService movieService, @Value("${cache.ttl}") long cacheTtl) {
+    public MovieController(MovieService movieService, @Qualifier("shortCache") CacheControl shortCache) {
         this.movieService = movieService;
-        this.cacheControl = CacheControl.maxAge(cacheTtl, TimeUnit.SECONDS).cachePublic();
+        this.shortCache = shortCache;
     }
 
     @Operation(summary = "Criar novo filme", description = "Cria um novo filme")
@@ -54,17 +53,17 @@ public class MovieController {
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponseDTO> findById(@PathVariable Long id) {
-        MovieResponseDTO movieResponseDTO = movieService.findById(id);
-        return ResponseEntity.ok().cacheControl(cacheControl).body(movieResponseDTO);
+        return ResponseEntity.ok().cacheControl(shortCache)
+                .body(movieService.findById(id));
     }
 
     @Operation(summary = "Buscar todos os filmes paginados", description = "Busca todos os filmes com paginação")
     @ApiResponse(responseCode = "200", description = "Lista de filmes encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @GetMapping()
-    public ResponseEntity<Page<MovieResponseDTO>> findAllPageable(@RequestParam(defaultValue = "0") int page,
-                                                                  @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate()).body(movieService.findAllPageable(page, size));
+    public ResponseEntity<Page<MovieResponseDTO>> findAllPageable(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok().cacheControl(shortCache)
+                .body(movieService.findAllPageable(page, size));
     }
 
     @Operation(summary = "Busca paginada de filmes por título", description = "Busca filmes pelo título")
@@ -72,10 +71,10 @@ public class MovieController {
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @GetMapping("/search")
-    public ResponseEntity<Page<MovieResponseDTO>> findByTitleContainingIgnoreCase(@RequestParam String title,
-                                                                                   @RequestParam(defaultValue = "0") int page,
-                                                                                   @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate()).body(movieService.findByTitleContainingIgnoreCase(title, page, size));
+    public ResponseEntity<Page<MovieResponseDTO>> findByTitleContainingIgnoreCase(@RequestParam String title, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok().cacheControl(shortCache)
+                .body(movieService.findByTitleContainingIgnoreCase(title, page, size));
     }
 
     @Operation(summary = "Busca paginada de filmes por gênero", description = "Busca filmes pelo gênero")
@@ -83,10 +82,10 @@ public class MovieController {
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @GetMapping("/genre/{genreId}")
-    public ResponseEntity<Page<MovieResponseDTO>> findByGenreId(@PathVariable Long genreId,
-                                                                @RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate()).body(movieService.findByGenreId(genreId, page, size));
+    public ResponseEntity<Page<MovieResponseDTO>> findByGenreId(@PathVariable Long genreId, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok().cacheControl(shortCache)
+                .body(movieService.findByGenreId(genreId, page, size));
     }
 
     @Operation(summary = "Busca paginada de filmes por título e gênero", description = "Busca filmes pelo título e gênero")
@@ -94,11 +93,10 @@ public class MovieController {
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @GetMapping("/search/genre/{genreId}")
-    public ResponseEntity<Page<MovieResponseDTO>> findByTitleAndGenreId(@RequestParam String title,
-                                                                        @PathVariable Long genreId,
-                                                                        @RequestParam(defaultValue = "0") int page,
-                                                                        @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate()).body(movieService.findByTitleAndGenreId(title, genreId, page, size));
+    public ResponseEntity<Page<MovieResponseDTO>> findByTitleAndGenreId(@RequestParam String title, @PathVariable Long genreId, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok().cacheControl(shortCache)
+                .body(movieService.findByTitleAndGenreId(title, genreId, page, size));
     }
 
     @Operation(summary = "Atualizar filme", description = "Atualiza um filme existente")

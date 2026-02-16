@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
 
 @Tag(name = "Rooms")
 @RestController
@@ -25,11 +24,16 @@ import java.util.concurrent.TimeUnit;
 public class RoomController {
 
     private final RoomService roomService;
-    private final CacheControl cacheControl;
+    private final CacheControl shortCachePrivate;
+    private final CacheControl noCachePrivate;
 
-    public RoomController(RoomService roomService, @Value("${cache.ttl}") long cacheTtl) {
+    public RoomController(
+            RoomService roomService,
+            @Qualifier("shortCachePrivate") CacheControl shortCachePrivate,
+            @Qualifier("noCachePrivate") CacheControl noCachePrivate) {
         this.roomService = roomService;
-        this.cacheControl = CacheControl.maxAge(cacheTtl, TimeUnit.SECONDS).cachePublic();
+        this.shortCachePrivate = shortCachePrivate;
+        this.noCachePrivate = noCachePrivate;
     }
 
     @Operation(summary = "Criar novo quarto", description = "Cria um novo quarto")
@@ -56,8 +60,9 @@ public class RoomController {
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<RoomResponseDTO> getRoomById(@PathVariable Long id) {
-        RoomResponseDTO room = roomService.getRoomById(id);
-        return ResponseEntity.ok().cacheControl(cacheControl).body(room);
+        return ResponseEntity.ok()
+                .cacheControl(shortCachePrivate)
+                .body(roomService.getRoomById(id));
     }
 
     @Operation(summary = "Busca paginada de todos as salas", description = "Busca todos as salas com paginação")
@@ -71,7 +76,9 @@ public class RoomController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Page<RoomResponseDTO> rooms = roomService.getAllRooms(page, size);
-        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate()).body(rooms);
+
+        return ResponseEntity.ok().cacheControl(noCachePrivate)
+                .body(rooms);
     }
 
     @Operation(summary = "Atualizar quarto", description = "Atualiza um quarto existente")

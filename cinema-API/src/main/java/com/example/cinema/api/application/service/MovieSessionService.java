@@ -56,7 +56,6 @@ public class MovieSessionService {
 
         MovieSession movieSession = sessionMapper.toEntity(dto);
 
-        // associa movie e room a movieSession
         movieSession.setMovie(movie);
         movieSession.setCinemaRoom(room);
 
