@@ -33,10 +33,7 @@ public class ReservaService {
     }
 
     @Transactional
-    public SeatReservationResponseDTO criarReserva(
-            Long movieSessionId,
-            SeatReservationRequestDTO dto
-    ) {
+    public SeatReservationResponseDTO criarReserva(Long movieSessionId, SeatReservationRequestDTO dto) {
 
         MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sessão de filme não encontrada"));
@@ -67,4 +64,17 @@ public class ReservaService {
         }
 
     }
+
+    @Transactional
+    public void cancelarReserva(Long idReserva){
+
+        User user = userService.getAuthenticatedUser();
+
+        int updated = seatReservationRepositoryJpa.cancelReservation(idReserva, user);
+
+        if (updated == 0) {
+            throw new ResourceNotFoundException("Reserva não encontrada/não pode ser cancelada");
+        }
+    }
+
 }

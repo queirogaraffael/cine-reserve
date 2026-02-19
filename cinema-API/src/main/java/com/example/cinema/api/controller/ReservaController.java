@@ -35,14 +35,26 @@ public class ReservaController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/session/{sessionId}")
-    public ResponseEntity<SeatReservationResponseDTO> criarReserva(
-            @PathVariable Long sessionId,
-            @RequestBody SeatReservationRequestDTO requestDTO
-    ) {
-        SeatReservationResponseDTO response =
-                reservaService.criarReserva(sessionId, requestDTO);
+    public ResponseEntity<SeatReservationResponseDTO> criarReserva(@PathVariable Long sessionId, @RequestBody SeatReservationRequestDTO requestDTO) {
+        SeatReservationResponseDTO response = reservaService.criarReserva(sessionId, requestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @Operation(summary = "Cancelar reserva de assento", description = "Cancela uma reserva existente do usuário, desde que ainda esteja como RESERVED")
+    @ApiResponse(responseCode = "204", description = "Reserva cancelada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Reserva não encontrada ou não pode ser cancelada")
+    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<Void> cancelarReserva(@PathVariable Long reservationId) {
+
+        reservaService.cancelarReserva(reservationId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
 
