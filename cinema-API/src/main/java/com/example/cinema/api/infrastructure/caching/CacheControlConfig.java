@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class CacheConfig {
+public class CacheControlConfig {
 
     @Value("${cache.ttl.standard:3600}")
     private long standardTtl;
