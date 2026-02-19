@@ -9,7 +9,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,23 +23,19 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final CacheControl noCache;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, @Qualifier("noCachePrivate") CacheControl noCache) {
         this.paymentService = paymentService;
+        this.noCache = noCache;
     }
 
     @Operation(summary = "Processar qualquer tipo de pagamento (PIX, CARTÃO)")
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/purchases/{purchaseId}")
-    public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(
-            @PathVariable Long purchaseId,
-            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO
-    ) {
+    public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(@PathVariable Long purchaseId, @Valid @RequestBody PaymentMasterDTO paymentMasterDTO) {
 
-        PaymentResponseDTO paymentResponse = paymentService.processPayment(
-                purchaseId,
-                paymentMasterDTO.getPaymentDetails()
-        );
+        PaymentResponseDTO paymentResponse = paymentService.processPayment(purchaseId, paymentMasterDTO.getPaymentDetails());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponse);
     }
@@ -45,7 +44,9 @@ public class PaymentController {
     @Operation(summary = "Consultar status do pagamento")
     public ResponseEntity<PaymentStatus> getPaymentStatus(@Parameter(description = "ID do pagamento", example = "42") @PathVariable("id") Long idPayment) {
 
-        return ResponseEntity.ok(paymentService.getPaymentStatus(idPayment));
+        return ResponseEntity.ok()
+                .cacheControl(noCache)
+                .body(paymentService.getPaymentStatus(idPayment));
     }
 
     @GetMapping("/{id}")
@@ -56,7 +57,25 @@ public class PaymentController {
     })
     public ResponseEntity<PaymentGetResponseDTO> getById(@PathVariable Long id) {
         PaymentGetResponseDTO response = paymentService.getPayment(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok()
+                .cacheControl(noCache)
+                .body(response);
+    }
+
+    @Operation(summary = "Buscar pagamento por ID da compra", description = "Busca o pagamento associado a uma compra específica do usuário autenticado")
+    @ApiResponse(responseCode = "200", description = "Pagamento encontrado")
+    @ApiResponse(responseCode = "404", description = "Pagamento não encontrado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/purchases/{purchaseId}")
+    public ResponseEntity<PaymentGetResponseDTO> getPaymentByPurchaseId(@PathVariable Long purchaseId) {
+
+        PaymentGetResponseDTO payment = paymentService.getPaymentByPurchaseId(purchaseId);
+
+        return ResponseEntity.ok()
+                .cacheControl(noCache)
+                .body(payment);
     }
 
 }

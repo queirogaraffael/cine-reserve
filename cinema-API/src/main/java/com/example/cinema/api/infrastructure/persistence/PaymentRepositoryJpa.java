@@ -3,6 +3,7 @@ package com.example.cinema.api.infrastructure.persistence;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.payment.PaymentStatus;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,18 +25,36 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
 
     @Query("""
         SELECT new com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO(
-            p.id, 
-            p.paymentDate, 
-            p.transactionId, 
-            p.paymentMethod, 
-            p.paymentStatus, 
-            p.statusDetail, 
+            p.id,
+            p.paymentDate,
+            p.transactionId,
+            p.paymentMethod,
+            p.paymentStatus,
+            p.statusDetail,
             p.purchase.id
-        ) 
-        FROM Payment p 
+        )
+        FROM Payment p
         WHERE p.id = :id
     """)
     Optional<PaymentGetResponseDTO> findPaymentById(@Param("id") Long id);
 
     boolean existsByPurchase(Purchase purchase);
+
+    @Query("""
+    SELECT new com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO(
+        p.id,
+        p.paymentDate,
+        p.transactionId,
+        p.paymentMethod,
+        p.paymentStatus,
+        p.statusDetail,
+        p.purchase.id
+    )
+    FROM Payment p
+    WHERE p.purchase.id = :purchaseId
+      AND p.purchase.user = :user
+    """)
+    Optional<PaymentGetResponseDTO> findPaymentDtoByPurchaseIdAndUser(
+            @Param("purchaseId") Long purchaseId, @Param("user") User user);
+
 }

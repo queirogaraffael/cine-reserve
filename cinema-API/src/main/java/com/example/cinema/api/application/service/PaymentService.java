@@ -42,7 +42,7 @@ public class PaymentService {
     public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO) {
         User user = userService.getAuthenticatedUser();
 
-        // garante que a compra seja de fato do usuário.
+        // garante que a compra seja de fato do usuario.
         Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada ou não pertence ao usuário"));
 
@@ -82,4 +82,12 @@ public class PaymentService {
         return paymentRepositoryJpa.findPaymentById(idPayment)
                 .orElseThrow(() -> new ResourceNotFoundException("Pagamento com ID " + idPayment + " não encontrado."));
     }
+
+    @Transactional(readOnly = true)
+    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId){
+        User user = userService.getAuthenticatedUser();
+
+        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user).orElseThrow(()-> new ResourceNotFoundException("Pagamento para a compra: " + " não encontrado/não disponível."));
+    }
+
 }
