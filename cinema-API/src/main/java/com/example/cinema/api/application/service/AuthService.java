@@ -1,9 +1,10 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.infrastructure.security.service.RefreshTokenService;
 import com.example.cinema.api.shared.dtos.login.RefreshTokenDTO;
 import com.example.cinema.api.shared.dtos.login.TokenRefreshResponseDTO;
-import com.example.cinema.api.infrastructure.security.TokenService;
+import com.example.cinema.api.infrastructure.security.service.TokenService;
 import com.example.cinema.api.shared.dtos.login.TokenResponseDTO;
 import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,10 +16,12 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(AuthenticationManager authenticationManager, TokenService tokenService) {
+    public AuthService(AuthenticationManager authenticationManager, TokenService tokenService, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public TokenRefreshResponseDTO login(UserLoginDTO data) {
@@ -28,24 +31,24 @@ public class AuthService {
         var user = (User) auth.getPrincipal();
 
         String jwt = tokenService.generateToken(user);
-        String refreshToken = tokenService.generateRefreshToken(data.getUsername());
+        String refreshToken = refreshTokenService.generateRefreshToken(data.getUsername());
 
         return new TokenRefreshResponseDTO(jwt,refreshToken);
     }
 
-    public TokenResponseDTO refresh(RefreshTokenDTO refreshToken) {
+    public TokenResponseDTO refreshAccessToken(RefreshTokenDTO refreshToken) {
 
-        if (!tokenService.validateRefreshToken(refreshToken.getToken())) {
+        if (!refreshTokenService.validateRefreshToken(refreshToken.getToken())) {
             throw new RuntimeException("Refresh Token inválido");
         }
 
-        String username = tokenService.getUsernameFromRefreshToken(refreshToken.getToken());
+        String username = refreshTokenService.getUsernameFromRefreshToken(refreshToken.getToken());
         String token = tokenService.generateJwt(username);
 
         return new TokenResponseDTO(token);
     }
 
     public void logout(RefreshTokenDTO refreshToken) {
-        tokenService.invalidateRefreshToken(refreshToken.getToken());
+        refreshTokenService.invalidateRefreshToken(refreshToken.getToken());
     }
 }

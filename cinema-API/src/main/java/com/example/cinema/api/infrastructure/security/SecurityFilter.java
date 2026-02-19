@@ -2,6 +2,7 @@ package com.example.cinema.api.infrastructure.security;
 
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
+import com.example.cinema.api.infrastructure.security.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

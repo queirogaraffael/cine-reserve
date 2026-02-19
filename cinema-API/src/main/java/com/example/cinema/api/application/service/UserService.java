@@ -34,11 +34,7 @@ public class UserService implements UserDetailsService  {
     private final ApplicationEventPublisher eventPublisher;
     private final UserService self;
 
-
-    public UserService(UserRepositoryJpa userRepositoryJpa,
-                       PasswordEncoder passwordEncoder,
-                       UserMapper userMapper,
-                       ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
+    public UserService(UserRepositoryJpa userRepositoryJpa, PasswordEncoder passwordEncoder, UserMapper userMapper, ApplicationEventPublisher eventPublisher, @Lazy UserService self) {
         this.userRepositoryJpa = userRepositoryJpa;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
