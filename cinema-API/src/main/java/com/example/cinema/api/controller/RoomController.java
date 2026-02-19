@@ -36,8 +36,8 @@ public class RoomController {
         this.noCachePrivate = noCachePrivate;
     }
 
-    @Operation(summary = "Criar novo quarto", description = "Cria um novo quarto")
-    @ApiResponse(responseCode = "201", description = "Quarto criado com sucesso")
+    @Operation(summary = "Criar novo quarto", description = "Cria uma nova sala")
+    @ApiResponse(responseCode = "201", description = "Sala criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("hasRole('ADMIN')")
@@ -52,9 +52,9 @@ public class RoomController {
         return ResponseEntity.created(uri).body(createdRoom);
     }
 
-    @Operation(summary = "Buscar quarto por ID", description = "Busca um quarto pelo ID")
-    @ApiResponse(responseCode = "200", description = "Quarto encontrado")
-    @ApiResponse(responseCode = "404", description = "Quarto não encontrado")
+    @Operation(summary = "Buscar quarto por ID", description = "Busca uma sala pelo ID")
+    @ApiResponse(responseCode = "200", description = "Sala encontrada")
+    @ApiResponse(responseCode = "404", description = "Sala não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
@@ -66,8 +66,8 @@ public class RoomController {
     }
 
     @Operation(summary = "Busca paginada de todos as salas", description = "Busca todos as salas com paginação")
-    @ApiResponse(responseCode = "200", description = "Lista de quartos encontrada")
-    @ApiResponse(responseCode = "404", description = "Nenhum quarto encontrado")
+    @ApiResponse(responseCode = "200", description = "Lista de salas encontrada")
+    @ApiResponse(responseCode = "404", description = "Nenhuma sala encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
@@ -81,9 +81,9 @@ public class RoomController {
                 .body(rooms);
     }
 
-    @Operation(summary = "Atualizar quarto", description = "Atualiza um quarto existente")
-    @ApiResponse(responseCode = "200", description = "Quarto atualizado com sucesso")
-    @ApiResponse(responseCode = "404", description = "Quarto não encontrado")
+    @Operation(summary = "Atualizar sala", description = "Atualiza uma sala existente")
+    @ApiResponse(responseCode = "200", description = "Sala atualizada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Sala não encontrada")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("hasRole('ADMIN')")

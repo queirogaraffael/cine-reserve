@@ -62,10 +62,10 @@ public class GenreController {
         return ResponseEntity.ok().cacheControl(standardCache).body(genreService.findById(id));
     }
 
-    @GetMapping()
     @Operation(summary = "Buscar todos os gêneros paginados", description = "Retorna uma lista paginada de gêneros")
     @ApiResponse(responseCode = "200", description = "Lista de gêneros encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @GetMapping()
     public ResponseEntity<Page<GenreResponseDTO>> findAllPageable(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -74,27 +74,25 @@ public class GenreController {
                 .body(genreService.findAllPageable(page, size));
     }
 
-    @GetMapping("/search")
     @Operation(summary = "Buscar gêneros por nome paginados", description = "Retorna uma lista paginada de gêneros filtrados pelo nome")
     @ApiResponse(responseCode = "200", description = "Lista de gêneros encontrada")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")   public ResponseEntity<Page<GenreResponseDTO>> findByNameContainingIgnoreCase(
-            @RequestParam String name,
-            @RequestParam(defaultValue = "0") int page,
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @GetMapping("/search")
+    public ResponseEntity<Page<GenreResponseDTO>> findByNameContainingIgnoreCase(@RequestParam String name, @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok()
-                .cacheControl(shortCache)
+        return ResponseEntity.ok().cacheControl(shortCache)
                 .body(genreService.findByNameContainingIgnoreCase(name, page, size));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @PutMapping("/{id}")
     @Operation(summary = "Atualizar gênero", description = "Atualiza um gênero existente")
     @ApiResponse(responseCode = "200", description = "Gênero atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Gênero não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "409", description = "Gênero já existe com esse nome")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PutMapping("/{id}")
     public ResponseEntity<GenreResponseDTO> update(@PathVariable Long id,
                                                    @RequestBody @Valid GenreUpdateDTO dto) {
         return ResponseEntity.ok(genreService.update(id, dto));

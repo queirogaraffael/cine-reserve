@@ -43,9 +43,7 @@ public class PaymentController {
 
     @GetMapping("/{id}/status")
     @Operation(summary = "Consultar status do pagamento")
-    public ResponseEntity<PaymentStatus> getPaymentStatus(
-            @Parameter(description = "ID do pagamento", example = "42")
-            @PathVariable("id") Long idPayment) {
+    public ResponseEntity<PaymentStatus> getPaymentStatus(@Parameter(description = "ID do pagamento", example = "42") @PathVariable("id") Long idPayment) {
 
         return ResponseEntity.ok(paymentService.getPaymentStatus(idPayment));
     }

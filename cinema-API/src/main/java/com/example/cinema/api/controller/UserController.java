@@ -22,7 +22,7 @@ import java.net.URI;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -55,12 +55,13 @@ public class UserController {
         return ResponseEntity.ok(currentUser);
     }
 
-
     @Operation(summary = "Alterar a senha do usuário autenticado")
     @ApiResponse(responseCode = "204", description = "Senha alterada com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordData data) {
         userService.changePassword(data);
