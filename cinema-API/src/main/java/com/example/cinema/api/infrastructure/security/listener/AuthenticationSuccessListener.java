@@ -1,5 +1,6 @@
-package com.example.cinema.api.infrastructure.security;
+package com.example.cinema.api.infrastructure.security.listener;
 
+import com.example.cinema.api.infrastructure.security.service.LoginAttemptService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
