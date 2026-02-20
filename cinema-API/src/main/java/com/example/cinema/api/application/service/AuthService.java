@@ -11,6 +11,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class AuthService {
 
@@ -25,13 +27,12 @@ public class AuthService {
     }
 
     public TokenRefreshResponseDTO login(UserLoginDTO data) {
-        var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(data.getUsername(), data.getPassword())
-        );
+        var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data.getUsername(), data.getPassword()));
+
         var user = (User) auth.getPrincipal();
 
         String jwt = tokenService.generateToken(user);
-        String refreshToken = refreshTokenService.generateRefreshToken(data.getUsername());
+        String refreshToken = refreshTokenService.generateRefreshToken(user.getId());
 
         return new TokenRefreshResponseDTO(jwt,refreshToken);
     }
@@ -42,8 +43,8 @@ public class AuthService {
             throw new RuntimeException("Refresh Token inválido");
         }
 
-        String username = refreshTokenService.getUsernameFromRefreshToken(refreshToken.getToken());
-        String token = tokenService.generateJwt(username);
+        UUID userId = refreshTokenService.getUserIdFromRefreshToken(refreshToken.getToken());
+        String token = tokenService.generateJwt(userId);
 
         return new TokenResponseDTO(token);
     }

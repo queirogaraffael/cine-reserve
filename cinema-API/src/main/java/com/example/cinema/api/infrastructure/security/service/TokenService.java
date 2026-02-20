@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -63,6 +64,12 @@ public class TokenService {
 
     public String generateJwt(String username) {
         User user = userRepositoryJpa.findByUsername(username)
+                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
+        return generateToken(user);
+    }
+
+    public String generateJwt(UUID userId) {
+        User user = userRepositoryJpa.findById(userId)
                 .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
         return generateToken(user);
     }
