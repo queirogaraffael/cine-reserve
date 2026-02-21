@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.config;
+package com.example.cinema.api.infrastructure.email;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

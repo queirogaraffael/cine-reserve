@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Tag(name = "Purchases")
 @RestController
@@ -51,7 +53,11 @@ public class PurchaseController {
             @Valid @RequestBody TicketPurchaseRequestDTO ticketPurchaseRequestDTO) {
 
         PurchaseResponseDTO purchase = purchaseService.createPurchase(ticketPurchaseRequestDTO, idempotencyKey);
-        return ResponseEntity.status(HttpStatus.CREATED).body(purchase);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(purchase.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(purchase);
     }
 
     @PatchMapping("/{id}/idempotency-key")

@@ -13,10 +13,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -37,7 +39,10 @@ public class PaymentController {
 
         PaymentResponseDTO paymentResponse = paymentService.processPayment(purchaseId, paymentMasterDTO.getPaymentDetails());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponse);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(paymentResponse.getPaymentId()).toUri();
+
+        return ResponseEntity.created(uri).body(paymentResponse);
     }
 
     @GetMapping("/{id}/status")

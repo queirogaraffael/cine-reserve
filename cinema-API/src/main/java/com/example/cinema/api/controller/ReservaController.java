@@ -7,10 +7,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -38,7 +40,10 @@ public class ReservaController {
     public ResponseEntity<SeatReservationResponseDTO> criarReserva(@PathVariable Long sessionId, @RequestBody SeatReservationRequestDTO requestDTO) {
         SeatReservationResponseDTO response = reservaService.criarReserva(sessionId, requestDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(response.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(response);
     }
 
     @Operation(summary = "Cancelar reserva de assento", description = "Cancela uma reserva existente do usuário, desde que ainda esteja como RESERVED")

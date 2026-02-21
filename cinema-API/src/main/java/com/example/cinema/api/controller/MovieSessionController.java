@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @Tag(name = "Movie Sessions")
@@ -36,7 +39,11 @@ public class MovieSessionController {
     @PostMapping
     public ResponseEntity<MovieSessionResponseDTO> createMovieSession(@RequestBody @Valid MovieSessionRequestDTO dto) {
         MovieSessionResponseDTO movieSessionResponseDTO = movieSessionService.createSession(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(movieSessionResponseDTO);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(movieSessionResponseDTO.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(movieSessionResponseDTO);
     }
 
 }
