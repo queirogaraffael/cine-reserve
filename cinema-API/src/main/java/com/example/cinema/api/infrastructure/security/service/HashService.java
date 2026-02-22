@@ -2,27 +2,35 @@ package com.example.cinema.api.infrastructure.security.service;
 
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class HashService {
 
-    private static final String HASH_ALGORITHM = "SHA-256";
+    private static final String HMAC_ALGORITHM = "HmacSHA256";
+    private final SecretKeySpec keySpec;
 
-    public String sha256(String value) {
+    public HashService(@Value("${security.hash.secret}") String secret) {
+        this.keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
+    }
 
+    public String hmacSha256(String value) {
         try {
-            MessageDigest digest = MessageDigest.getInstance(HASH_ALGORITHM);
+            Mac mac = Mac.getInstance(HMAC_ALGORITHM);
 
-            byte[] hash = digest.digest(value.getBytes());
+            mac.init(keySpec);
+
+            byte[] hash = mac.doFinal(value.getBytes(StandardCharsets.UTF_8));
 
             return HexFormat.of().formatHex(hash);
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Hash algorithm " + HASH_ALGORITHM + " não está disponivel.", e);
+        } catch (Exception e) {
+            throw new IllegalStateException("Erro ao gerar HMAC SHA256 hash", e);
         }
     }
 }
-
