@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class LoginAttemptService {
 
     private final UserRepositoryJpa userRepositoryJpa;
+    private final UserSessionService userSessionService;
 
     @Value("${login.max-attempts}")
     private int MAX_ATTEMPTS;
@@ -19,9 +20,9 @@ public class LoginAttemptService {
     @Value("${login.lock-duration-minutes}")
     private long LOCK_DURATION_MINUTES;
 
-
-    public LoginAttemptService(UserRepositoryJpa userRepositoryJpa) {
+    public LoginAttemptService(UserRepositoryJpa userRepositoryJpa, UserSessionService userSessionService) {
         this.userRepositoryJpa = userRepositoryJpa;
+        this.userSessionService = userSessionService;
     }
 
     @Transactional
@@ -31,17 +32,16 @@ public class LoginAttemptService {
 
     @Transactional
     public void loginFailed(String username) {
-        User user = userRepositoryJpa.findByUsername(username).orElseThrow(()-> new RuntimeException("User not found"));
+        User user = userRepositoryJpa.findByUsername(username).orElseThrow(()-> new RuntimeException("Usuario: " + username + " não encontrado"));
 
-        if (user != null) {
-            int newAttempt = user.getFailedAttempt() + 1;
+        int newAttempt = user.getFailedAttempt() + 1;
 
-            if (newAttempt >= MAX_ATTEMPTS) {
-                LocalDateTime lockTime = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
-                userRepositoryJpa.lockUser(username, newAttempt, lockTime);
-            } else {
-                userRepositoryJpa.increaseFailedAttempts(username);
-            }
+        if (newAttempt >= MAX_ATTEMPTS) {
+            LocalDateTime lockTime = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
+            userRepositoryJpa.lockUser(username, newAttempt, lockTime);
+            userSessionService.invalidateAllUserSessions(user.getId());
+        } else {
+            userRepositoryJpa.increaseFailedAttempts(username);
         }
     }
 }

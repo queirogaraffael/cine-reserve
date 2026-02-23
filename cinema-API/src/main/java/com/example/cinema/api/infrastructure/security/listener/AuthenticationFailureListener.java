@@ -16,7 +16,6 @@ public class AuthenticationFailureListener implements ApplicationListener<Authen
 
     @Override
     public void onApplicationEvent(AuthenticationFailureBadCredentialsEvent event) {
-        // O evento ocorre quando o usuário erra a senha (BadCredentialsException)
         String username = event.getAuthentication().getName();
         loginAttemptService.loginFailed(username);
     }
