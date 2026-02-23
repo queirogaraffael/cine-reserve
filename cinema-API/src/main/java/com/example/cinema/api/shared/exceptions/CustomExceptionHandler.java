@@ -142,4 +142,9 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
+    @ExceptionHandler(RefreshTokenInvalidException.class)
+    public ResponseEntity<?> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
 }

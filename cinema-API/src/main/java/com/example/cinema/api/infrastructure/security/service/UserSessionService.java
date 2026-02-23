@@ -19,12 +19,12 @@ public class UserSessionService {
     private Long refreshDays;
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final HashService hashService;
+    private final HmacService hashService;
     private final ObjectMapper objectMapper;
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
-    public UserSessionService(RedisTemplate<String, String> redisTemplate, HashService hashService, ObjectMapper objectMapper) {
+    public UserSessionService(RedisTemplate<String, String> redisTemplate, HmacService hashService, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.hashService = hashService;
         this.objectMapper = objectMapper;
