@@ -11,12 +11,12 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class HashService {
+public class HmacService {
 
     private static final String HMAC_ALGORITHM = "HmacSHA256";
     private final SecretKeySpec keySpec;
 
-    public HashService(@Value("${security.hash.secret}") String secret) {
+    public HmacService(@Value("${security.hash.secret}") String secret) {
         this.keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
     }
 
