@@ -6,11 +6,11 @@ import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
-import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
-import com.example.cinema.api.shared.dtos.movieSession.MovieSessionResponseDTO;
+import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
+import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
-import com.example.cinema.api.shared.mappers.SessionMapper;
+import com.example.cinema.api.application.mapper.SessionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

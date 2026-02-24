@@ -1,10 +1,10 @@
 package com.example.cinema.api.infrastructure.email;
 
-import com.example.cinema.api.shared.dtos.email.PaymentCardInitiatedNotificationData;
-import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
-import com.example.cinema.api.shared.dtos.email.WelcomeNotificationData;
+import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
+import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
+import com.example.cinema.api.application.dto.email.WelcomeNotificationData;
 import com.example.cinema.api.application.service.EmailService;
-import com.example.cinema.api.shared.exceptions.EmailSendException;
+import com.example.cinema.api.infrastructure.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.MailException;

@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.shared.dtos.webhook.ExternalPaymentSnapshot;
+import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 
 public interface ExternalPaymentProvider {
 

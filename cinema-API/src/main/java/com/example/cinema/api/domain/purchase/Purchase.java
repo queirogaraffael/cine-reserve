@@ -5,7 +5,7 @@ import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.ticket.TicketCategory;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.user.User;
-import com.example.cinema.api.shared.exceptions.SeatReservationExpiredException;
+import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

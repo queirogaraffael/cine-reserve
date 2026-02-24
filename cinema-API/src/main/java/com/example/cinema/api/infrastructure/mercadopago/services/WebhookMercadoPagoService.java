@@ -3,7 +3,7 @@ package com.example.cinema.api.infrastructure.mercadopago.services;
 import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.application.service.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
-import com.example.cinema.api.shared.dtos.webhook.PaymentWebhookEvent;
+import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

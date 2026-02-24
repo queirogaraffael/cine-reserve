@@ -2,12 +2,12 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.genre.Genre;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
-import com.example.cinema.api.shared.dtos.genre.GenreRequestDTO;
-import com.example.cinema.api.shared.dtos.genre.GenreResponseDTO;
-import com.example.cinema.api.shared.dtos.genre.GenreUpdateDTO;
-import com.example.cinema.api.shared.exceptions.GeneroJaExisteException;
+import com.example.cinema.api.application.dto.genre.GenreRequestDTO;
+import com.example.cinema.api.application.dto.genre.GenreResponseDTO;
+import com.example.cinema.api.application.dto.genre.GenreUpdateDTO;
+import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
-import com.example.cinema.api.shared.mappers.GenreMapper;
+import com.example.cinema.api.application.mapper.GenreMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -63,7 +63,7 @@ public class GenreService {
                 .orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
 
         if(genreRepository.existsByName(dto.getName()) && !Objects.equals(dto.getName(), genre.getName())){
-            throw new GeneroJaExisteException("Gênero com o nome " + dto.getName() + " já existe");
+            throw new GenreAlreadyExistsException("Gênero com o nome " + dto.getName() + " já existe");
         }
 
         genreMapper.updateEntityFromDTO(dto, genre);

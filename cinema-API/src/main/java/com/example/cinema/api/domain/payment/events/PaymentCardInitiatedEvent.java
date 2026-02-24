@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.payment.events;
 
-import com.example.cinema.api.shared.dtos.email.PaymentCardInitiatedNotificationData;
+import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

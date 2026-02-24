@@ -1,7 +1,7 @@
 package com.example.cinema.api.controller;
 
+import com.example.cinema.api.application.dto.login.*;
 import com.example.cinema.api.application.service.AuthService;
-import com.example.cinema.api.shared.dtos.login.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;

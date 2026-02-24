@@ -2,7 +2,7 @@ package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.user.User;
-import com.example.cinema.api.shared.dtos.tickets.TicketResponseDTO;
+import com.example.cinema.api.application.dto.tickets.TicketResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface TicketRepositoryJpa extends JpaRepository<Ticket, Long> {
 
     @Query("""
-        SELECT new com.example.cinema.api.shared.dtos.tickets.TicketResponseDTO(
+        SELECT new com.example.cinema.api.application.dto.tickets.TicketResponseDTO(
             t.id,
             t.seatNumber,
             t.movieSession.id,
@@ -29,7 +29,7 @@ public interface TicketRepositoryJpa extends JpaRepository<Ticket, Long> {
     Optional<TicketResponseDTO> findDtoByIdAndUser(@Param("ticketId") Long ticketId, @Param("user") User user);
 
     @Query("""
-        SELECT new com.example.cinema.api.shared.dtos.tickets.TicketResponseDTO(
+        SELECT new com.example.cinema.api.application.dto.tickets.TicketResponseDTO(
             t.id,
             t.seatNumber,
             t.movieSession.id,

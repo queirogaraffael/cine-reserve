@@ -2,12 +2,12 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
-import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
-import com.example.cinema.api.shared.dtos.room.RoomResponseDTO;
+import com.example.cinema.api.application.dto.room.RoomRequestDTO;
+import com.example.cinema.api.application.dto.room.RoomResponseDTO;
 
-import com.example.cinema.api.shared.exceptions.NumeroDeQuartoJaCadastradoException;
+import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
-import com.example.cinema.api.shared.mappers.RoomMapper;
+import com.example.cinema.api.application.mapper.RoomMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

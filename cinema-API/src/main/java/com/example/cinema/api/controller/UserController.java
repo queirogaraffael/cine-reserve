@@ -1,10 +1,10 @@
 package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.service.UserService;
-import com.example.cinema.api.shared.dtos.user.ChangePasswordData;
-import com.example.cinema.api.shared.dtos.user.UserCreatedResponseDTO;
-import com.example.cinema.api.shared.dtos.user.UserRequestDTO;
-import com.example.cinema.api.shared.dtos.user.UserResponseDTO;
+import com.example.cinema.api.application.dto.user.ChangePasswordData;
+import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
+import com.example.cinema.api.application.dto.user.UserRequestDTO;
+import com.example.cinema.api.application.dto.user.UserResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

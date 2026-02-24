@@ -2,7 +2,7 @@ package com.example.cinema.api.infrastructure.email.listener;
 
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.application.service.EmailService;
-import com.example.cinema.api.shared.exceptions.EmailSendException;
+import com.example.cinema.api.infrastructure.exception.EmailSendException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

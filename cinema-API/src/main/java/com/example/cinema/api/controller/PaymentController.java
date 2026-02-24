@@ -2,9 +2,9 @@ package com.example.cinema.api.controller;
 
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.application.service.PaymentService;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentMasterDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentMasterDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

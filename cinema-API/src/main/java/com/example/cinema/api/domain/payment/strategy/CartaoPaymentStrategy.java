@@ -6,10 +6,10 @@ import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;
 import com.example.cinema.api.application.service.PaymentGatewayService;
-import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.card.CardGatewayResult;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.card.CardPaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
+import com.example.cinema.api.application.dto.payment.response.gateway.card.CardPaymentResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component

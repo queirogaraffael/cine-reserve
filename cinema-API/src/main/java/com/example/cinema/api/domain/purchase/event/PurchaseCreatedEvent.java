@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.purchase.event;
 
-import com.example.cinema.api.shared.dtos.email.PurchaseCreatedNotificationData;
+import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

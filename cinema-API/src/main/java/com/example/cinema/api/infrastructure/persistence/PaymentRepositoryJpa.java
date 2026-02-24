@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.user.User;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +24,7 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
     Optional<PaymentStatus> findStatusById(@Param("id") Long id);
 
     @Query("""
-        SELECT new com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO(
+        SELECT new com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO(
             p.id,
             p.paymentDate,
             p.transactionId,
@@ -41,7 +41,7 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
     boolean existsByPurchase(Purchase purchase);
 
     @Query("""
-    SELECT new com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO(
+    SELECT new com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO(
         p.id,
         p.paymentDate,
         p.transactionId,

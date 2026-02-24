@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.security.service;
 
-import com.example.cinema.api.shared.dtos.login.UserSessionDTO;
+import com.example.cinema.api.application.dto.login.UserSessionDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

@@ -10,7 +10,7 @@ import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.*;
-import com.example.cinema.api.shared.dtos.tickets.TicketRequestDTO;
+import com.example.cinema.api.application.dto.tickets.TicketRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

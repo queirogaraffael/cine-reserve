@@ -1,9 +1,9 @@
 package com.example.cinema.api.domain.payment.registry;
 
 import com.example.cinema.api.domain.payment.PaymentType;
-import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.user.event;
 
-import com.example.cinema.api.shared.dtos.email.WelcomeNotificationData;
+import com.example.cinema.api.application.dto.email.WelcomeNotificationData;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

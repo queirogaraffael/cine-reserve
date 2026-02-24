@@ -1,14 +1,14 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.shared.dtos.login.UserSessionDTO;
+import com.example.cinema.api.application.dto.login.UserSessionDTO;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.security.service.UserSessionService;
-import com.example.cinema.api.shared.dtos.login.RefreshTokenDTO;
-import com.example.cinema.api.shared.dtos.login.TokenRefreshResponseDTO;
+import com.example.cinema.api.application.dto.login.RefreshTokenDTO;
+import com.example.cinema.api.application.dto.login.TokenRefreshResponseDTO;
 import com.example.cinema.api.infrastructure.security.service.TokenService;
-import com.example.cinema.api.shared.dtos.login.TokenResponseDTO;
-import com.example.cinema.api.shared.dtos.login.UserLoginDTO;
-import com.example.cinema.api.shared.exceptions.RefreshTokenInvalidException;
+import com.example.cinema.api.application.dto.login.TokenResponseDTO;
+import com.example.cinema.api.application.dto.login.UserLoginDTO;
+import com.example.cinema.api.application.exception.RefreshTokenInvalidException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;

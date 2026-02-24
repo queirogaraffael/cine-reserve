@@ -1,8 +1,8 @@
 package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.service.ReservaService;
-import com.example.cinema.api.shared.dtos.seatreservation.SeatReservationRequestDTO;
-import com.example.cinema.api.shared.dtos.seatreservation.SeatReservationResponseDTO;
+import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
+import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

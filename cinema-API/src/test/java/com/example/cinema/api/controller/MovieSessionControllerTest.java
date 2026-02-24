@@ -8,7 +8,7 @@ import com.example.cinema.api.application.service.MovieSessionService;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.shared.dtos.movieSession.MovieSessionRequestDTO;
+import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;

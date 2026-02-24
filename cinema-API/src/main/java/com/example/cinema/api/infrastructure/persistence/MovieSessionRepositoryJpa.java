@@ -1,6 +1,7 @@
 package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Repository
 public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, Long> {
@@ -30,5 +32,22 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
 
     @Query("SELECT r.capacity FROM MovieSession ms JOIN ms.cinemaRoom r WHERE ms.id = :sessionId")
     Integer findRoomCapacityByMovieSessionId(@Param("sessionId") Long sessionId);
+
+    @Query("""
+    SELECT new com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO(
+        ms.id,
+        ms.showDate,
+        ms.startTime,
+        ms.endTime,
+        ms.basePrice,
+        ms.status,
+        ms.cinemaRoom.id,
+        ms.movie.id
+    )
+    FROM MovieSession ms
+    JOIN ms.tickets t
+    WHERE t.id = :ticketId
+""")
+    Optional<MovieSessionResponseDTO> findMovieSessionByTicketId(@Param("ticketId") Long ticketId);
 
 }

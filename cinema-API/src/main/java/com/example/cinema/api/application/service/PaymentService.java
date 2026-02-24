@@ -1,7 +1,7 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.shared.dtos.email.PaymentCardInitiatedNotificationData;
-import com.example.cinema.api.shared.exceptions.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.user.User;
@@ -11,9 +11,9 @@ import com.example.cinema.api.domain.payment.context.PaymentContext;
 import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
 import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

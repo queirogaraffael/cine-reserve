@@ -6,7 +6,7 @@ import com.example.cinema.api.domain.ticket.TicketCategory;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.shared.dtos.room.RoomRequestDTO;
+import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

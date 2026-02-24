@@ -1,5 +1,17 @@
 package com.example.cinema.api.shared.exceptions;
 
+import com.example.cinema.api.application.exception.RefreshTokenInvalidException;
+import com.example.cinema.api.application.exception.TokenCreationException;
+import com.example.cinema.api.application.exception.TokenValidationException;
+import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
+import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
+import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
+import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
+import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
+import com.example.cinema.api.infrastructure.exception.WebhookException;
+import com.example.cinema.api.infrastructure.exception.EmailSendException;
 import com.mercadopago.exceptions.MPApiException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -56,8 +68,8 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(GeneroJaExisteException.class)
-    public ResponseEntity<Object> handleGeneroJaExisteException(GeneroJaExisteException ex) {
+    @ExceptionHandler(GenreAlreadyExistsException.class)
+    public ResponseEntity<Object> handleGeneroJaExisteException(GenreAlreadyExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 

@@ -5,8 +5,8 @@ import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentType;
 import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
