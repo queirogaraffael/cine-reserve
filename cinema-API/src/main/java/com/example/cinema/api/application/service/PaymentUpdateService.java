@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

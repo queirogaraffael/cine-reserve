@@ -6,7 +6,7 @@ import com.example.cinema.api.application.dto.genre.GenreRequestDTO;
 import com.example.cinema.api.application.dto.genre.GenreResponseDTO;
 import com.example.cinema.api.application.dto.genre.GenreUpdateDTO;
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.GenreMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

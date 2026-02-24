@@ -12,7 +12,7 @@ import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationD
 import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.application.dto.purchase.TicketItemDTO;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.PurchaseMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

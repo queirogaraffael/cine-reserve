@@ -5,7 +5,7 @@ import com.example.cinema.api.application.service.ExternalPaymentProvider;
 import com.example.cinema.api.application.service.PaymentUpdateService;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
-import com.example.cinema.api.shared.exceptions.ExternalServiceTemporaryException;
+import com.example.cinema.api.shared.exception.ExternalServiceTemporaryException;
 import com.example.cinema.api.application.exception.MaxRetriesExceededException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;

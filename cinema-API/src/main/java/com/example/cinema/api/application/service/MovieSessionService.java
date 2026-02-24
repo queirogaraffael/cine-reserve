@@ -9,7 +9,7 @@ import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.SessionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

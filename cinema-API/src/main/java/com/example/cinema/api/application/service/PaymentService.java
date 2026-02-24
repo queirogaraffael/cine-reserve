@@ -14,7 +14,7 @@ import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
 import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -7,7 +7,7 @@ import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
 import com.example.cinema.api.application.dto.movie.MovieResponseDTO;
 import com.example.cinema.api.application.dto.movie.MovieUpdateDTO;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.MovieMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

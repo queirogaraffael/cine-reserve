@@ -8,7 +8,7 @@ import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJ
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.application.mapper.SeatReservationMapper;
 import org.springframework.dao.DataIntegrityViolationException;

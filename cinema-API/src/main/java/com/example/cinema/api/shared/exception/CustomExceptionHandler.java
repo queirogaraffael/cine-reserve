@@ -1,4 +1,4 @@
-package com.example.cinema.api.shared.exceptions;
+package com.example.cinema.api.shared.exception;
 
 import com.example.cinema.api.application.exception.RefreshTokenInvalidException;
 import com.example.cinema.api.application.exception.TokenCreationException;

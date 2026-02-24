@@ -11,28 +11,44 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
-
+import java.util.HashMap;
+import java.util.Map;
 @Configuration
 public class RedisCacheConfig {
 
-    @Value("${cache.ttl}")
-    private long cacheTtl;
+    @Value("${cache.ttl.genres}")
+    private long genreTtl;
+
+    @Value("${cache.ttl.movies}")
+    private long movieTtl;
+
+    @Value("${cache.ttl.rooms}")
+    private long roomTtl;
 
     @Bean
-    public RedisCacheConfiguration cacheConfiguration(GenericJackson2JsonRedisSerializer serializer) {
+    public RedisCacheConfiguration defaultCacheConfiguration(
+            GenericJackson2JsonRedisSerializer serializer) {
 
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofSeconds(cacheTtl))
                 .disableCachingNullValues()
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(serializer));
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory, RedisCacheConfiguration configuration) {
+    public CacheManager cacheManager(RedisConnectionFactory factory, RedisCacheConfiguration defaultConfig) {
+
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        cacheConfigurations.put("genres", defaultConfig.entryTtl(Duration.ofSeconds(genreTtl)));
+
+        cacheConfigurations.put("movies", defaultConfig.entryTtl(Duration.ofSeconds(movieTtl)));
+
+        cacheConfigurations.put("rooms", defaultConfig.entryTtl(Duration.ofSeconds(roomTtl)));
 
         return RedisCacheManager.builder(factory)
-                .cacheDefaults(configuration)
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .transactionAware()
                 .build();
     }

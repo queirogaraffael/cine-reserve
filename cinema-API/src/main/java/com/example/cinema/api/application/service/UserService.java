@@ -42,7 +42,6 @@ public class UserService implements UserDetailsService  {
         this.self = self;
     }
 
-
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 

@@ -6,7 +6,7 @@ import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.application.dto.room.RoomResponseDTO;
 
 import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
-import com.example.cinema.api.shared.exceptions.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.RoomMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
