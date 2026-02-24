@@ -35,7 +35,7 @@ public class ReservaController {
     @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/session/{sessionId}")
     public ResponseEntity<SeatReservationResponseDTO> criarReserva(@PathVariable Long sessionId, @RequestBody SeatReservationRequestDTO requestDTO) {
         SeatReservationResponseDTO response = reservaService.criarReserva(sessionId, requestDTO);

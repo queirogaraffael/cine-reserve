@@ -7,6 +7,7 @@ import com.example.cinema.api.shared.dtos.payment.response.PaymentGetResponseDTO
 import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,15 +33,67 @@ public class PaymentController {
         this.noCache = noCache;
     }
 
-    @Operation(summary = "Processar qualquer tipo de pagamento (PIX, CARTÃO)")
-    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Processar pagamento (PIX ou CARTÃO)", description = """
+        Processa o pagamento de uma compra utilizando o método informado.
+
+        Métodos suportados:
+
+        • PIX \s
+        Gera o QR Code e o código copia-e-cola para pagamento instantâneo.
+
+        • CARTÃO \s
+        Processa o pagamento utilizando um token de cartão previamente gerado.
+
+        O campo `paymentMethod` determina qual estrutura deve ser enviada em `paymentDetails`.
+
+        ---
+
+        Exemplos
+
+        Requisição PIX:
+
+        ```json
+        {
+          "paymentMethod": "PIX",
+          "paymentDetails": {}
+        }
+        ```
+
+        Requisição CARTÃO:
+
+        ```json
+        {
+          "paymentMethod": "CARD",
+          "paymentDetails": {
+            "card_token": "tok_123456",
+            "payment_method_id": "visa",
+            "installments": 3
+          }
+        }
+        ```
+
+        ---
+       \s
+        Após o processamento, a resposta retornará os dados específicos do método de pagamento utilizado.
+       \s"""
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pagamento criado com sucesso", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Dados de pagamento inválidos", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Compra não encontrada", content = @Content)})
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/purchases/{purchaseId}")
-    public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(@PathVariable Long purchaseId, @Valid @RequestBody PaymentMasterDTO paymentMasterDTO) {
+    public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(
+            @Parameter(description = "ID da compra que será paga", example = "123") @PathVariable Long purchaseId,
+
+            @io.swagger.v3.oas.annotations.parameters
+                    .RequestBody(description = "Objeto de pagamento unificado. A estrutura de `paymentDetails` depende do campo `paymentMethod`.", required = true)
+            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO) {
 
         PaymentResponseDTO paymentResponse = paymentService.processPayment(purchaseId, paymentMasterDTO.getPaymentDetails());
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(paymentResponse.getPaymentId()).toUri();
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(paymentResponse.getPaymentId()).toUri();
 
         return ResponseEntity.created(uri).body(paymentResponse);
     }
@@ -61,7 +114,9 @@ public class PaymentController {
             @ApiResponse(responseCode = "404", description = "Pagamento não encontrado")
     })
     public ResponseEntity<PaymentGetResponseDTO> getById(@PathVariable Long id) {
+
         PaymentGetResponseDTO response = paymentService.getPayment(id);
+
         return ResponseEntity.ok()
                 .cacheControl(noCache)
                 .body(response);
@@ -71,7 +126,7 @@ public class PaymentController {
     @ApiResponse(responseCode = "200", description = "Pagamento encontrado")
     @ApiResponse(responseCode = "404", description = "Pagamento não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/purchases/{purchaseId}")
     public ResponseEntity<PaymentGetResponseDTO> getPaymentByPurchaseId(@PathVariable Long purchaseId) {
