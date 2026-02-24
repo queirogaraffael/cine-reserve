@@ -1,5 +1,6 @@
 package com.example.cinema.api.infrastructure.redis;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisTemplateConfig {
 
     @Bean
+    @Qualifier("userSessionRedisTemplate")
     public RedisTemplate<String, String> UserSessionRedisTemplate(RedisConnectionFactory connectionFactory) {
 
         RedisTemplate<String, String> template = new RedisTemplate<>();

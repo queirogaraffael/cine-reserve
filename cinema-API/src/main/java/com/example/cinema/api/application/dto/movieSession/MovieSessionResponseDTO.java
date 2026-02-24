@@ -1,6 +1,5 @@
 package com.example.cinema.api.application.dto.movieSession;
 
-import com.example.cinema.api.domain.movie.MovieSessionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,7 @@ public class MovieSessionResponseDTO {
 
     private BigDecimal basePrice;
 
-    private MovieSessionStatus status;
+    private boolean canceled;
 
     private Long roomId;
     private Long movieId;

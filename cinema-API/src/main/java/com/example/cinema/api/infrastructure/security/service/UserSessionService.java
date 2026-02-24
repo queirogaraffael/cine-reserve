@@ -3,6 +3,7 @@ package com.example.cinema.api.infrastructure.security.service;
 import com.example.cinema.api.application.dto.login.UserSessionDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class UserSessionService {
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
-    public UserSessionService(RedisTemplate<String, String> redisTemplate, HmacService hashService, ObjectMapper objectMapper) {
+    public UserSessionService(@Qualifier("userSessionRedisTemplate") RedisTemplate<String, String> redisTemplate, HmacService hashService, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.hashService = hashService;
         this.objectMapper = objectMapper;

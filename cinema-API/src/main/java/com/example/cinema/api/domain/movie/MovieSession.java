@@ -33,7 +33,7 @@ public class MovieSession {
 
     private BigDecimal basePrice;
 
-    private boolean canceled = false;
+    private boolean canceled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
@@ -49,7 +49,7 @@ public class MovieSession {
     @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
-    // Método calcula o Status dinamicamene: SCHEDULED, ACTIVE, FINISHED ou CANCELED.
+    // metodo calcula o Status dinamicamene: SCHEDULED, ACTIVE, FINISHED ou CANCELED. -> evita inconsistências
     @Transient
     public MovieSessionStatus getStatus() {
         if (canceled) {
@@ -67,7 +67,6 @@ public class MovieSession {
         }
         return MovieSessionStatus.FINISHED;
     }
-
 
     // Metodo indica se MovieSession está aberta para a venda de ingressos.
     @Transient

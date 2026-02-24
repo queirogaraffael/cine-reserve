@@ -40,7 +40,7 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
         ms.startTime,
         ms.endTime,
         ms.basePrice,
-        ms.status,
+        ms.canceled,
         ms.cinemaRoom.id,
         ms.movie.id
     )
