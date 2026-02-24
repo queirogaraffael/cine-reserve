@@ -83,6 +83,7 @@ public class PaymentController {
             @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content),
             @ApiResponse(responseCode = "404", description = "Compra não encontrada", content = @Content)})
     @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/purchases/{purchaseId}")
     public ResponseEntity<PaymentResponseDTO> processUnifiedPayment(
             @Parameter(description = "ID da compra que será paga", example = "123") @PathVariable Long purchaseId,
@@ -98,8 +99,10 @@ public class PaymentController {
         return ResponseEntity.created(uri).body(paymentResponse);
     }
 
-    @GetMapping("/{id}/status")
     @Operation(summary = "Consultar status do pagamento")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/{id}/status")
     public ResponseEntity<PaymentStatus> getPaymentStatus(@Parameter(description = "ID do pagamento", example = "42") @PathVariable("id") Long idPayment) {
 
         return ResponseEntity.ok()
@@ -107,12 +110,13 @@ public class PaymentController {
                 .body(paymentService.getPaymentStatus(idPayment));
     }
 
-    @GetMapping("/{id}")
     @Operation(summary = "Busca um pagamento pelo ID", description = "Retorna os detalhes de um pagamento específico")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pagamento encontrado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Pagamento não encontrado")
-    })
+            @ApiResponse(responseCode = "404", description = "Pagamento não encontrado")})
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/{id}")
     public ResponseEntity<PaymentGetResponseDTO> getById(@PathVariable Long id) {
 
         PaymentGetResponseDTO response = paymentService.getPayment(id);

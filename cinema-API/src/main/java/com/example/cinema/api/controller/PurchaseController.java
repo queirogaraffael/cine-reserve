@@ -60,8 +60,10 @@ public class PurchaseController {
         return ResponseEntity.created(uri).body(purchase);
     }
 
-    @PatchMapping("/{id}/idempotency-key")
     @Operation(summary = "Atualizar idempotency key da compra")
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PatchMapping("/{id}/idempotency-key")
     public ResponseEntity<Void> atualizarIdempotencyKey(
             @Parameter(description = "ID da compra", example = "10")
             @PathVariable("id") Long idPurchase,

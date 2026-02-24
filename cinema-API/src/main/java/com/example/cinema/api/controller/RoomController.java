@@ -72,9 +72,7 @@ public class RoomController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping()
-    public ResponseEntity<Page<RoomResponseDTO>> getAllRooms(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<RoomResponseDTO>> getAllRooms(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<RoomResponseDTO> rooms = roomService.getAllRooms(page, size);
 
         return ResponseEntity.ok().cacheControl(noCachePrivate)
@@ -89,9 +87,7 @@ public class RoomController {
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
-    public ResponseEntity<RoomResponseDTO> updateRoom(
-            @PathVariable Long id,
-            @RequestBody RoomRequestDTO roomRequestDTO) {
+    public ResponseEntity<RoomResponseDTO> updateRoom(@PathVariable Long id, @RequestBody RoomRequestDTO roomRequestDTO) {
         RoomResponseDTO updatedRoom = roomService.updateRoom(id, roomRequestDTO);
         return ResponseEntity.ok(updatedRoom);
     }
