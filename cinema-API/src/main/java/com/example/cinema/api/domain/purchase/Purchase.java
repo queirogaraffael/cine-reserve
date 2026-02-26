@@ -7,6 +7,7 @@ import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,6 +43,10 @@ public class Purchase {
 
     @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL)
     private Payment payment;
+
+    @Enumerated
+    @NotNull
+    private PurchaseStatus purchaseStatus;
 
     public Purchase(User user, String idempotencyKey) {
         this.user = user;
