@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "tickets", uniqueConstraints = @UniqueConstraint(columnNames = {"session_id", "seat_number"}))
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
