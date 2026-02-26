@@ -1,7 +1,10 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
 import com.example.cinema.api.application.exception.InvalidReservationStatusException;
 import com.example.cinema.api.application.exception.SessionNotAvailableForPurchaseException;
+import com.example.cinema.api.domain.purchase.PurchaseStatus;
 import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.context.TicketPricingContext;
@@ -72,8 +75,10 @@ public class PurchaseService {
 
             purchase.addTicket(reservation, item.getTicketCategory(), price);
 
-            reservation.setStatus(ReservationStatus.CONSUMED);
+            reservation.consume();
         }
+
+        purchase.setPurchaseStatus(purchase.getPurchaseStatus().transitionTo(PurchaseStatus.WAITING_PAYMENT));
 
         Purchase saved = purchaseRepository.save(purchase);
 
@@ -85,14 +90,21 @@ public class PurchaseService {
     }
 
     @Transactional
-    public void modificarIdempotencyKeyPurchase(Long idPurchase, String idempotencyKey) {
+    public PurchaseIdempotencyResponseDTO modificarIdempotencyKeyPurchase(Long idPurchase, String idempotencyKey) {
 
-        int updated = purchaseRepository
-                .updateIdempotencyKey(idPurchase, idempotencyKey);
+        User user = userService.getAuthenticatedUser();
 
-        if (updated == 0) {
-            throw new ResourceNotFoundException("Purchase " + idPurchase + " não encontrada.");
+        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada."));
+
+        if(purchase.getPayment() != null){
+            throw new PurchaseAlreadyHasPaymentException("IdempotencyKey não pode ser modificada porque um Pagamento já está associado.");
         }
+
+        purchase.setIdempotencyKey(idempotencyKey);
+
+        Purchase purchaseSaved = purchaseRepository.save(purchase);
+
+        return purchaseMapper.toPurchaseIdempotencyResponseDTO(purchaseSaved);
     }
 
 }

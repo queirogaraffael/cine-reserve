@@ -52,6 +52,7 @@ public class Purchase {
         this.user = user;
         this.idempotencyKey = idempotencyKey;
         this.purchaseDate = LocalDateTime.now();
+        this.purchaseStatus = PurchaseStatus.CREATED;
     }
 
     public void addTicket(SeatReservation reservation, TicketCategory category, BigDecimal price) {

@@ -1,6 +1,8 @@
 package com.example.cinema.api.controller;
 
+import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
 import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
+import com.example.cinema.api.application.dto.purchase.UpdateIdempotencyKeyRequestDTO;
 import com.example.cinema.api.application.service.PurchaseService;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,9 +41,7 @@ public class PurchaseController {
                             description = "Chave única para garantir a idempotência da requisição (ex: UUID)",
                             required = true,
                             in = ParameterIn.HEADER,
-                            schema = @Schema(type = "string", format = "uuid")
-                    )
-            }
+                            schema = @Schema(type = "string", format = "uuid"))}
     )
     @ApiResponse(responseCode = "201", description = "Purchase criada com sucesso.")
     @ApiResponse(responseCode = "400", description = "Erro de validação ou chave de idempotência ausente")
@@ -60,19 +61,44 @@ public class PurchaseController {
         return ResponseEntity.created(uri).body(purchase);
     }
 
-    @Operation(summary = "Atualizar idempotency key da compra")
+    @Operation(
+            summary = "Atualizar idempotency key de uma compra",
+            description = """
+                Permite atualizar a idempotency key de uma compra existente.
+
+                Regras:
+                - A compra deve pertencer ao usuário autenticado.
+                - Não é permitido atualizar se já existir pagamento associado.
+                - A idempotency key deve ser única.
+
+                Uso comum:
+                - Recuperação de operações interrompidas
+                - Garantia de idempotência em pagamentos
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Idempotency key atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Compra não encontrada"),
+            @ApiResponse(responseCode = "409", description = "Compra já possui pagamento associado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")})
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PatchMapping("/{id}/idempotency-key")
-    public ResponseEntity<Void> atualizarIdempotencyKey(
-            @Parameter(description = "ID da compra", example = "10")
-            @PathVariable("id") Long idPurchase,
+    public ResponseEntity<PurchaseIdempotencyResponseDTO> atualizarIdempotencyKey(
 
-            @Parameter(description = "Nova idempotency key", example = "abc-123-xyz")
-            @RequestParam String idempotencyKey) {
+            @Parameter(description = "ID da compra", example = "10", required = true)
+            @PathVariable("id")
+            Long idPurchase,
 
-        purchaseService.modificarIdempotencyKeyPurchase(idPurchase, idempotencyKey);
-        return ResponseEntity.noContent().build();
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nova idempotency key", required = true)
+            @Valid
+            @RequestBody
+            UpdateIdempotencyKeyRequestDTO request) {
+
+        PurchaseIdempotencyResponseDTO response = purchaseService.modificarIdempotencyKeyPurchase(idPurchase, request.getIdempotencyKey());
+
+        return ResponseEntity.ok(response);
     }
 
 }
