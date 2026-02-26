@@ -1,8 +1,6 @@
 package com.example.cinema.api.shared.exception;
 
-import com.example.cinema.api.application.exception.RefreshTokenInvalidException;
-import com.example.cinema.api.application.exception.TokenCreationException;
-import com.example.cinema.api.application.exception.TokenValidationException;
+import com.example.cinema.api.application.exception.*;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
@@ -157,6 +155,21 @@ public class CustomExceptionHandler {
     @ExceptionHandler(RefreshTokenInvalidException.class)
     public ResponseEntity<?> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidReservationStatusException.class)
+    public ResponseEntity<?> handleInvalidReservationStatusException(InvalidReservationStatusException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidSeatNumberException.class)
+    public ResponseEntity<?> handleInvalidSeatNumberException(InvalidSeatNumberException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SessionNotAvailableForPurchaseException.class)
+    public ResponseEntity<?> handleSessionNotAvailableForPurchaseException(SessionNotAvailableForPurchaseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
 }
