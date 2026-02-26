@@ -1,9 +1,9 @@
 package com.example.cinema.api.shared.exception;
 
 import com.example.cinema.api.application.exception.*;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
 import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
@@ -171,5 +171,4 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handleSessionNotAvailableForPurchaseException(SessionNotAvailableForPurchaseException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
-
 }

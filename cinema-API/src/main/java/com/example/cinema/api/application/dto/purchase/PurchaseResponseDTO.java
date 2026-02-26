@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,6 +20,7 @@ public class PurchaseResponseDTO {
     private BigDecimal totalPrice;
 
     private UUID userId;
-    private Long ticketId;
-    private Long movieSessionId;
+    private String idempotencyKey;
+
+    private List<Long> ticketIds;
 }
