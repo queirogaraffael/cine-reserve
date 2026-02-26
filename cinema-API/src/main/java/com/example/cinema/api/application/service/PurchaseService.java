@@ -1,5 +1,7 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.application.exception.InvalidReservationStatusException;
+import com.example.cinema.api.application.exception.SessionNotAvailableForPurchaseException;
 import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.context.TicketPricingContext;
@@ -59,7 +61,11 @@ public class PurchaseService {
                             .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
 
             if (reservation.getStatus() != ReservationStatus.RESERVED) {
-                throw new IllegalStateException("Reserva inválida para consumo");
+                throw new InvalidReservationStatusException("Reserva inválida para consumo");
+            }
+
+            if(!reservation.getMovieSession().isAvailableForPurchase()){
+                throw new SessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() +" não está disponivel para compra.");
             }
 
             BigDecimal price = ticketPricingContext.calculate(item.getTicketCategory(), reservation.getMovieSession());
@@ -85,9 +91,7 @@ public class PurchaseService {
                 .updateIdempotencyKey(idPurchase, idempotencyKey);
 
         if (updated == 0) {
-            throw new ResourceNotFoundException(
-                    "Purchase " + idPurchase + " não encontrada."
-            );
+            throw new ResourceNotFoundException("Purchase " + idPurchase + " não encontrada.");
         }
     }
 

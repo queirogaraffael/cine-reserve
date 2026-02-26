@@ -14,6 +14,21 @@ import java.util.Optional;
 @Repository
 public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, Long> {
 
+    @Query(value = """
+    SELECT EXISTS (
+        SELECT 1 FROM ticket t
+        WHERE t.session_id = :sessionId
+        AND t.seat_number = :seatNumber
+    )
+    OR EXISTS (
+        SELECT 1 FROM seat_reservations r
+        WHERE r.session_id = :sessionId
+        AND r.seat_number = :seatNumber
+        AND r.status IN ('RESERVED', 'CONSUMED')
+    )
+    """, nativeQuery = true)
+    boolean isSeatUnavailable(int seatNumber, Long sessionId);
+
     @Query("""
                 SELECT COUNT(ms) > 0
                 FROM MovieSession ms

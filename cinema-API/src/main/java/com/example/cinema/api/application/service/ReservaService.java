@@ -1,5 +1,6 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.application.exception.InvalidSeatNumberException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.user.User;
@@ -38,13 +39,16 @@ public class ReservaService {
         MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sessão de filme não encontrada"));
 
-        Integer roomCapacity =
-                movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(movieSessionId);
+        Integer roomCapacity = movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(movieSessionId);
 
         int seatNumber = dto.getSeatNumber();
 
         if (seatNumber < 1 || seatNumber > roomCapacity) {
-            throw new IllegalArgumentException("Assento inválido");
+            throw new InvalidSeatNumberException("Assento inválido");
+        }
+
+        if (movieSessionRepositoryJpa.isSeatUnavailable(seatNumber, movieSessionId)) {
+            throw new SeatAlreadyReservedException("Assento já está reservado.");
         }
 
         User user = userService.getAuthenticatedUser();
@@ -71,6 +75,8 @@ public class ReservaService {
         User user = userService.getAuthenticatedUser();
 
         int updated = seatReservationRepositoryJpa.cancelReservation(idReserva, user);
+
+        // TODO: utilizar metodo da entidade
 
         if (updated == 0) {
             throw new ResourceNotFoundException("Reserva não encontrada/não pode ser cancelada");
