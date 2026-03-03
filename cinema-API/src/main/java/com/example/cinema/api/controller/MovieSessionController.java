@@ -43,6 +43,18 @@ public class MovieSessionController {
         return ResponseEntity.created(uri).body(movieSessionResponseDTO);
     }
 
+    @Operation(summary = "Buscar sessão por ID", description = "Retorna os detalhes de uma sessão específica pelo seu ID")
+    @ApiResponse(responseCode = "200", description = "Sessão encontrada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/{sessionId}")
+    public ResponseEntity<MovieSessionResponseDTO> getMovieSessionById(@PathVariable Long sessionId) {
+        MovieSessionResponseDTO response = movieSessionService.getMovieSessionById(sessionId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "Listar assentos disponíveis da sessão", description = "Retorna os números dos assentos disponíveis para uma sessão específica")
     @ApiResponse(responseCode = "200", description = "Lista de assentos disponíveis retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Sessão não encontrada")

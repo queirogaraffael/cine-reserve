@@ -74,6 +74,14 @@ public class MovieSessionService {
     }
 
     @Transactional(readOnly = true)
+    public MovieSessionResponseDTO getMovieSessionById(Long movieSessionId){
+
+        MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId).orElseThrow(()-> new ResourceNotFoundException("MovieSession: " + movieSessionId + " não encontrada."));
+
+        return sessionMapper.toResponseDTO(movieSession);
+    }
+
+    @Transactional(readOnly = true)
     public List<Integer> getAvailableSeats(Long sessionId) {
 
         MovieSession session = movieSessionRepositoryJpa.findById(sessionId).orElseThrow(() -> new ResourceNotFoundException("Sessão " + sessionId + " não encontrada."));
