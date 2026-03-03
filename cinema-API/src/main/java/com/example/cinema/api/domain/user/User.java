@@ -19,11 +19,12 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(unique = true, nullable = false)
@@ -32,6 +33,7 @@ public class User implements UserDetails {
     private String name;
 
     @Column(unique = true, nullable = false)
+    @EqualsAndHashCode.Include
     private String cpf;
 
     @Column(unique = true, nullable = false)
@@ -98,11 +100,7 @@ public class User implements UserDetails {
             return false;
         }
 
-        if (this.lockTime != null && this.lockTime.isAfter(LocalDateTime.now())) {
-            return false;
-        }
-
-        return true;
+        return this.lockTime == null || !this.lockTime.isAfter(LocalDateTime.now());
     }
 
     @Override
