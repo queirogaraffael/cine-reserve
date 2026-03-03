@@ -46,6 +46,8 @@ public class MovieSessionController {
     @Operation(summary = "Listar assentos disponíveis da sessão", description = "Retorna os números dos assentos disponíveis para uma sessão específica")
     @ApiResponse(responseCode = "200", description = "Lista de assentos disponíveis retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{sessionId}/available-seats")
     public ResponseEntity<List<Integer>> getAvailableSeats(@PathVariable Long sessionId) {
 
