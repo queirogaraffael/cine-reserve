@@ -3,12 +3,15 @@ package com.example.cinema.api.application.service;
 import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.Room;
+import com.example.cinema.api.domain.ticket.Ticket;
+import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 
+import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
 import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import com.example.cinema.api.application.mapper.SessionMapper;
 import org.springframework.stereotype.Service;
@@ -25,16 +28,17 @@ public class MovieSessionService {
     private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
     private final MovieRepositoryJpa movieRepositoryJpa;
     private final RoomRepositoryJpa roomRepositoryJpa;
+    private final TicketRepositoryJpa ticketRepositoryJpa;
     private final SessionMapper sessionMapper;
+    private final UserService userService;
 
-    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa,
-                               MovieRepositoryJpa movieRepositoryJpa,
-                               RoomRepositoryJpa roomRepositoryJpa,
-                               SessionMapper sessionMapper) {
+    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa, MovieRepositoryJpa movieRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa, TicketRepositoryJpa ticketRepositoryJpa, SessionMapper sessionMapper, UserService userService) {
         this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
         this.movieRepositoryJpa = movieRepositoryJpa;
         this.roomRepositoryJpa = roomRepositoryJpa;
+        this.ticketRepositoryJpa = ticketRepositoryJpa;
         this.sessionMapper = sessionMapper;
+        this.userService = userService;
     }
 
     @Transactional
@@ -84,6 +88,18 @@ public class MovieSessionService {
                 .filter(seat -> !unavailableSet.contains(seat))
                 .boxed()
                 .toList();
+    }
+
+    @Transactional
+    public MovieSessionResponseDTO findMovieSessionByTicketId(Long ticketId){
+
+        User user = userService.getAuthenticatedUser();
+
+        Ticket ticket = ticketRepositoryJpa.findByIdAndUser(ticketId, user).orElseThrow(() -> new ResourceNotFoundException("Ticket: " + ticketId + " não encontrado."));
+
+        return movieSessionRepositoryJpa.findMovieSessionByTicketId(ticket.getId())
+                .orElseThrow(()-> new ResourceNotFoundException("MovieSession para Ticket: " + ticketId + " não encontrada."));
+
     }
 
 }

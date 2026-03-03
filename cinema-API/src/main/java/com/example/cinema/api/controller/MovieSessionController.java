@@ -56,4 +56,19 @@ public class MovieSessionController {
         return ResponseEntity.ok(availableSeats);
     }
 
+    @Operation(
+            summary = "Buscar sessão pelo ID do ticket",
+            description = "Retorna a sessão de filme associada a um ticket que pertence ao usuário autenticado")
+    @ApiResponse(responseCode = "200", description = "Sessão encontrada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Ticket ou sessão não encontrados")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/by-ticket/{ticketId}")
+    public ResponseEntity<MovieSessionResponseDTO> findMovieSessionByTicketId(@PathVariable Long ticketId) {
+
+        MovieSessionResponseDTO response = movieSessionService.findMovieSessionByTicketId(ticketId);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

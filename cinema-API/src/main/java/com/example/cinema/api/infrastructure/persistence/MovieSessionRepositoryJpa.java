@@ -75,7 +75,7 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
     FROM MovieSession ms
     JOIN ms.tickets t
     WHERE t.id = :ticketId
-""")
+    """)
     Optional<MovieSessionResponseDTO> findMovieSessionByTicketId(@Param("ticketId") Long ticketId);
 
 }
