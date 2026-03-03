@@ -7,8 +7,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.application.exception.TokenCreationException;
-import com.example.cinema.api.application.exception.TokenValidationException;
+import com.example.cinema.api.infrastructure.security.exception.TokenCreationException;
+import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

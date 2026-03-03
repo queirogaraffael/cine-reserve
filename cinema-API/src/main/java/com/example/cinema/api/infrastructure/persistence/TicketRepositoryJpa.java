@@ -41,4 +41,13 @@ public interface TicketRepositoryJpa extends JpaRepository<Ticket, Long> {
         AND p.user = :user
     """)
     List<TicketResponseDTO> findAllDtosByPurchaseIdAndUser(@Param("purchaseId") Long purchaseId, @Param("user") User user);
+
+    @Query("""
+    SELECT t
+    FROM Ticket t
+    JOIN t.purchase p
+    WHERE t.id = :ticketId
+    AND p.user = :user
+    """)
+    Optional<Ticket> findByIdAndUser(@Param("ticketId") Long ticketId, @Param("user") User user);
 }

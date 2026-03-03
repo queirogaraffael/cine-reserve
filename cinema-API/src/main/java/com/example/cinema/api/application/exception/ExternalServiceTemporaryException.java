@@ -1,4 +1,4 @@
-package com.example.cinema.api.shared.exception;
+package com.example.cinema.api.application.exception;
 
 public class ExternalServiceTemporaryException extends RuntimeException {
     public ExternalServiceTemporaryException(String message) {

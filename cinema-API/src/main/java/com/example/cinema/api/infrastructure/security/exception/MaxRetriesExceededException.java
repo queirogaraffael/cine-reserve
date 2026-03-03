@@ -1,4 +1,4 @@
-package com.example.cinema.api.application.exception;
+package com.example.cinema.api.infrastructure.security.exception;
 
 import lombok.Getter;
 
