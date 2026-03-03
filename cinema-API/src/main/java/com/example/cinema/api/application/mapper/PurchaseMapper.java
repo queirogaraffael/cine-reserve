@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface PurchaseMapper {
@@ -17,8 +18,7 @@ public interface PurchaseMapper {
 
     PurchaseIdempotencyResponseDTO toPurchaseIdempotencyResponseDTO(Purchase purchase);
 
-
-    default List<Long> mapTickets(List<Ticket> tickets) {
+    default List<Long> mapTickets(Set<Ticket> tickets) {
 
         if (tickets == null) {
             return Collections.emptyList();
@@ -28,5 +28,4 @@ public interface PurchaseMapper {
                 .map(Ticket::getId)
                 .toList();
     }
-
 }

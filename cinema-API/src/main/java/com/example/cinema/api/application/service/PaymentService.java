@@ -1,9 +1,9 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;

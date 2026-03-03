@@ -56,7 +56,7 @@ public class ReservaController {
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> cancelarReserva(@PathVariable Long reservationId) {
 
-        reservaService.cancelarReserva(reservationId);
+        reservaService.cancelarReservaDeUsuario(reservationId);
 
         return ResponseEntity.noContent().build();
     }

@@ -70,13 +70,11 @@ public class ReservaService {
     }
 
     @Transactional
-    public void cancelarReserva(Long idReserva){
+    public void cancelarReservaDeUsuario(Long idReserva){
 
         User user = userService.getAuthenticatedUser();
 
         int updated = seatReservationRepositoryJpa.cancelReservation(idReserva, user);
-
-        // TODO: utilizar metodo da entidade
 
         if (updated == 0) {
             throw new ResourceNotFoundException("Reserva não encontrada/não pode ser cancelada");

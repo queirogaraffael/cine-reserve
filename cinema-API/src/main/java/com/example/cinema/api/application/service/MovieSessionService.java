@@ -47,8 +47,7 @@ public class MovieSessionService {
                 dto.getRoomId(),
                 dto.getShowDate(),
                 dto.getStartTime(),
-                dto.getEndTime()
-        );
+                dto.getEndTime());
 
         if (conflict) {
             throw new IllegalArgumentException("A sala já está reservada para esse horário.");
@@ -64,7 +63,6 @@ public class MovieSessionService {
         return sessionMapper.toResponseDTO(movieSession);
 
     }
-
 }
 
 
