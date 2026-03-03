@@ -10,13 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @Tag(name = "Movie Sessions")
@@ -43,6 +41,17 @@ public class MovieSessionController {
                 .buildAndExpand(movieSessionResponseDTO.getId()).toUri();
 
         return ResponseEntity.created(uri).body(movieSessionResponseDTO);
+    }
+
+    @Operation(summary = "Listar assentos disponíveis da sessão", description = "Retorna os números dos assentos disponíveis para uma sessão específica")
+    @ApiResponse(responseCode = "200", description = "Lista de assentos disponíveis retornada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @GetMapping("/{sessionId}/available-seats")
+    public ResponseEntity<List<Integer>> getAvailableSeats(@PathVariable Long sessionId) {
+
+        List<Integer> availableSeats = movieSessionService.getAvailableSeats(sessionId);
+
+        return ResponseEntity.ok(availableSeats);
     }
 
 }

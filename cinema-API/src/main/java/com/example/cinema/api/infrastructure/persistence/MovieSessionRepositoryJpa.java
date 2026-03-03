@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,6 +29,18 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
     )
     """, nativeQuery = true)
     boolean isSeatUnavailable(int seatNumber, Long sessionId);
+
+    @Query(value = """
+    SELECT seat_number FROM tickets
+    WHERE session_id = :sessionId
+
+    UNION
+
+    SELECT seat_number FROM seat_reservations
+    WHERE session_id = :sessionId
+    AND status IN ('RESERVED', 'CONSUMED')
+    """, nativeQuery = true)
+    List<Integer> findUnavailableSeatNumbers(Long sessionId);
 
     @Query("""
                 SELECT COUNT(ms) > 0

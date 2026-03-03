@@ -14,6 +14,11 @@ import com.example.cinema.api.application.mapper.SessionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 @Service
 public class MovieSessionService {
 
@@ -63,6 +68,24 @@ public class MovieSessionService {
         return sessionMapper.toResponseDTO(movieSession);
 
     }
+
+    @Transactional(readOnly = true)
+    public List<Integer> getAvailableSeats(Long sessionId) {
+
+        MovieSession session = movieSessionRepositoryJpa.findById(sessionId).orElseThrow(() -> new ResourceNotFoundException("Sessão " + sessionId + " não encontrada."));
+
+        int capacity = session.getCinemaRoom().getCapacity();
+
+        List<Integer> unavailable = movieSessionRepositoryJpa.findUnavailableSeatNumbers(sessionId);
+
+        Set<Integer> unavailableSet = new HashSet<>(unavailable);
+
+        return IntStream.rangeClosed(1, capacity)
+                .filter(seat -> !unavailableSet.contains(seat))
+                .boxed()
+                .toList();
+    }
+
 }
 
 
