@@ -1,6 +1,5 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
@@ -63,10 +62,7 @@ public class PaymentService {
 
         // evento só é disparado para cartão, pois o pagamento é iniciado imediatamente (o que não acontece no PIX)
         if (payment.getPaymentMethod() == PaymentType.CARD) {
-            PaymentCardInitiatedNotificationData paymentCardInitiatedNotificationData = new PaymentCardInitiatedNotificationData(payment.getId(), user.getName(), user.getEmail(), payment.getPaymentDate(), purchase.getTotalPrice());
-
-            eventPublisher.publishEvent(
-                    new PaymentCardInitiatedEvent(this, paymentCardInitiatedNotificationData));
+            eventPublisher.publishEvent(new PaymentCardInitiatedEvent(payment.getId(), user.getId(), payment.getPaymentDate(), purchase.getTotalPrice()));
         }
 
         return response;

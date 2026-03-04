@@ -1,9 +1,9 @@
 package com.example.cinema.api.infrastructure.email;
 
+import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
-import com.example.cinema.api.application.dto.email.WelcomeNotificationData;
-import com.example.cinema.api.application.service.EmailService;
+import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
 import com.example.cinema.api.infrastructure.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -44,7 +44,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendWelcomeEmail(WelcomeNotificationData dto) {
+    public void sendWelcomeEmail(UserCreatedNotificationData dto) {
         String subject = "Bem-vindo(a) ao CineMaster!";
         String templateName = "welcome-user";
 

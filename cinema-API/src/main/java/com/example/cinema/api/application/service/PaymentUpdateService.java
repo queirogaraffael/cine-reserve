@@ -28,8 +28,7 @@ public class PaymentUpdateService {
 
         var paymentLocal = paymentRepositoryJpa.findByPurchaseId(purchaseId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId)
-                );
+                        new ResourceNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId));
 
         if (paymentLocal.getVersion() > event.getVersion()) {
             log.info("Evento desatualizado ignorado para o pagamento {}", purchaseId);

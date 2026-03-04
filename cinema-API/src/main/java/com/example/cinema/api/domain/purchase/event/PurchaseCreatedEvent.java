@@ -1,17 +1,19 @@
 package com.example.cinema.api.domain.purchase.event;
 
-import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
-public class PurchaseCreatedEvent extends ApplicationEvent {
+@AllArgsConstructor
+public class PurchaseCreatedEvent {
 
-    private final PurchaseCreatedNotificationData purchaseCreatedNotificationData;
-
-    public PurchaseCreatedEvent(Object source, PurchaseCreatedNotificationData purchaseCreatedNotificationData) {
-        super(source);
-        this.purchaseCreatedNotificationData = purchaseCreatedNotificationData;
-    }
+    private final Long purchaseId;
+    private final UUID userId;
+    private final BigDecimal totalPrice;
+    private final LocalDateTime purchaseDate;
 
 }

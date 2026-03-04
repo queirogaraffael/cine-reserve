@@ -1,17 +1,18 @@
 package com.example.cinema.api.domain.payment.events;
 
-import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
-public class PaymentCardInitiatedEvent extends ApplicationEvent {
+@AllArgsConstructor
+public class PaymentCardInitiatedEvent {
 
-    private final PaymentCardInitiatedNotificationData paymentCardInitiatedNotificationData;
-
-    public PaymentCardInitiatedEvent(Object source,
-                                     PaymentCardInitiatedNotificationData paymentCardInitiatedNotificationData) {
-        super(source);
-        this.paymentCardInitiatedNotificationData = paymentCardInitiatedNotificationData;
-    }
+    private Long idPayment;
+    private UUID userId;
+    private LocalDateTime paymentDate;
+    private BigDecimal totalPrice;
 }

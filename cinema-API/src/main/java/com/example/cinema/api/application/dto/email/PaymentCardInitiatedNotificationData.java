@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentCardInitiatedNotificationData {
 
-    private Long idPayment;
     private String name;
     private String email;
     private LocalDateTime paymentDate;

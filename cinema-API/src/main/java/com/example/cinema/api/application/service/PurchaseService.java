@@ -13,7 +13,6 @@ import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
-import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.application.dto.purchase.TicketItemDTO;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
@@ -82,9 +81,7 @@ public class PurchaseService {
 
         Purchase saved = purchaseRepository.save(purchase);
 
-        PurchaseCreatedNotificationData purchaseCreatedNotificationData = new PurchaseCreatedNotificationData(purchase.getId(), user.getName(), purchase.getPurchaseDate(), purchase.getTotalPrice(), user.getEmail());
-
-        eventPublisher.publishEvent(new PurchaseCreatedEvent(this, purchaseCreatedNotificationData));
+        eventPublisher.publishEvent(new PurchaseCreatedEvent(saved.getId(), user.getId(), saved.getTotalPrice(), saved.getPurchaseDate()));
 
         return purchaseMapper.toResponseDTO(saved);
     }

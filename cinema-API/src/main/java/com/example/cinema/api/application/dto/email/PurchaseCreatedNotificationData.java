@@ -1,18 +1,17 @@
 package com.example.cinema.api.application.dto.email;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class PurchaseCreatedNotificationData {
 
-    private Long IdPurchase;
-    private String name;
-    private LocalDateTime purchaseDate;
-    private BigDecimal totalPrice;
-    private String email;
+    private final String name;
+    private final String email;
+    private final LocalDateTime purchaseDate;
+    private final BigDecimal totalPrice;
 }

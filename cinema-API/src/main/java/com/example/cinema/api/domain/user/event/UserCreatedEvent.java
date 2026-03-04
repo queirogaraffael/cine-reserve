@@ -1,16 +1,14 @@
 package com.example.cinema.api.domain.user.event;
 
-import com.example.cinema.api.application.dto.email.WelcomeNotificationData;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+
+import java.util.UUID;
 
 @Getter
-public class UserCreatedEvent extends ApplicationEvent {
-
-    private final WelcomeNotificationData welcomeNotificationData;
-
-    public UserCreatedEvent(Object source, WelcomeNotificationData welcomeNotificationData) {
-        super(source);
-        this.welcomeNotificationData = welcomeNotificationData;
-    }
+@AllArgsConstructor
+public class UserCreatedEvent {
+    private UUID userId;
+    private String name;
+    private String email;
 }

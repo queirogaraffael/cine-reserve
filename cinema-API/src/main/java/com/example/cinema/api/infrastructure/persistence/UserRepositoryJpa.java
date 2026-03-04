@@ -1,5 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
+import com.example.cinema.api.infrastructure.persistence.projection.UserNameEmailProjection;
 import com.example.cinema.api.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,4 +30,6 @@ public interface UserRepositoryJpa extends JpaRepository<User, UUID> {
     @Modifying
     @Query("UPDATE users u SET u.failedAttempt = :attempts, u.lockTime = :lockTime WHERE u.username = :username")
     void lockUser(String username, int attempts, LocalDateTime lockTime);
+
+    Optional<UserNameEmailProjection> findProjectedById(UUID id);
 }

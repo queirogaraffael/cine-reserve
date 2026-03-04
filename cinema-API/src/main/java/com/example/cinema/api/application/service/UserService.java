@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.application.dto.email.WelcomeNotificationData;
+import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
 import com.example.cinema.api.application.dto.user.ChangePasswordData;
 import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
@@ -59,9 +59,9 @@ public class UserService implements UserDetailsService  {
 
         User user = userRepositoryJpa.save(newUser);
 
-        WelcomeNotificationData welcomeNotificationData = new WelcomeNotificationData(user.getName(), user.getEmail());
+        UserCreatedNotificationData welcomeNotificationData = new UserCreatedNotificationData(user.getName(), user.getEmail());
 
-        eventPublisher.publishEvent(new UserCreatedEvent(this, welcomeNotificationData));
+        eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), user.getName(), user.getEmail()));
 
         return userMapper.toResponseDTO(user);
 
