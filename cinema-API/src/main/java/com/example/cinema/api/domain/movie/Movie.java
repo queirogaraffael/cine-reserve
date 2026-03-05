@@ -1,8 +1,8 @@
 package com.example.cinema.api.domain.movie;
 
 import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.movie.exception.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,6 @@ import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Movie {
@@ -35,5 +34,33 @@ public class Movie {
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MovieSession> movieSessions = new ArrayList<>();
 
+    public Movie(String title, String description, LocalDate releaseDate, int duration, String imageUrl, Genre genre) {
 
+        if (title == null || title.isBlank()) {
+            throw new TituloFilmeObrigatorioException("O título do filme é obrigatório.");
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new DescricaoFilmeObrigatoriaException("A descrição do filme é obrigatória.");
+        }
+
+        if (releaseDate == null) {
+            throw new DataLancamentoObrigatoriaException("A data de lançamento é obrigatória.");
+        }
+
+        if (duration <= 0) {
+            throw new DuracaoFilmeInvalidaException("A duração do filme deve ser maior que zero.");
+        }
+
+        if (genre == null) {
+            throw new GeneroFilmeObrigatorioException("O gênero do filme é obrigatório.");
+        }
+
+        this.title = title;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.imageUrl = imageUrl;
+        this.genre = genre;
+    }
 }

@@ -33,11 +33,10 @@ public class MovieService {
     @Transactional
     @CachePut(value = "movies", key = "#result.id")
     public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
-        Genre genre = genreRepository.findById(genreId)
-                .orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
 
-        Movie movie = movieMapper.toEntity(dto);
-        movie.setGenre(genre);
+        Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre);
+
         Movie movieSaved = movieRepositoryJpa.save(movie);
         return movieMapper.toDTO(movieSaved);
     }

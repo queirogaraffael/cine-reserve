@@ -1,13 +1,13 @@
 package com.example.cinema.api.shared.exception;
 
 import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
+import com.example.cinema.api.domain.movie.exception.*;
 import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
 import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
 import com.example.cinema.api.application.exception.RoomScheduleConflictException;
 import com.example.cinema.api.application.exception.*;
-import com.example.cinema.api.domain.movie.exception.InvalidSessionTimeRangeException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
@@ -220,6 +220,31 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(GenreNameRequiredException.class)
     public ResponseEntity<String> handleGenreNameRequiredException(GenreNameRequiredException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(TituloFilmeObrigatorioException.class)
+    public ResponseEntity<String> handleTituloFilmeObrigatorio(TituloFilmeObrigatorioException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DescricaoFilmeObrigatoriaException.class)
+    public ResponseEntity<String> handleDescricaoFilmeObrigatoria(DescricaoFilmeObrigatoriaException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DataLancamentoObrigatoriaException.class)
+    public ResponseEntity<String> handleDataLancamentoObrigatoria(DataLancamentoObrigatoriaException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DuracaoFilmeInvalidaException.class)
+    public ResponseEntity<String> handleDuracaoFilmeInvalida(DuracaoFilmeInvalidaException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(GeneroFilmeObrigatorioException.class)
+    public ResponseEntity<String> handleGeneroFilmeObrigatorio(GeneroFilmeObrigatorioException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }
