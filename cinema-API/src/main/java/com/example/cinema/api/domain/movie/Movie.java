@@ -37,23 +37,23 @@ public class Movie {
     public Movie(String title, String description, LocalDate releaseDate, int duration, String imageUrl, Genre genre) {
 
         if (title == null || title.isBlank()) {
-            throw new TituloFilmeObrigatorioException("O título do filme é obrigatório.");
+            throw new MovieTitleRequiredException("O título do filme é obrigatório.");
         }
 
         if (description == null || description.isBlank()) {
-            throw new DescricaoFilmeObrigatoriaException("A descrição do filme é obrigatória.");
+            throw new MovieDescriptionRequiredException("A descrição do filme é obrigatória.");
         }
 
         if (releaseDate == null) {
-            throw new DataLancamentoObrigatoriaException("A data de lançamento é obrigatória.");
+            throw new ReleaseDateRequiredException("A data de lançamento é obrigatória.");
         }
 
         if (duration <= 0) {
-            throw new DuracaoFilmeInvalidaException("A duração do filme deve ser maior que zero.");
+            throw new InvalidMovieDurationException("A duração do filme deve ser maior que zero.");
         }
 
         if (genre == null) {
-            throw new GeneroFilmeObrigatorioException("O gênero do filme é obrigatório.");
+            throw new MovieGenreRequiredException("O gênero do filme é obrigatório.");
         }
 
         this.title = title;

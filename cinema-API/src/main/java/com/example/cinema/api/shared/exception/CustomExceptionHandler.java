@@ -1,7 +1,12 @@
 package com.example.cinema.api.shared.exception;
 
+import com.example.cinema.api.domain.exception.UserRequiredException;
+import com.example.cinema.api.domain.exception.IdempotencyKeyRequiredException;
+import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
+import com.example.cinema.api.domain.exception.SeatReservationRequiredException;
 import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
 import com.example.cinema.api.domain.movie.exception.*;
+import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
@@ -12,7 +17,7 @@ import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymen
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
-import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
+import com.example.cinema.api.domain.room.exception.RoomNumberAlreadyExistsException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
 import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
@@ -82,8 +87,8 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(NumeroDeQuartoJaCadastradoException.class)
-    public ResponseEntity<Object> handleNumeroDeQuartoJaCadastradoException(NumeroDeQuartoJaCadastradoException ex) {
+    @ExceptionHandler(RoomNumberAlreadyExistsException.class)
+    public ResponseEntity<Object> handleNumeroDeQuartoJaCadastradoException(RoomNumberAlreadyExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
@@ -146,11 +151,6 @@ public class CustomExceptionHandler {
     @ExceptionHandler(SeatAlreadyReservedException.class)
     public ResponseEntity<?> handleDataIntegrity(SeatAlreadyReservedException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Assento já reservado.");
-    }
-
-    @ExceptionHandler(SeatReservationExpiredException.class)
-    public ResponseEntity<?> handleSeatReservationExpired(SeatReservationExpiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -223,28 +223,58 @@ public class CustomExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(TituloFilmeObrigatorioException.class)
-    public ResponseEntity<String> handleTituloFilmeObrigatorio(TituloFilmeObrigatorioException ex) {
+    @ExceptionHandler(MovieTitleRequiredException.class)
+    public ResponseEntity<String> handleTituloFilmeObrigatorio(MovieTitleRequiredException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(DescricaoFilmeObrigatoriaException.class)
-    public ResponseEntity<String> handleDescricaoFilmeObrigatoria(DescricaoFilmeObrigatoriaException ex) {
+    @ExceptionHandler(MovieDescriptionRequiredException.class)
+    public ResponseEntity<String> handleDescricaoFilmeObrigatoria(MovieDescriptionRequiredException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(DataLancamentoObrigatoriaException.class)
-    public ResponseEntity<String> handleDataLancamentoObrigatoria(DataLancamentoObrigatoriaException ex) {
+    @ExceptionHandler(ReleaseDateRequiredException.class)
+    public ResponseEntity<String> handleDataLancamentoObrigatoria(ReleaseDateRequiredException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(DuracaoFilmeInvalidaException.class)
-    public ResponseEntity<String> handleDuracaoFilmeInvalida(DuracaoFilmeInvalidaException ex) {
+    @ExceptionHandler(InvalidMovieDurationException.class)
+    public ResponseEntity<String> handleDuracaoFilmeInvalida(InvalidMovieDurationException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(GeneroFilmeObrigatorioException.class)
-    public ResponseEntity<String> handleGeneroFilmeObrigatorio(GeneroFilmeObrigatorioException ex) {
+    @ExceptionHandler(MovieGenreRequiredException.class)
+    public ResponseEntity<String> handleGeneroFilmeObrigatorio(MovieGenreRequiredException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PurchaseModificationNotAllowedException.class)
+    public ResponseEntity<String> handleCompraNaoPodeSerModificadaException(PurchaseModificationNotAllowedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SeatReservationRequiredException.class)
+    public ResponseEntity<String> handleReservaAssentoObrigatoriaException(SeatReservationRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTicketPriceException.class)
+    public ResponseEntity<String> handlePrecoIngressoInvalidoException(InvalidTicketPriceException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SeatReservationExpiredException.class)
+    public ResponseEntity<String> handleSeatReservationExpiredException(SeatReservationExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserRequiredException.class)
+    public ResponseEntity<String> handleUsuarioObrigatorioException(UserRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IdempotencyKeyRequiredException.class)
+    public ResponseEntity<String> handleChaveIdempotenciaObrigatoriaException(IdempotencyKeyRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }
