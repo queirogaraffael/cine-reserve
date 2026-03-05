@@ -34,7 +34,8 @@ public class RoomService {
             throw new NumeroDeQuartoJaCadastradoException("Número de sala já cadastrado");
         }
 
-        Room room = roomMapper.toEntity(roomRequestDTO);
+        Room room = new Room(roomRequestDTO.getNumber(), roomRequestDTO.getCapacity());
+
         room = roomRepositoryJpa.save(room);
         return roomMapper.toDTO(room);
     }

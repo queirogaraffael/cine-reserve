@@ -1,19 +1,17 @@
 package com.example.cinema.api.domain.room;
 
 import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
+import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Room {
 
@@ -28,5 +26,24 @@ public class Room {
 
     @OneToMany(mappedBy = "cinemaRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MovieSession> movieSessions = new ArrayList<>();
+
+    public Room(String numero, int capacidade) {
+
+        if (numero == null || numero.isBlank()) {
+            throw new RoomInvalidNumberException("O número da sala não pode ser nulo ou vazio");
+        }
+
+        if (capacidade <= 0) {
+            throw new RoomInvalidCapacityException("A capacidade da sala deve ser maior que zero");
+        }
+
+        this.number = numero;
+        this.capacity = capacidade;
+    }
+
+    public void addSession(MovieSession session) {
+        movieSessions.add(session);
+        session.setCinemaRoom(this);
+    }
 
 }

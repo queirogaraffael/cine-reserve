@@ -9,8 +9,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface RoomMapper {
 
-    Room toEntity(RoomRequestDTO roomRequestDTO);
-
     RoomResponseDTO toDTO(Room room);
 
     void updateEntityFromDTO(RoomRequestDTO dto, @MappingTarget Room room);
