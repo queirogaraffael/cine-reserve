@@ -10,9 +10,6 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface GenreMapper {
-
-    Genre toEntity(GenreRequestDTO dto);
-
     GenreResponseDTO toDTO(Genre genre);
     void updateEntityFromDTO(GenreUpdateDTO dto, @MappingTarget Genre genre);
     GenreResponseDTO toDTO(GenreResponseDTOProjection projection);

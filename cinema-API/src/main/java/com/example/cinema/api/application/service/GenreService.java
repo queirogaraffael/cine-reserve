@@ -32,7 +32,9 @@ public class GenreService {
     @Transactional
     @CachePut(value = "genres", key = "#result.id")
     public GenreResponseDTO create(GenreRequestDTO dto) {
-        Genre genero = genreMapper.toEntity(dto);
+
+        Genre genero = new Genre(dto.getName());
+
         return genreMapper.toDTO(genreRepository.save(genero));
     }
 

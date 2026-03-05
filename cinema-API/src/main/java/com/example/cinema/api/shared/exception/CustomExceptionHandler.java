@@ -1,5 +1,6 @@
 package com.example.cinema.api.shared.exception;
 
+import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
@@ -214,6 +215,11 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(RoomInvalidNumberException.class)
     public ResponseEntity<String> handleRoomInvalidNumber(RoomInvalidNumberException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(GenreNameRequiredException.class)
+    public ResponseEntity<String> handleGenreNameRequiredException(GenreNameRequiredException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }
