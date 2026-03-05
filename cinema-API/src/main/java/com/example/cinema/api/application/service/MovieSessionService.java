@@ -1,5 +1,7 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.application.exception.RoomScheduleConflictException;
+import com.example.cinema.api.domain.movie.exception.InvalidSessionTimeRangeException;
 import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.Room;
@@ -45,27 +47,20 @@ public class MovieSessionService {
     public MovieSessionResponseDTO createSession(MovieSessionRequestDTO dto) {
 
         if (!dto.getStartTime().isBefore(dto.getEndTime())) {
-            throw new IllegalArgumentException("A hora de início deve ser antes da hora de término.");
+            throw new InvalidSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
 
         Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
 
         Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
 
-        boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(
-                dto.getRoomId(),
-                dto.getShowDate(),
-                dto.getStartTime(),
-                dto.getEndTime());
+        boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(dto.getRoomId(), dto.getShowDate(), dto.getStartTime(), dto.getEndTime());
 
         if (conflict) {
-            throw new IllegalArgumentException("A sala já está reservada para esse horário.");
+            throw new RoomScheduleConflictException("A sala já está reservada para esse horário.");
         }
 
-        MovieSession movieSession = sessionMapper.toEntity(dto);
-
-        movieSession.setMovie(movie);
-        movieSession.setCinemaRoom(room);
+        MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(),dto.getBasePrice(), room, movie);
 
         movieSession = movieSessionRepositoryJpa.save(movieSession);
 
@@ -99,7 +94,7 @@ public class MovieSessionService {
     }
 
     @Transactional
-    public MovieSessionResponseDTO findMovieSessionByTicketId(Long ticketId){
+    public MovieSessionResponseDTO getMovieSessionByTicketId(Long ticketId){
 
         User user = userService.getAuthenticatedUser();
 

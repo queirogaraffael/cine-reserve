@@ -78,7 +78,7 @@ public class MovieSessionController {
     @GetMapping("/by-ticket/{ticketId}")
     public ResponseEntity<MovieSessionResponseDTO> findMovieSessionByTicketId(@PathVariable Long ticketId) {
 
-        MovieSessionResponseDTO response = movieSessionService.findMovieSessionByTicketId(ticketId);
+        MovieSessionResponseDTO response = movieSessionService.getMovieSessionByTicketId(ticketId);
 
         return ResponseEntity.ok(response);
     }

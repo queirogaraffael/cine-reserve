@@ -1,14 +1,13 @@
 package com.example.cinema.api.domain.movie;
 
 
+import com.example.cinema.api.domain.movie.exception.InvalidSessionTimeRangeException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.Ticket;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,8 +17,6 @@ import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class MovieSession {
 
@@ -52,7 +49,21 @@ public class MovieSession {
     @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
-    // metodo calcula o Status dinamicamene: SCHEDULED, ACTIVE, FINISHED ou CANCELED. -> evita inconsistencias
+    public MovieSession(LocalDate showDate, LocalTime startTime, LocalTime endTime, BigDecimal basePrice, Room cinemaRoom, Movie movie) {
+
+        if (!startTime.isBefore(endTime)) {
+            throw new InvalidSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
+        }
+
+        this.showDate = showDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.basePrice = basePrice;
+        this.cinemaRoom = cinemaRoom;
+        this.movie = movie;
+        this.canceled = false;
+    }
+
     @Transient
     public MovieSessionStatus getStatus() {
         if (canceled) {
@@ -71,7 +82,6 @@ public class MovieSession {
         return MovieSessionStatus.FINISHED;
     }
 
-    // Metodo indica se MovieSession está aberta para a venda de ingressos.
     @Transient
     public boolean isAvailableForPurchase() {
         return !canceled && getStatus() == MovieSessionStatus.SCHEDULED;
