@@ -4,7 +4,6 @@ import com.example.cinema.api.application.exception.InvalidSeatNumberException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.user.User;
-import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
@@ -15,8 +14,6 @@ import com.example.cinema.api.application.mapper.SeatReservationMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 public class ReservaService {
@@ -53,11 +50,7 @@ public class ReservaService {
 
         User user = userService.getAuthenticatedUser();
 
-        SeatReservation reservation = seatReservationMapper.toEntity(dto);
-        reservation.setMovieSession(movieSession);
-        reservation.setUser(user);
-        reservation.setStatus(ReservationStatus.RESERVED);
-        reservation.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        SeatReservation reservation = new SeatReservation(movieSession, dto.getSeatNumber(), user);
 
         try {
             SeatReservation savedSeatReservation = seatReservationRepositoryJpa.save(reservation);
@@ -70,15 +63,14 @@ public class ReservaService {
     }
 
     @Transactional
-    public void cancelarReservaDeUsuario(Long idReserva){
+    public void cancelarReservaDeUsuario(Long idReserva) {
 
         User user = userService.getAuthenticatedUser();
 
-        int updated = seatReservationRepositoryJpa.cancelReservation(idReserva, user);
+        SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(idReserva, user).orElseThrow(() ->
+                        new ResourceNotFoundException("Reserva de usurio: " + user.getId() +"não encontrada"));
 
-        if (updated == 0) {
-            throw new ResourceNotFoundException("Reserva não encontrada/não pode ser cancelada");
-        }
+        reservation.cancel();
     }
 
 }

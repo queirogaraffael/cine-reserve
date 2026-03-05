@@ -17,19 +17,8 @@ public interface SeatReservationRepositoryJpa extends JpaRepository<SeatReservat
     SET r.status = 'EXPIRED'
     WHERE r.status = 'RESERVED'
       AND r.expiresAt < :now
-""")
+    """)
     void expireOldReservations(LocalDateTime now);
 
     Optional<SeatReservation> findByIdAndUser(Long reservationId, User user);
-
-    @Modifying
-    @Query("""
-    UPDATE SeatReservation r
-    SET r.status = 'CANCELLED'
-    WHERE r.id = :reservationId
-      AND r.user = :user
-      AND r.status = 'RESERVED'
-    """)
-    int cancelReservation(Long reservationId, User user);
-
 }

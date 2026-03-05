@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.event.listener;
+package com.example.cinema.api.infrastructure.event.listener.purchase;
 
 import com.example.cinema.api.infrastructure.persistence.projection.UserNameEmailProjection;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;

@@ -2,6 +2,7 @@ package com.example.cinema.api.shared.exception;
 
 import com.example.cinema.api.application.exception.*;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
 import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
 import com.example.cinema.api.domain.room.exception.NumeroDeQuartoJaCadastradoException;
@@ -174,4 +175,10 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handleSessionNotAvailableForPurchaseException(SessionNotAvailableForPurchaseException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    @ExceptionHandler(ReservationCannotBeCancelledException.class)
+    public ResponseEntity<?> handleReservationCannotBeCancelledException(ReservationCannotBeCancelledException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
 }

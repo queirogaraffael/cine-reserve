@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.event.listener;
+package com.example.cinema.api.infrastructure.event.listener.user;
 
 import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;

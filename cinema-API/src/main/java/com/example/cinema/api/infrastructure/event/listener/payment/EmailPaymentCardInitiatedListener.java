@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.event.listener;
+package com.example.cinema.api.infrastructure.event.listener.payment;
 
 import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
 import com.example.cinema.api.application.service.EmailService;
