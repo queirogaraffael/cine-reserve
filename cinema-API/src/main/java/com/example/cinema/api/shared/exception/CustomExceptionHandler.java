@@ -1,5 +1,7 @@
 package com.example.cinema.api.shared.exception;
 
+import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
+import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
 import com.example.cinema.api.application.exception.RoomScheduleConflictException;
 import com.example.cinema.api.application.exception.*;
 import com.example.cinema.api.domain.movie.exception.InvalidSessionTimeRangeException;
@@ -191,5 +193,15 @@ public class CustomExceptionHandler {
     @ExceptionHandler(RoomScheduleConflictException.class)
     public ResponseEntity<?> handleRoomScheduleConflictException(RoomScheduleConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PurchaseRequiredException.class)
+    public ResponseEntity<String> handlePurchaseRequired(PurchaseRequiredException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PaymentMethodRequiredException.class)
+    public ResponseEntity<String> handlePaymentMethodRequired(PaymentMethodRequiredException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

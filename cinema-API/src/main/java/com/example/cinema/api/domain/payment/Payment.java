@@ -1,19 +1,17 @@
 package com.example.cinema.api.domain.payment;
 
+import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
+import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
 import com.example.cinema.api.domain.purchase.Purchase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Payment {
 
@@ -28,11 +26,11 @@ public class Payment {
 
     private int version;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @NotNull
     private PaymentType paymentMethod;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @NotNull
     private PaymentStatus paymentStatus;
 
@@ -41,5 +39,21 @@ public class Payment {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id", unique = true)
     private Purchase purchase;
+
+    public Payment(Purchase purchase, PaymentType paymentMethod) {
+
+        if (purchase == null) {
+            throw new PurchaseRequiredException("A compra é obrigatória para criar um pagamento.");
+        }
+
+        if (paymentMethod == null) {
+            throw new PaymentMethodRequiredException("O método de pagamento é obrigatório.");
+        }
+
+        this.purchase = purchase;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = LocalDateTime.now();
+        this.paymentStatus = PaymentStatus.PENDING;
+    }
 
 }

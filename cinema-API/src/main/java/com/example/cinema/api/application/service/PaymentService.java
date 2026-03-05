@@ -18,8 +18,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 public class PaymentService {
 
@@ -41,7 +39,6 @@ public class PaymentService {
     public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO) {
         User user = userService.getAuthenticatedUser();
 
-        // garante que a compra seja de fato do usuario.
         Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada ou não pertence ao usuário"));
 
@@ -49,10 +46,7 @@ public class PaymentService {
             throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
         }
 
-        Payment payment = new Payment();
-        payment.setPurchase(purchase);
-        payment.setPaymentMethod(paymentRequestDTO.getPaymentType());
-        payment.setPaymentDate(LocalDateTime.now());
+        Payment payment = new Payment(purchase, paymentRequestDTO.getPaymentType());
 
         PaymentResponseDTO response = paymentContext.execute(purchase, user, paymentRequestDTO, payment);
 
