@@ -65,7 +65,9 @@ public class RoomService {
             throw new RoomNumberAlreadyExistsException("Número de sala já cadastrado");
         }
 
-        roomMapper.updateEntityFromDTO(roomRequestDTO, room);
+        room.changeNumber(roomRequestDTO.getNumber());
+        room.changeCapacity(roomRequestDTO.getCapacity());
+
         return roomMapper.toDTO(roomRepositoryJpa.save(room));
     }
 

@@ -3,17 +3,16 @@ package com.example.cinema.api.domain.genre;
 import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
 import com.example.cinema.api.domain.movie.Movie;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Genre {
 
     @Id
@@ -24,7 +23,9 @@ public class Genre {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @Setter(AccessLevel.NONE)
     private List<Movie> movies = new ArrayList<>();
 
     public Genre(String name) {
@@ -34,6 +35,11 @@ public class Genre {
         }
 
         this.name = name;
+    }
+
+    public void addMovie(Movie movie) {
+        movies.add(movie);
+        movie.setGenre(this);
     }
 
 }

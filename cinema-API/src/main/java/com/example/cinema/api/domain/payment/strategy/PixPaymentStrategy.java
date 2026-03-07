@@ -34,9 +34,9 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
 
         PixGatewayResult result = paymentGatewayService.createPixPayment(purchase, user, pixRequest);
 
-        payment.setTransactionId(result.getTransactionId());
-        payment.setPaymentStatus(PaymentStatus.fromValue(result.getStatus()));
-        payment.setStatusDetail(result.getStatusDetail());
+        payment.registerTransaction(result.getTransactionId());
+
+        payment.updateStatus(PaymentStatus.fromValue(result.getStatus()), result.getStatusDetail());
 
         return PixPaymentResponseDTO.builder()
                 .paymentStatus(payment.getPaymentStatus())

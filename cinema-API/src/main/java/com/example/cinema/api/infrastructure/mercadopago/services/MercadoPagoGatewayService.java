@@ -80,9 +80,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             }
 
             String statusDetails = payment.getStatusDetail();
-
-            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
-
+            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
             String status = payment.getStatus();
 
             return new PixGatewayResult(
@@ -133,7 +131,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
 
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
-            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
+            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
             String status = payment.getStatus();
             String statusDetail = payment.getStatusDetail();
             Integer installments = payment.getInstallments();

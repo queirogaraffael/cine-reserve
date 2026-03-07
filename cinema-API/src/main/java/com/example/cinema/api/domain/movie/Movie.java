@@ -3,35 +3,38 @@ package com.example.cinema.api.domain.movie;
 import com.example.cinema.api.domain.genre.Genre;
 import com.example.cinema.api.domain.movie.exception.*;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Movie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @EqualsAndHashCode.Include
     private Long id;
+
     private String title;
     private String description;
     private LocalDate releaseDate;
     private int duration;
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "genre_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "genre_id", nullable = false)
+    @ToString.Exclude
     private Genre genre;
 
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @Setter(AccessLevel.NONE)
     private List<MovieSession> movieSessions = new ArrayList<>();
 
     public Movie(String title, String description, LocalDate releaseDate, int duration, String imageUrl, Genre genre) {
@@ -61,6 +64,15 @@ public class Movie {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.imageUrl = imageUrl;
-        this.genre = genre;
+
+        genre.addMovie(this);
     }
+
+    public void addMovieSession(MovieSession session) {
+        if (!movieSessions.contains(session)) {
+            movieSessions.add(session);
+            session.setMovie(this);
+        }
+    }
+
 }

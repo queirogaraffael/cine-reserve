@@ -77,7 +77,7 @@ public class PurchaseService {
             reservation.consume();
         }
 
-        purchase.setPurchaseStatus(purchase.getPurchaseStatus().transitionTo(PurchaseStatus.WAITING_PAYMENT));
+        purchase.moveToStatus(PurchaseStatus.WAITING_PAYMENT);
 
         Purchase saved = purchaseRepository.save(purchase);
 
@@ -97,7 +97,7 @@ public class PurchaseService {
             throw new PurchaseAlreadyHasPaymentException("IdempotencyKey não pode ser modificada porque um Pagamento já está associado.");
         }
 
-        purchase.setIdempotencyKey(idempotencyKey);
+        purchase.changeIdempotencyKey(idempotencyKey);
 
         Purchase purchaseSaved = purchaseRepository.save(purchase);
 

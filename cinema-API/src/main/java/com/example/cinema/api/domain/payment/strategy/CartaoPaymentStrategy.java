@@ -34,9 +34,9 @@ public class CartaoPaymentStrategy implements PaymentStrategy<CardPaymentRequest
 
         CardGatewayResult result = paymentGatewayService.createCardPayment(purchase, user, cardRequest);
 
-        payment.setTransactionId(result.getTransactionId());
-        payment.setPaymentStatus(PaymentStatus.fromValue(result.getStatus()));
-        payment.setStatusDetail(result.getStatusDetail());
+        payment.registerTransaction(result.getTransactionId());
+
+        payment.updateStatus(PaymentStatus.fromValue(result.getStatus()), result.getStatusDetail());
 
         return CardPaymentResponseDTO.builder()
                 .paymentStatus(PaymentStatus.valueOf(result.getStatus()))

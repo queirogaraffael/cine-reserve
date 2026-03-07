@@ -1,16 +1,13 @@
 package com.example.cinema.api.shared.exception;
 
-import com.example.cinema.api.domain.exception.UserRequiredException;
-import com.example.cinema.api.domain.exception.IdempotencyKeyRequiredException;
+import com.example.cinema.api.domain.exception.*;
+import com.example.cinema.api.domain.payment.exception.*;
 import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
-import com.example.cinema.api.domain.exception.SeatReservationRequiredException;
 import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
 import com.example.cinema.api.domain.movie.exception.*;
 import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
-import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
-import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
 import com.example.cinema.api.application.exception.RoomScheduleConflictException;
 import com.example.cinema.api.application.exception.*;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
@@ -19,6 +16,8 @@ import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedExcepti
 import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
 import com.example.cinema.api.domain.room.exception.RoomNumberAlreadyExistsException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
+import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
+import com.example.cinema.api.domain.user.exception.PasswordReuseException;
 import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.example.cinema.api.infrastructure.exception.WebhookException;
@@ -276,5 +275,40 @@ public class CustomExceptionHandler {
     @ExceptionHandler(IdempotencyKeyRequiredException.class)
     public ResponseEntity<String> handleChaveIdempotenciaObrigatoriaException(IdempotencyKeyRequiredException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> handleSenhaInvalidaException(InvalidPasswordException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPaymentStatusException.class)
+    public ResponseEntity<String> handleStatusPagamentoInvalidoException(InvalidPaymentStatusException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTransactionIdException.class)
+    public ResponseEntity<String> handleTransactionIdInvalidoException(InvalidTransactionIdException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MovieSessionRequiredException.class)
+    public ResponseEntity<String> handleSessaoFilmeObrigatoriaException(MovieSessionRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PasswordReuseException.class)
+    public ResponseEntity<String> handleReutilizacaoSenhaException(PasswordReuseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SeatNumberRequiredException.class)
+    public ResponseEntity<String> handleNumeroAssentoObrigatorioException(SeatNumberRequiredException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(TransactionAlreadyRegisteredException.class)
+    public ResponseEntity<String> handleTransactionJaRegistradaException(TransactionAlreadyRegisteredException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 }

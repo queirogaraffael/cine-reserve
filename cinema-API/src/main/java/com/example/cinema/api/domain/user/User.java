@@ -1,5 +1,7 @@
 package com.example.cinema.api.domain.user;
 
+import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
+import com.example.cinema.api.domain.user.exception.PasswordReuseException;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import jakarta.persistence.*;
@@ -15,11 +17,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "users")
-@Data
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -40,22 +41,26 @@ public class User implements UserDetails {
     private String email;
 
     private String password;
+
     private LocalDate dataJoined;
+
     private LocalDate birthdate;
 
     private Integer failedAttempt = 0;
+
     private LocalDateTime lockTime;
+
     private boolean isLocked = false;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Purchase> purchases;
+    private List<Purchase> purchases = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
     public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
@@ -71,45 +76,40 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == UserRole.ADMIN)
+
+        if (role == UserRole.ADMIN)
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_USER"));
-        else
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-    }
+                    new SimpleGrantedAuthority("ROLE_USER")
+            );
 
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        if (this.isLocked) {
+
+        if (isLocked)
             return false;
+
+        return lockTime == null || !lockTime.isAfter(LocalDateTime.now());
+    }
+
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
+
+    public void changePassword(String newPassword) {
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new InvalidPasswordException("A senha não pode ser vazia.");
         }
 
-        return this.lockTime == null || !this.lockTime.isAfter(LocalDateTime.now());
+        if (newPassword.equals(this.password)) {
+            throw new PasswordReuseException("A nova senha deve ser diferente da atual.");
+        }
+
+        this.password = newPassword;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

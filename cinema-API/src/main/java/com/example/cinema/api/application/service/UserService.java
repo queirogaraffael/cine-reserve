@@ -4,7 +4,6 @@ import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
 import com.example.cinema.api.application.dto.user.ChangePasswordData;
 import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
@@ -58,8 +57,6 @@ public class UserService implements UserDetailsService  {
                 data.getBirthdate(), UserRole.USER);
 
         User user = userRepositoryJpa.save(newUser);
-
-        UserCreatedNotificationData welcomeNotificationData = new UserCreatedNotificationData(user.getName(), user.getEmail());
 
         eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), user.getName(), user.getEmail()));
 
@@ -118,7 +115,7 @@ public class UserService implements UserDetailsService  {
             throw new UserNotAuthenticatedException("Senha atual incorreta");
         }
 
-        user.setPassword(passwordEncoder.encode(data.getNewPassword()));
+        user.changePassword(passwordEncoder.encode(data.getNewPassword()));
         userRepositoryJpa.save(user);
     }
 

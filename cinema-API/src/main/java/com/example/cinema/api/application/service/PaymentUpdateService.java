@@ -7,6 +7,7 @@ import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
 import com.example.cinema.api.shared.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -18,6 +19,7 @@ public class PaymentUpdateService {
         this.paymentRepositoryJpa = paymentRepositoryJpa;
     }
 
+    @Transactional
     public void processPaymentUpdate(ExternalPaymentSnapshot externalPaymentSnapshot, PaymentWebhookEvent event) {
 
         if (externalPaymentSnapshot.getExternalReference() == null) {
@@ -30,24 +32,23 @@ public class PaymentUpdateService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId));
 
-        if (paymentLocal.getVersion() > event.getVersion()) {
+        if (paymentLocal.isOutdatedVersion(event.getVersion())) {
             log.info("Evento desatualizado ignorado para o pagamento {}", purchaseId);
             return;
         }
 
-        PaymentStatus newStatus = PaymentStatus.fromValue(externalPaymentSnapshot.getStatus());
+        paymentLocal.updateVersion(event.getVersion());
 
-        if (paymentLocal.getPaymentStatus() == newStatus) {
-            log.info("Pagamento {} já está no status {}", purchaseId, newStatus);
+        PaymentStatus novoStatus = PaymentStatus.fromValue(externalPaymentSnapshot.getStatus());
+
+        if (paymentLocal.getPaymentStatus() == novoStatus) {
+            log.info("Pagamento {} já está no status {}", purchaseId, novoStatus);
             return;
         }
 
-        paymentLocal.setPaymentStatus(paymentLocal.getPaymentStatus().transitionTo(newStatus));
-
-        paymentLocal.setStatusDetail(externalPaymentSnapshot.getStatusDetail());
+        paymentLocal.updateStatus(novoStatus, externalPaymentSnapshot.getStatusDetail());
 
         paymentRepositoryJpa.save(paymentLocal);
     }
 }
-
 
