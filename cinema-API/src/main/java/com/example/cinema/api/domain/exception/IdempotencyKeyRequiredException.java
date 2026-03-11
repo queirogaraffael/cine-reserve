@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.exception;
 
-public class IdempotencyKeyRequiredException extends RuntimeException {
+import com.example.cinema.api.shared.exception.BadRequestException;
+
+public class IdempotencyKeyRequiredException extends BadRequestException {
     public IdempotencyKeyRequiredException(String message) {
         super(message);
     }

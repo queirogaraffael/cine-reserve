@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.seatreservation.exception;
 
-public class ReservationCannotBeCancelledException extends RuntimeException {
+import com.example.cinema.api.shared.exception.ConflictException;
+
+public class ReservationCannotBeCancelledException extends ConflictException {
     public ReservationCannotBeCancelledException(String message) {
         super(message);
     }

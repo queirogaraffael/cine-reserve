@@ -1,9 +1,8 @@
 package com.example.cinema.api.domain.room.exception;
 
-public class RoomNumberAlreadyExistsException extends RuntimeException{
-    public RoomNumberAlreadyExistsException() {
-    }
+import com.example.cinema.api.shared.exception.ConflictException;
 
+public class RoomNumberAlreadyExistsException extends ConflictException {
     public RoomNumberAlreadyExistsException(String message) {
         super(message);
     }

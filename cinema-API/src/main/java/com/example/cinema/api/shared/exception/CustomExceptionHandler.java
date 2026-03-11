@@ -1,31 +1,7 @@
 package com.example.cinema.api.shared.exception;
 
-import com.example.cinema.api.domain.exception.*;
-import com.example.cinema.api.domain.payment.exception.*;
-import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
-import com.example.cinema.api.domain.genre.exception.GenreNameRequiredException;
-import com.example.cinema.api.domain.movie.exception.*;
-import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
-import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
-import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
-import com.example.cinema.api.application.exception.RoomScheduleConflictException;
-import com.example.cinema.api.application.exception.*;
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
-import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
-import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
-import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException;
-import com.example.cinema.api.domain.room.exception.RoomNumberAlreadyExistsException;
-import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
-import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
-import com.example.cinema.api.domain.user.exception.PasswordReuseException;
-import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
-import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
-import com.example.cinema.api.infrastructure.exception.WebhookException;
-import com.example.cinema.api.infrastructure.exception.EmailSendException;
-import com.example.cinema.api.infrastructure.security.exception.RefreshTokenInvalidException;
-import com.example.cinema.api.infrastructure.security.exception.TokenCreationException;
-import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
-import com.mercadopago.exceptions.MPApiException;
+import com.example.cinema.api.domain.payment.exception.TransactionAlreadyRegisteredException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,11 +26,7 @@ public class CustomExceptionHandler {
     public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex) {
         String safeMessage = "Credenciais de acesso inválidas (usuário ou senha incorretos).";
 
-        ErrorResponse response = new ErrorResponse(
-                safeMessage,
-                HttpStatus.UNAUTHORIZED.value(),
-                new Date().toString()
-        );
+        ErrorResponse response = new ErrorResponse(safeMessage, HttpStatus.UNAUTHORIZED.value(), new Date().toString());
 
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
@@ -62,13 +35,28 @@ public class CustomExceptionHandler {
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
+        ex.getBindingResult().getAllErrors().forEach(error -> {String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadRequestException(BadRequestException ex, HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleConflictException(ConflictException ex, HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value(), request.getRequestURI(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -81,41 +69,6 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(GenreAlreadyExistsException.class)
-    public ResponseEntity<Object> handleGeneroJaExisteException(GenreAlreadyExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(RoomNumberAlreadyExistsException.class)
-    public ResponseEntity<Object> handleNumeroDeQuartoJaCadastradoException(RoomNumberAlreadyExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(TokenCreationException.class)
-    public ResponseEntity<Object> handleTokenCreationException(TokenCreationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(EmailSendException.class)
-    public ResponseEntity<Object> handleEmailSendException(EmailSendException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(TokenValidationException.class)
-    public ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex) {
         String genericMessage = "Ocorreu um erro interno inesperado no servidor.";
@@ -125,6 +78,36 @@ public class CustomExceptionHandler {
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<Object> handleUnsupportedOperationException(UnsupportedOperationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrity(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+
+
+
+
+
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<Object> handleEmailSendException(EmailSendException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ApiPagamentoException.class)
@@ -142,168 +125,8 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrity(DataIntegrityViolationException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SeatAlreadyReservedException.class)
-    public ResponseEntity<?> handleDataIntegrity(SeatAlreadyReservedException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Assento já reservado.");
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PurchaseAlreadyHasPaymentException.class)
-    public ResponseEntity<?> handlePurchaseAlreadyHasPaymentException(PurchaseAlreadyHasPaymentException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RefreshTokenInvalidException.class)
-    public ResponseEntity<?> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidReservationStatusException.class)
-    public ResponseEntity<?> handleInvalidReservationStatusException(InvalidReservationStatusException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidSeatNumberException.class)
-    public ResponseEntity<?> handleInvalidSeatNumberException(InvalidSeatNumberException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SessionNotAvailableForPurchaseException.class)
-    public ResponseEntity<?> handleSessionNotAvailableForPurchaseException(SessionNotAvailableForPurchaseException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(ReservationCannotBeCancelledException.class)
-    public ResponseEntity<?> handleReservationCannotBeCancelledException(ReservationCannotBeCancelledException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidSessionTimeRangeException.class)
-    public ResponseEntity<?> handleInvalidSessionTimeRangeException(InvalidSessionTimeRangeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RoomScheduleConflictException.class)
-    public ResponseEntity<?> handleRoomScheduleConflictException(RoomScheduleConflictException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PurchaseRequiredException.class)
-    public ResponseEntity<String> handlePurchaseRequired(PurchaseRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PaymentMethodRequiredException.class)
-    public ResponseEntity<String> handlePaymentMethodRequired(PaymentMethodRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RoomInvalidCapacityException.class)
-    public ResponseEntity<String> handleRoomInvalidCapacity(RoomInvalidCapacityException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RoomInvalidNumberException.class)
-    public ResponseEntity<String> handleRoomInvalidNumber(RoomInvalidNumberException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(GenreNameRequiredException.class)
-    public ResponseEntity<String> handleGenreNameRequiredException(GenreNameRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(MovieTitleRequiredException.class)
-    public ResponseEntity<String> handleTituloFilmeObrigatorio(MovieTitleRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(MovieDescriptionRequiredException.class)
-    public ResponseEntity<String> handleDescricaoFilmeObrigatoria(MovieDescriptionRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(ReleaseDateRequiredException.class)
-    public ResponseEntity<String> handleDataLancamentoObrigatoria(ReleaseDateRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidMovieDurationException.class)
-    public ResponseEntity<String> handleDuracaoFilmeInvalida(InvalidMovieDurationException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(MovieGenreRequiredException.class)
-    public ResponseEntity<String> handleGeneroFilmeObrigatorio(MovieGenreRequiredException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PurchaseModificationNotAllowedException.class)
-    public ResponseEntity<String> handleCompraNaoPodeSerModificadaException(PurchaseModificationNotAllowedException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SeatReservationRequiredException.class)
-    public ResponseEntity<String> handleReservaAssentoObrigatoriaException(SeatReservationRequiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidTicketPriceException.class)
-    public ResponseEntity<String> handlePrecoIngressoInvalidoException(InvalidTicketPriceException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SeatReservationExpiredException.class)
-    public ResponseEntity<String> handleSeatReservationExpiredException(SeatReservationExpiredException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(UserRequiredException.class)
-    public ResponseEntity<String> handleUsuarioObrigatorioException(UserRequiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(IdempotencyKeyRequiredException.class)
-    public ResponseEntity<String> handleChaveIdempotenciaObrigatoriaException(IdempotencyKeyRequiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<String> handleSenhaInvalidaException(InvalidPasswordException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidPaymentStatusException.class)
-    public ResponseEntity<String> handleStatusPagamentoInvalidoException(InvalidPaymentStatusException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
     @ExceptionHandler(InvalidTransactionIdException.class)
     public ResponseEntity<String> handleTransactionIdInvalidoException(InvalidTransactionIdException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(MovieSessionRequiredException.class)
-    public ResponseEntity<String> handleSessaoFilmeObrigatoriaException(MovieSessionRequiredException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(PasswordReuseException.class)
-    public ResponseEntity<String> handleReutilizacaoSenhaException(PasswordReuseException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SeatNumberRequiredException.class)
-    public ResponseEntity<String> handleNumeroAssentoObrigatorioException(SeatNumberRequiredException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
@@ -311,4 +134,5 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleTransactionJaRegistradaException(TransactionAlreadyRegisteredException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
 }

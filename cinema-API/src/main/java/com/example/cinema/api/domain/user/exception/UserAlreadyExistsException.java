@@ -1,16 +1,10 @@
 package com.example.cinema.api.domain.user.exception;
 
-public class UserAlreadyExistsException extends RuntimeException {
+import com.example.cinema.api.shared.exception.ConflictException;
+
+public class UserAlreadyExistsException extends ConflictException {
 
     public UserAlreadyExistsException(String message) {
         super(message);
-    }
-
-    public UserAlreadyExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UserAlreadyExistsException(Throwable cause) {
-        super(cause);
     }
 }

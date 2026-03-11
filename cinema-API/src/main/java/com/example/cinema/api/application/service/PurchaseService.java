@@ -2,7 +2,7 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
-import com.example.cinema.api.application.exception.InvalidReservationStatusException;
+import com.example.cinema.api.application.exception.ReservationCannotBeConsumedException;
 import com.example.cinema.api.application.exception.SessionNotAvailableForPurchaseException;
 import com.example.cinema.api.domain.purchase.PurchaseStatus;
 import com.example.cinema.api.domain.seatreservation.ReservationStatus;
@@ -63,7 +63,7 @@ public class PurchaseService {
                             .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
 
             if (reservation.getStatus() != ReservationStatus.RESERVED) {
-                throw new InvalidReservationStatusException("Reserva inválida para consumo");
+                throw new ReservationCannotBeConsumedException("Reserva inválida para consumo");
             }
 
             if(!reservation.getMovieSession().isAvailableForPurchase()){

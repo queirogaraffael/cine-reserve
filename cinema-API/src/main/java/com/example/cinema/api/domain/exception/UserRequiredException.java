@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.exception;
 
-public class UserRequiredException extends RuntimeException {
+import com.example.cinema.api.shared.exception.BadRequestException;
+
+public class UserRequiredException extends BadRequestException {
     public UserRequiredException(String message) {
         super(message);
     }

@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.movie.exception;
 
-public class MovieTitleRequiredException extends RuntimeException {
+import com.example.cinema.api.shared.exception.BadRequestException;
+
+public class MovieTitleRequiredException extends BadRequestException {
     public MovieTitleRequiredException(String message) {
         super(message);
     }

@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.payment.exception;
 
-public class InvalidPaymentStatusException extends RuntimeException {
+import com.example.cinema.api.shared.exception.BadRequestException;
+
+public class InvalidPaymentStatusException extends BadRequestException {
     public InvalidPaymentStatusException(String message) {
         super(message);
     }

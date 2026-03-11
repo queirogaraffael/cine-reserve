@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.user.exception;
 
-public class PasswordReuseException extends RuntimeException {
+import com.example.cinema.api.shared.exception.ConflictException;
+
+public class PasswordReuseException extends ConflictException {
     public PasswordReuseException(String message) {
         super(message);
     }

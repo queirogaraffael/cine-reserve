@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.purchase.exception;
 
-public class PurchaseAlreadyHasPaymentException extends RuntimeException {
+import com.example.cinema.api.shared.exception.ConflictException;
+
+public class PurchaseAlreadyHasPaymentException extends ConflictException {
     public PurchaseAlreadyHasPaymentException(String message) {
         super(message);
     }

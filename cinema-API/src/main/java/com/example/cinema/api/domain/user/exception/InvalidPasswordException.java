@@ -1,6 +1,8 @@
 package com.example.cinema.api.domain.user.exception;
 
-public class InvalidPasswordException extends RuntimeException {
+import com.example.cinema.api.shared.exception.BadRequestException;
+
+public class InvalidPasswordException extends BadRequestException {
     public InvalidPasswordException(String message) {
         super(message);
     }
