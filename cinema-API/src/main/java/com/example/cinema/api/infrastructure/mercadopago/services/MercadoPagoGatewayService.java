@@ -149,9 +149,9 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             );
 
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar CARTÃO: " + e.getMessage(), e);
+            throw new PaymentProviderException("Payment provider communication failure", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta de pagamento: " + e.getMessage(), e);
+            throw new PaymentProcessingException("Unexpected payment processing error", e);
         }
     }
 }

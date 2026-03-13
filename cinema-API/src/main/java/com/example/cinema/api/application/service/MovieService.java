@@ -7,7 +7,7 @@ import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
 import com.example.cinema.api.application.dto.movie.MovieResponseDTO;
 import com.example.cinema.api.application.dto.movie.MovieUpdateDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import com.example.cinema.api.application.mapper.MovieMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -33,7 +33,7 @@ public class MovieService {
     @Transactional
     @CachePut(value = "movies", key = "#result.id")
     public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
-        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
 
         Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre);
 
@@ -45,7 +45,7 @@ public class MovieService {
     @Cacheable(value = "movies", key = "#id")
     public MovieResponseDTO findById(Long id) {
         Movie movie = movieRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
+                .orElseThrow(() -> new ResourceNotFound("Filme não encontrado"));
         return movieMapper.toDTO(movie);
     }
 
@@ -78,10 +78,10 @@ public class MovieService {
     public MovieResponseDTO updateMovie(Long idMovie, MovieUpdateDTO dto) {
 
         Movie movie = movieRepositoryJpa.findById(idMovie)
-                .orElseThrow(() -> new ResourceNotFoundException("Filme não encontrado"));
+                .orElseThrow(() -> new ResourceNotFound("Filme não encontrado"));
 
         Genre genre = genreRepository.findById(dto.getGenreId())
-                .orElseThrow(() -> new ResourceNotFoundException("Gênero não encontrado"));
+                .orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
 
         movie.setGenre(genre);
 

@@ -1,6 +1,11 @@
 package com.example.cinema.api.shared.exception;
 
+import com.example.cinema.api.ResourceNotFoundException;
+import com.example.cinema.api.domain.exception.StateConflictException;
+import com.example.cinema.api.domain.exception.ValidationException;
 import com.example.cinema.api.domain.payment.exception.TransactionAlreadyRegisteredException;
+import com.example.cinema.api.infrastructure.exception.EmailSendException;
+import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,86 @@ import java.util.Map;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
+
+    public record ApiErrorResponse(String message, int status, String path, LocalDateTime timestamp) {}
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidation(ValidationException ex, HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value(), request.getRequestURI(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(StateConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleConflict(StateConflictException ex, HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value(), request.getRequestURI(), LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> handleInternalError(Exception ex, HttpServletRequest request) {
+
+        // aqui você logaa
+
+        ApiErrorResponse error = new ApiErrorResponse("Unexpected internal error", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public record ErrorResponse(String message, int status, String timestamp) {}
 
@@ -43,24 +128,24 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiErrorResponse> handleBadRequestException(BadRequestException ex, HttpServletRequest request) {
+    @ExceptionHandler(validation.class)
+    public ResponseEntity<ApiErrorResponse> handleBadRequestException(validation ex, HttpServletRequest request) {
 
         ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiErrorResponse> handleConflictException(ConflictException ex, HttpServletRequest request) {
+    @ExceptionHandler(StateConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleConflictException(StateConflictException ex, HttpServletRequest request) {
 
         ApiErrorResponse error = new ApiErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.value(), request.getRequestURI(), LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFound.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFound ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
@@ -98,26 +183,19 @@ public class CustomExceptionHandler {
 
 
 
-
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(EmailSendException.class)
     public ResponseEntity<Object> handleEmailSendException(EmailSendException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(TokenValidationException.class)
-    public ResponseEntity<Object> handleTokenValidationException(TokenValidationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler(ApiPagamentoException.class)
     public ResponseEntity<Object> handleApiPagamentoException(ApiPagamentoException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(WebhookException.class)
-    public ResponseEntity<Object> handleWebhookException(WebhookException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MPApiException.class)
@@ -134,5 +212,13 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleTransactionJaRegistradaException(TransactionAlreadyRegisteredException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+
+
+
+
+
+
+
 
 }

@@ -8,8 +8,8 @@ import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJ
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
-import com.example.cinema.api.domain.ticket.exception.SeatAlreadyReservedException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
+import com.example.cinema.api.SeatAlreadyReservedException;
 import com.example.cinema.api.application.mapper.SeatReservationMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ReservaService {
     public SeatReservationResponseDTO criarReserva(Long movieSessionId, SeatReservationRequestDTO dto) {
 
         MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de filme não encontrada"));
+                .orElseThrow(() -> new ResourceNotFound("Sessão de filme não encontrada"));
 
         Integer roomCapacity = movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(movieSessionId);
 
@@ -68,7 +68,7 @@ public class ReservaService {
         User user = userService.getAuthenticatedUser();
 
         SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(idReserva, user).orElseThrow(() ->
-                        new ResourceNotFoundException("Reserva de usurio: " + user.getId() +"não encontrada"));
+                        new ResourceNotFound("Reserva de usurio: " + user.getId() +"não encontrada"));
 
         reservation.cancel();
     }

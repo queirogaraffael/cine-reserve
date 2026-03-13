@@ -64,13 +64,13 @@ public class TokenService {
 
     public String generateJwt(String username) {
         User user = userRepositoryJpa.findByUsername(username)
-                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
+                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", ));
         return generateToken(user);
     }
 
     public String generateJwt(UUID userId) {
         User user = userRepositoryJpa.findById(userId)
-                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", null));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado", null));
         return generateToken(user);
     }
 

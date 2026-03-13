@@ -5,8 +5,8 @@ import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.application.dto.room.RoomResponseDTO;
 
-import com.example.cinema.api.domain.room.exception.RoomNumberAlreadyExistsException;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.RoomNumberAlreadyExistsException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import com.example.cinema.api.application.mapper.RoomMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
@@ -44,7 +44,7 @@ public class RoomService {
     @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
         Room room = roomRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada"));
+                .orElseThrow(() -> new ResourceNotFound("Sala não encontrada"));
         return roomMapper.toDTO(room);
     }
 
@@ -59,7 +59,7 @@ public class RoomService {
     public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
 
         Room room = roomRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sala não encontrada para modificação"));
+                .orElseThrow(() -> new ResourceNotFound("Sala não encontrada para modificação"));
 
         if (roomRepositoryJpa.existsByNumber(roomRequestDTO.getNumber()) && !room.getNumber().equals(roomRequestDTO.getNumber())) {
             throw new RoomNumberAlreadyExistsException("Número de sala já cadastrado");

@@ -1,7 +1,7 @@
 package com.example.cinema.api.domain.seatreservation;
 
-import com.example.cinema.api.domain.exception.MovieSessionRequiredException;
-import com.example.cinema.api.domain.exception.SeatNumberRequiredException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredException;
+import com.example.cinema.api.domain.seatreservation.exception.SeatNumberRequiredException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;

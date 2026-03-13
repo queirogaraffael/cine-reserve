@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ public class PaymentUpdateService {
 
         var paymentLocal = paymentRepositoryJpa.findByPurchaseId(purchaseId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId));
+                        new ResourceNotFound("Pagamento não encontrado para o PurchaseId: " + purchaseId));
 
         if (paymentLocal.isOutdatedVersion(event.getVersion())) {
             log.info("Evento desatualizado ignorado para o pagamento {}", purchaseId);

@@ -1,8 +1,8 @@
 package com.example.cinema.api.domain.room.exception;
 
-import com.example.cinema.api.shared.exception.BadRequestException;
+import com.example.cinema.api.domain.exception.ValidationException;
 
-public class RoomInvalidCapacityException extends BadRequestException {
+public class RoomInvalidCapacityException extends ValidationException {
     public RoomInvalidCapacityException(String message) {
         super(message);
     }

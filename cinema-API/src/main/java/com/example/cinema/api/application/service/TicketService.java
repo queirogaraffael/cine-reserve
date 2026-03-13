@@ -3,7 +3,7 @@ package com.example.cinema.api.application.service;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
 import com.example.cinema.api.application.dto.tickets.TicketResponseDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class TicketService {
 
         User user = userService.getAuthenticatedUser();
 
-        return ticketRepositoryJpa.findDtoByIdAndUser(idTicket, user).orElseThrow(()-> new ResourceNotFoundException("Ticket: " + idTicket + " não encontrado."));
+        return ticketRepositoryJpa.findDtoByIdAndUser(idTicket, user).orElseThrow(()-> new ResourceNotFound("Ticket: " + idTicket + " não encontrado."));
     }
 
     @Transactional(readOnly = true)
@@ -35,7 +35,7 @@ public class TicketService {
         List<TicketResponseDTO> tickets = ticketRepositoryJpa.findAllDtosByPurchaseIdAndUser(idPurchase, user);
 
         if(tickets.isEmpty()){
-            throw new ResourceNotFoundException("Tickets para a compra: " + idPurchase + " não encontrado(s).");
+            throw new ResourceNotFound("Tickets para a compra: " + idPurchase + " não encontrado(s).");
         }
 
         return tickets;

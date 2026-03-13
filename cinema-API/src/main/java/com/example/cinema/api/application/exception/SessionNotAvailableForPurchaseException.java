@@ -1,8 +1,6 @@
 package com.example.cinema.api.application.exception;
 
-import com.example.cinema.api.shared.exception.ConflictException;
-
-public class SessionNotAvailableForPurchaseException extends ConflictException {
+public class SessionNotAvailableForPurchaseException extends RuntimeException {
     public SessionNotAvailableForPurchaseException(String message) {
         super(message);
     }

@@ -1,17 +1,17 @@
 package com.example.cinema.api.domain.purchase;
 
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
 import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
-import com.example.cinema.api.domain.exception.SeatReservationRequiredException;
+import com.example.cinema.api.domain.seatreservation.exception.SeatReservationRequiredException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.ticket.TicketCategory;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
-import com.example.cinema.api.domain.exception.IdempotencyKeyRequiredException;
-import com.example.cinema.api.domain.exception.UserRequiredException;
+import com.example.cinema.api.domain.purchase.exception.IdempotencyKeyRequiredException;
+import com.example.cinema.api.domain.user.exception.UserRequiredException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

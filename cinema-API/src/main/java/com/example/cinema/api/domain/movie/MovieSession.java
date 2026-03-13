@@ -3,7 +3,7 @@ package com.example.cinema.api.domain.movie;
 
 import com.example.cinema.api.domain.movie.exception.MovieRequiredException;
 import com.example.cinema.api.domain.room.exception.RoomRequiredException;
-import com.example.cinema.api.domain.movie.exception.InvalidSessionTimeRangeException;
+import com.example.cinema.api.InvalidSessionTimeRangeException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.Ticket;

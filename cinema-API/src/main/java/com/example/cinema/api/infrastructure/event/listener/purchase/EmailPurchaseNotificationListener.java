@@ -6,7 +6,7 @@ import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.infrastructure.exception.EmailSendException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class EmailPurchaseNotificationListener {
 
         try {
             UserNameEmailProjection user = userRepositoryJpa.findProjectedById(event.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para notificação da compra: userId=" + event.getUserId()
+                    .orElseThrow(() -> new ResourceNotFound("Usuário não encontrado para notificação da compra: userId=" + event.getUserId()
                                     + ", purchaseId=" + event.getPurchaseId()));
 
             PurchaseCreatedNotificationData notificationData = new PurchaseCreatedNotificationData(user.getName(), user.getEmail(),
@@ -49,7 +49,7 @@ public class EmailPurchaseNotificationListener {
         } catch (EmailSendException e) {
             log.error("Falha ao enviar e-mail da compra: purchaseId={}, userId={}", event.getPurchaseId(), event.getUserId(), e);
 
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFound e) {
             log.error("Dados não encontrados durante a notificação da compra: purchaseId={}, userId={}", event.getPurchaseId(), event.getUserId(), e);
 
         } catch (Exception e) {

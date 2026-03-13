@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
 import com.example.cinema.api.application.exception.ReservationCannotBeConsumedException;
 import com.example.cinema.api.application.exception.SessionNotAvailableForPurchaseException;
@@ -16,7 +16,7 @@ import com.example.cinema.api.infrastructure.persistence.SeatReservationReposito
 import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.application.dto.purchase.TicketItemDTO;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFoundException;
+import com.example.cinema.api.shared.exception.ResourceNotFound;
 import com.example.cinema.api.application.mapper.PurchaseMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -60,7 +60,7 @@ public class PurchaseService {
         for (TicketItemDTO item : dto.getItems()) {
 
             SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(item.getReservationId(), user)
-                            .orElseThrow(() -> new ResourceNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
+                            .orElseThrow(() -> new ResourceNotFound("Reserva não encontrada ou não pertence ao usuário"));
 
             if (reservation.getStatus() != ReservationStatus.RESERVED) {
                 throw new ReservationCannotBeConsumedException("Reserva inválida para consumo");
@@ -91,7 +91,7 @@ public class PurchaseService {
 
         User user = userService.getAuthenticatedUser();
 
-        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada."));
+        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new ResourceNotFound("Compra não encontrada."));
 
         if(purchase.getPayment() != null){
             throw new PurchaseAlreadyHasPaymentException("IdempotencyKey não pode ser modificada porque um Pagamento já está associado.");
