@@ -1,4 +1,4 @@
-package com.example.cinema.api;
+package com.example.cinema.api.infrastructure.email.exception;
 
 public class EmailSendException extends RuntimeException {
 

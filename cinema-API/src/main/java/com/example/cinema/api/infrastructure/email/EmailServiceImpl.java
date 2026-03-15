@@ -4,7 +4,7 @@ import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
-import com.example.cinema.api.EmailSendException;
+import com.example.cinema.api.infrastructure.email.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.MailException;
@@ -39,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
         } catch (MessagingException | MailException e) {
-            throw new EmailSendException("Não foi possível enviar e-mail HTML para " + to, e);
+            throw new EmailSendException("Não foi possível enviar e-mail para " + to, e);
         }
     }
 

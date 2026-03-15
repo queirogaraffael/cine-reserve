@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
 import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.domain.user.exception.UserNotFoundException;
-import com.example.cinema.api.EmailSendException;
+import com.example.cinema.api.infrastructure.email.exception.EmailSendException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.projection.UserNameEmailProjection;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +32,6 @@ public class EmailPaymentCardInitiatedListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePaymentInitiated(PaymentCardInitiatedEvent event) {
 
-        log.info("Processando notificação de pagamento com cartão iniciado: paymentId={}, userId={}", event.getIdPayment(), event.getUserId());
-
         try {
             UserNameEmailProjection user = userRepositoryJpa.findProjectedById(event.getUserId())
                     .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado para notificação de pagamento: userId=" + event.getUserId()
@@ -44,16 +42,13 @@ public class EmailPaymentCardInitiatedListener {
 
             emailService.notifyPaymentCardInitiatedEmail(notificationData);
 
-            log.info("Notificação de pagamento com cartão enviada com sucesso: paymentId={}, email={}",
-                    event.getIdPayment(), user.getEmail());
-
         } catch (EmailSendException e) {
             log.error("Falha ao enviar e-mail de pagamento com cartão iniciado: paymentId={}, userId={}",
                     event.getIdPayment(), event.getUserId(), e);
 
         } catch (UserNotFoundException e) {
             log.error("Dados não encontrados durante notificação de pagamento: paymentId={}, userId={}",
-                    event.getIdPayment(), event.getUserId(), e);
+                    event.getIdPayment(), event.getUserId());
 
         } catch (Exception e) {
             log.error("Erro inesperado ao processar notificação de pagamento com cartão: paymentId={}, userId={}",
