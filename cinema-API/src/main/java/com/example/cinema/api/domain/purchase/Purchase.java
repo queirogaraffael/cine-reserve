@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.purchase;
 
-import com.example.cinema.api.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
 import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatReservationRequiredException;

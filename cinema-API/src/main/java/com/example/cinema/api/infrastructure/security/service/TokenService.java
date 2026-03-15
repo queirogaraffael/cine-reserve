@@ -5,10 +5,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.infrastructure.security.exception.TokenCreationException;
-import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
+import com.example.cinema.api.TokenCreationException;
+import com.example.cinema.api.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -64,13 +65,13 @@ public class TokenService {
 
     public String generateJwt(String username) {
         User user = userRepositoryJpa.findByUsername(username)
-                .orElseThrow(() -> new TokenValidationException("Usuário não encontrado", ));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
         return generateToken(user);
     }
 
     public String generateJwt(UUID userId) {
         User user = userRepositoryJpa.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado", null));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
         return generateToken(user);
     }
 

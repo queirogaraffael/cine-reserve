@@ -1,9 +1,9 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
-import com.example.cinema.api.application.exception.ReservationCannotBeConsumedException;
-import com.example.cinema.api.application.exception.SessionNotAvailableForPurchaseException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionNotAvailableForPurchaseException;
 import com.example.cinema.api.domain.purchase.PurchaseStatus;
 import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
@@ -16,7 +16,6 @@ import com.example.cinema.api.infrastructure.persistence.SeatReservationReposito
 import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.application.dto.purchase.TicketItemDTO;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
 import com.example.cinema.api.application.mapper.PurchaseMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -67,7 +66,7 @@ public class PurchaseService {
             }
 
             if(!reservation.getMovieSession().isAvailableForPurchase()){
-                throw new SessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() +" não está disponivel para compra.");
+                throw new MovieSessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() +" não está disponivel para compra.");
             }
 
             BigDecimal price = ticketPricingContext.calculate(item.getTicketCategory(), reservation.getMovieSession());

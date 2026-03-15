@@ -1,7 +1,7 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.exception.RoomScheduleConflictException;
-import com.example.cinema.api.InvalidSessionTimeRangeException;
+import com.example.cinema.api.domain.room.exception.RoomScheduleConflictException;
+import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
 import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.Room;
@@ -14,7 +14,6 @@ import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDT
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 
 import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
 import com.example.cinema.api.application.mapper.SessionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +46,7 @@ public class MovieSessionService {
     public MovieSessionResponseDTO createSession(MovieSessionRequestDTO dto) {
 
         if (!dto.getStartTime().isBefore(dto.getEndTime())) {
-            throw new InvalidSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
+            throw new InvalidMovieSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
 
         Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new ResourceNotFound("Filme não encontrado"));

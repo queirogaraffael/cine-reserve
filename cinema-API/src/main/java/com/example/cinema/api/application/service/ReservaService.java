@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.exception.InvalidSeatNumberException;
+import com.example.cinema.api.domain.seatreservation.exception.InvalidSeatNumberException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.user.User;
@@ -8,8 +8,7 @@ import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJ
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
-import com.example.cinema.api.SeatAlreadyReservedException;
+import com.example.cinema.api.domain.seatreservation.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.application.mapper.SeatReservationMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

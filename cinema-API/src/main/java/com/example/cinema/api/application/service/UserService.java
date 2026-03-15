@@ -3,16 +3,18 @@ package com.example.cinema.api.application.service;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
+import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
+import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.user.ChangePasswordData;
 import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
 import com.example.cinema.api.application.dto.user.UserResponseDTO;
-import com.example.cinema.api.UserAlreadyExistsException;
-import com.example.cinema.api.UserNotAuthenticatedException;
+import com.example.cinema.api.domain.user.exception.UserAlreadyExistsException;
 import com.example.cinema.api.application.mapper.UserMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -72,8 +74,8 @@ public class UserService implements UserDetailsService  {
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new UserNotAuthenticatedException("Usuário não autenticado");
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            throw new InsufficientAuthenticationException("Usuário não autenticado");
         }
 
         Object principal = authentication.getPrincipal();
@@ -89,7 +91,7 @@ public class UserService implements UserDetailsService  {
             return (User) principal;
         }
 
-        throw new UserNotAuthenticatedException("Tipo de principal inesperado ou usuário não encontrado.");
+        throw new UserNotFoundException("Tipo de principal inesperado ou usuário não encontrado.");
     }
 
 
@@ -112,7 +114,7 @@ public class UserService implements UserDetailsService  {
         User user= self.getAuthenticatedUser();
 
         if (!passwordEncoder.matches(data.getCurrentPassword(), user.getPassword())) {
-            throw new UserNotAuthenticatedException("Senha atual incorreta");
+            throw new InvalidPasswordException("Senha atual incorreta");
         }
 
         user.changePassword(passwordEncoder.encode(data.getNewPassword()));

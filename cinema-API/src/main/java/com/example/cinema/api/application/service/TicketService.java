@@ -3,7 +3,6 @@ package com.example.cinema.api.application.service;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.TicketRepositoryJpa;
 import com.example.cinema.api.application.dto.tickets.TicketResponseDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

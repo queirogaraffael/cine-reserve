@@ -1,4 +1,4 @@
-package com.example.cinema.api.domain.payment.exception;
+package com.example.cinema.api;
 
 import com.example.cinema.api.domain.exception.ValidationException;
 

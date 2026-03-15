@@ -1,8 +1,8 @@
 package com.example.cinema.api.domain.payment;
 
 import com.example.cinema.api.domain.payment.exception.InvalidPaymentStatusException;
-import com.example.cinema.api.domain.payment.exception.InvalidTransactionIdException;
-import com.example.cinema.api.domain.payment.exception.TransactionAlreadyRegisteredException;
+import com.example.cinema.api.InvalidTransactionIdException;
+import com.example.cinema.api.TransactionAlreadyRegisteredException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
 import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
 import com.example.cinema.api.domain.purchase.Purchase;

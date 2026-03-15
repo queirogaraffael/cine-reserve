@@ -2,7 +2,7 @@ package com.example.cinema.api.infrastructure.messaging.rabbitmq;
 
 import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
-import com.example.cinema.api.infrastructure.security.exception.MaxRetriesExceededException;
+import com.example.cinema.api.MaxRetriesExceededException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;

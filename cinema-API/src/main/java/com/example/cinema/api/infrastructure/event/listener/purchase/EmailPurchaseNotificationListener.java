@@ -1,12 +1,12 @@
 package com.example.cinema.api.infrastructure.event.listener.purchase;
 
+import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.projection.UserNameEmailProjection;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.domain.purchase.event.PurchaseCreatedEvent;
 import com.example.cinema.api.application.service.EmailService;
-import com.example.cinema.api.infrastructure.exception.EmailSendException;
+import com.example.cinema.api.EmailSendException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class EmailPurchaseNotificationListener {
 
         try {
             UserNameEmailProjection user = userRepositoryJpa.findProjectedById(event.getUserId())
-                    .orElseThrow(() -> new ResourceNotFound("Usuário não encontrado para notificação da compra: userId=" + event.getUserId()
+                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado para notificação da compra: userId=" + event.getUserId()
                                     + ", purchaseId=" + event.getPurchaseId()));
 
             PurchaseCreatedNotificationData notificationData = new PurchaseCreatedNotificationData(user.getName(), user.getEmail(),
@@ -49,7 +49,7 @@ public class EmailPurchaseNotificationListener {
         } catch (EmailSendException e) {
             log.error("Falha ao enviar e-mail da compra: purchaseId={}, userId={}", event.getPurchaseId(), event.getUserId(), e);
 
-        } catch (ResourceNotFound e) {
+        } catch (UserNotFoundException e) {
             log.error("Dados não encontrados durante a notificação da compra: purchaseId={}, userId={}", event.getPurchaseId(), event.getUserId(), e);
 
         } catch (Exception e) {

@@ -3,7 +3,7 @@ package com.example.cinema.api.domain.movie;
 
 import com.example.cinema.api.domain.movie.exception.MovieRequiredException;
 import com.example.cinema.api.domain.room.exception.RoomRequiredException;
-import com.example.cinema.api.InvalidSessionTimeRangeException;
+import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.Ticket;
@@ -57,7 +57,7 @@ public class MovieSession {
     public MovieSession(LocalDate showDate, LocalTime startTime, LocalTime endTime, BigDecimal basePrice, Room cinemaRoom, Movie movie) {
 
         if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
-            throw new InvalidSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
+            throw new InvalidMovieSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
 
         if (cinemaRoom == null) {

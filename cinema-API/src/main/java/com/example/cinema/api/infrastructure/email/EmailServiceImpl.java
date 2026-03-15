@@ -4,7 +4,7 @@ import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
-import com.example.cinema.api.infrastructure.exception.EmailSendException;
+import com.example.cinema.api.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.MailException;

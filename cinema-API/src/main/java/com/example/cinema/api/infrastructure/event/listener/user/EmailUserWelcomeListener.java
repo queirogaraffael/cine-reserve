@@ -3,7 +3,7 @@ package com.example.cinema.api.infrastructure.event.listener.user;
 import com.example.cinema.api.application.service.EmailService;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
-import com.example.cinema.api.infrastructure.exception.EmailSendException;
+import com.example.cinema.api.EmailSendException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

@@ -8,7 +8,7 @@ import com.example.cinema.api.application.dto.login.TokenRefreshResponseDTO;
 import com.example.cinema.api.infrastructure.security.service.TokenService;
 import com.example.cinema.api.application.dto.login.TokenResponseDTO;
 import com.example.cinema.api.application.dto.login.UserLoginDTO;
-import com.example.cinema.api.infrastructure.security.exception.RefreshTokenInvalidException;
+import com.example.cinema.api.RefreshTokenInvalidException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;

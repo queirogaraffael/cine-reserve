@@ -5,8 +5,7 @@ import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.application.dto.room.RoomResponseDTO;
 
-import com.example.cinema.api.RoomNumberAlreadyExistsException;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
+import com.example.cinema.api.domain.room.exception.RoomNumberAlreadyExistsException;
 import com.example.cinema.api.application.mapper.RoomMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;

@@ -7,7 +7,7 @@ import com.example.cinema.api.application.dto.payment.requests.CardPaymentReques
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
+import com.example.cinema.api.ApiPagamentoException;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentCreateRequest;

@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.exception;
+package com.example.cinema.api;
 
 public class ApiPagamentoException extends RuntimeException {
 

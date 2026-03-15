@@ -2,7 +2,7 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.purchase.Purchase;
-import com.example.cinema.api.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;
@@ -13,7 +13,6 @@ import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
 import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
-import com.example.cinema.api.shared.exception.ResourceNotFound;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
