@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,12 +51,6 @@ public class GlobalExceptionHandler {
         String safeMessage = "Credenciais de acesso inválidas (usuário ou senha incorretos).";
 
         return buildErrorResponse(safeMessage, HttpStatus.UNAUTHORIZED, request);
-    }
-
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
-
-        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

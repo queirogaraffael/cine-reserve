@@ -9,7 +9,7 @@ import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.TokenCreationException;
-import com.example.cinema.api.TokenValidationException;
+import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -68,6 +69,7 @@ public class SecurityConfigurations {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler())
+                        .accessDeniedHandler(accessDeniedHandler())
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -76,9 +78,23 @@ public class SecurityConfigurations {
     @Bean
     public AuthenticationEntryPoint unauthorizedHandler() {
         return (request, response, authException) -> {
+            String detail = (String) request.getAttribute("auth.error");
+            String message = (detail != null) ? detail : "Token inválido ou ausente.";
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token invalido ou ausente.\"}");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"error\": \"" + message + "\"}");
+        };
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, ex) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"error\": \"Acesso negado.\"}");
         };
     }
 

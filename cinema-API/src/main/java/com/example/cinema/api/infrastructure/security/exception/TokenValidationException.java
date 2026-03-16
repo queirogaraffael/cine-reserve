@@ -1,4 +1,4 @@
-package com.example.cinema.api;
+package com.example.cinema.api.infrastructure.security.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
