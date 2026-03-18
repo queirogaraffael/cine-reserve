@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredExcepti
 import com.example.cinema.api.domain.seatreservation.exception.SeatNumberRequiredException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
-import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationExpiredException;
 import com.example.cinema.api.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,7 +68,7 @@ public class SeatReservation {
     public void consume() {
 
         if (isExpired())
-            throw new SeatReservationExpiredException("Reserva expirada");
+            throw new ReservationExpiredException("Reserva expirada");
 
         this.status = ReservationStatus.CONSUMED;
     }

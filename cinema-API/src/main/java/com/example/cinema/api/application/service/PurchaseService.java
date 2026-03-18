@@ -1,5 +1,7 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.domain.purchase.exception.PurchaseNotFoundException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationNotFoundException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
@@ -59,7 +61,7 @@ public class PurchaseService {
         for (TicketItemDTO item : dto.getItems()) {
 
             SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(item.getReservationId(), user)
-                            .orElseThrow(() -> new ResourceNotFound("Reserva não encontrada ou não pertence ao usuário"));
+                            .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
 
             if (reservation.getStatus() != ReservationStatus.RESERVED) {
                 throw new ReservationCannotBeConsumedException("Reserva inválida para consumo");
@@ -90,7 +92,7 @@ public class PurchaseService {
 
         User user = userService.getAuthenticatedUser();
 
-        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new ResourceNotFound("Compra não encontrada."));
+        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada."));
 
         if(purchase.getPayment() != null){
             throw new PurchaseAlreadyHasPaymentException("IdempotencyKey não pode ser modificada porque um Pagamento já está associado.");

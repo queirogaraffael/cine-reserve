@@ -1,6 +1,7 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.room.Room;
+import com.example.cinema.api.domain.room.exception.RoomNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.application.dto.room.RoomResponseDTO;
@@ -43,7 +44,7 @@ public class RoomService {
     @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
         Room room = roomRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Sala não encontrada"));
+                .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada"));
         return roomMapper.toDTO(room);
     }
 
@@ -58,7 +59,7 @@ public class RoomService {
     public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
 
         Room room = roomRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Sala não encontrada para modificação"));
+                .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada para modificação"));
 
         if (roomRepositoryJpa.existsByNumber(roomRequestDTO.getNumber()) && !room.getNumber().equals(roomRequestDTO.getNumber())) {
             throw new RoomNumberAlreadyExistsException("Número de sala já cadastrado");

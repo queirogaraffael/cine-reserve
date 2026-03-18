@@ -1,6 +1,7 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.payment.PaymentStatus;
+import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
@@ -29,7 +30,7 @@ public class PaymentUpdateService {
 
         var paymentLocal = paymentRepositoryJpa.findByPurchaseId(purchaseId)
                 .orElseThrow(() ->
-                        new ResourceNotFound("Pagamento não encontrado para o PurchaseId: " + purchaseId));
+                        new PaymentNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId));
 
         if (paymentLocal.isOutdatedVersion(event.getVersion())) {
             log.info("Evento desatualizado ignorado para o pagamento {}", purchaseId);

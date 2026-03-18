@@ -1,8 +1,10 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
+import com.example.cinema.api.domain.purchase.exception.PurchaseNotFoundException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;
@@ -39,7 +41,7 @@ public class PaymentService {
         User user = userService.getAuthenticatedUser();
 
         Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
-                .orElseThrow(() -> new ResourceNotFound("Compra não encontrada ou não pertence ao usuário"));
+                .orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada ou não pertence ao usuário"));
 
         if (paymentRepositoryJpa.existsByPurchase(purchase)) {
             throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
@@ -63,20 +65,20 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public PaymentStatus getPaymentStatus(Long idPayment){
-        return paymentRepositoryJpa.findStatusById(idPayment).orElseThrow(()-> new ResourceNotFound("Payment " + idPayment + " não encontrado."));
+        return paymentRepositoryJpa.findStatusById(idPayment).orElseThrow(()-> new PaymentNotFoundException("Payment " + idPayment + " não encontrado."));
     }
 
     @Transactional(readOnly = true)
     public PaymentGetResponseDTO getPayment(Long idPayment) {
         return paymentRepositoryJpa.findPaymentById(idPayment)
-                .orElseThrow(() -> new ResourceNotFound("Pagamento com ID " + idPayment + " não encontrado."));
+                .orElseThrow(() -> new PaymentNotFoundException("Pagamento com ID " + idPayment + " não encontrado."));
     }
 
     @Transactional(readOnly = true)
     public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId){
         User user = userService.getAuthenticatedUser();
 
-        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user).orElseThrow(()-> new ResourceNotFound("Pagamento para a compra: " + " não encontrado/não disponível."));
+        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user).orElseThrow(()-> new PaymentNotFoundException("Pagamento para a compra: " + " não encontrado/não disponível."));
     }
 
 }

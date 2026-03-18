@@ -3,13 +3,13 @@ package com.example.cinema.api.domain.purchase;
 import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.domain.purchase.exception.PurchaseModificationNotAllowedException;
 import com.example.cinema.api.domain.ticket.exception.InvalidTicketPriceException;
-import com.example.cinema.api.domain.seatreservation.exception.SeatReservationRequiredException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationRequiredException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.ticket.TicketCategory;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.user.User;
-import com.example.cinema.api.domain.seatreservation.exception.SeatReservationExpiredException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationExpiredException;
 import com.example.cinema.api.domain.purchase.exception.IdempotencyKeyRequiredException;
 import com.example.cinema.api.domain.user.exception.UserRequiredException;
 import jakarta.persistence.*;
@@ -77,10 +77,10 @@ public class Purchase {
             throw new PurchaseModificationNotAllowedException("Compra não pode ser modificada.");
 
         if (reservation == null)
-            throw new SeatReservationRequiredException("Reserva obrigatória.");
+            throw new ReservationRequiredException("Reserva obrigatória.");
 
         if (reservation.isExpired())
-            throw new SeatReservationExpiredException("Reserva expirada.");
+            throw new ReservationExpiredException("Reserva expirada.");
 
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0)
             throw new InvalidTicketPriceException("Preço inválido.");

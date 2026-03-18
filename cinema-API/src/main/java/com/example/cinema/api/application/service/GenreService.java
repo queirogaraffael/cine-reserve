@@ -1,6 +1,7 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.genre.exception.GenreNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.application.dto.genre.GenreRequestDTO;
 import com.example.cinema.api.application.dto.genre.GenreResponseDTO;
@@ -41,7 +42,7 @@ public class GenreService {
     @Cacheable(value = "genres", key = "#id")
     public GenreResponseDTO findById(Long id) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
+                .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
         return genreMapper.toDTO(genre);
     }
 
@@ -61,7 +62,7 @@ public class GenreService {
     @CachePut(value = "genres", key = "#id")
     public GenreResponseDTO update(Long id, GenreUpdateDTO dto) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
+                .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         if(genreRepository.existsByName(dto.getName()) && !Objects.equals(dto.getName(), genre.getName())){
             throw new GenreAlreadyExistsException("Gênero com o nome " + dto.getName() + " já existe");

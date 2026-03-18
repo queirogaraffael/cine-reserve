@@ -46,8 +46,6 @@ public class UserService implements UserDetailsService  {
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 
-        System.out.println("Creating user with username: " + data.getUsername() + " and email: " + data.getEmail());
-
         if (userRepositoryJpa.existsByUsername(data.getUsername()) || userRepositoryJpa.existsByEmail(data.getEmail())) {
             throw new UserAlreadyExistsException("Usuário já existe");
         }

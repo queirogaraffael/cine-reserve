@@ -1,4 +1,4 @@
-package com.example.cinema.api;
+package com.example.cinema.api.application.exception;
 
 public class ExternalServicePermanentException extends RuntimeException {
     public ExternalServicePermanentException(String message) {

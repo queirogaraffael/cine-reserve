@@ -7,7 +7,7 @@ import com.example.cinema.api.application.dto.payment.requests.CardPaymentReques
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.ApiPagamentoException;
+import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentCreateRequest;
@@ -95,9 +95,9 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             );
 
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX", e);
         }
     }
 
@@ -149,9 +149,9 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             );
 
         } catch (MPException | MPApiException e) {
-            throw new PaymentProviderException("Payment provider communication failure", e);
+            throw new ApiPagamentoException("Payment provider communication failure", e);
         } catch (Exception e) {
-            throw new PaymentProcessingException("Unexpected payment processing error", e);
+            throw new ApiPagamentoException("Unexpected payment processing error", e);
         }
     }
 }

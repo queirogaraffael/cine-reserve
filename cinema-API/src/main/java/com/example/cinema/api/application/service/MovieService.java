@@ -1,7 +1,9 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.genre.exception.GenreNotFoundException;
 import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.movie.exception.MovieNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
@@ -32,7 +34,7 @@ public class MovieService {
     @Transactional
     @CachePut(value = "movies", key = "#result.id")
     public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
-        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre);
 
@@ -44,7 +46,7 @@ public class MovieService {
     @Cacheable(value = "movies", key = "#id")
     public MovieResponseDTO findById(Long id) {
         Movie movie = movieRepositoryJpa.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Filme não encontrado"));
+                .orElseThrow(() -> new MovieNotFoundException("Filme não encontrado"));
         return movieMapper.toDTO(movie);
     }
 
@@ -77,10 +79,10 @@ public class MovieService {
     public MovieResponseDTO updateMovie(Long idMovie, MovieUpdateDTO dto) {
 
         Movie movie = movieRepositoryJpa.findById(idMovie)
-                .orElseThrow(() -> new ResourceNotFound("Filme não encontrado"));
+                .orElseThrow(() -> new MovieNotFoundException("Filme não encontrado"));
 
         Genre genre = genreRepository.findById(dto.getGenreId())
-                .orElseThrow(() -> new ResourceNotFound("Gênero não encontrado"));
+                .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         movie.setGenre(genre);
 
