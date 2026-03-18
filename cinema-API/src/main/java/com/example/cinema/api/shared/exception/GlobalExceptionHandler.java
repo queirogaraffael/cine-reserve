@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleInternalError(Exception ex, HttpServletRequest request) {
-
+        log.error("Unexpected internal error on {} {}", request.getMethod(), request.getRequestURI(), ex);
         return buildErrorResponse("Unexpected internal error", HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
