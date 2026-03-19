@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.domain.movie.MovieSessionNotFoundException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
 import com.example.cinema.api.domain.movie.exception.MovieNotFoundException;
 import com.example.cinema.api.domain.room.exception.RoomNotFoundException;
 import com.example.cinema.api.domain.room.exception.RoomScheduleConflictException;
@@ -53,15 +53,15 @@ public class MovieSessionService {
             throw new InvalidMovieSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
 
-        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new MovieNotFoundException("Filme: " + dto.getMovieId() + " não encontrado"));
-
-        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "não encontrada"));
-
         boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(dto.getRoomId(), dto.getShowDate(), dto.getStartTime(), dto.getEndTime());
 
         if (conflict) {
             throw new RoomScheduleConflictException("A sala já está reservada para esse horário.");
         }
+
+        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new MovieNotFoundException("Filme: " + dto.getMovieId() + " não encontrado"));
+
+        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "não encontrada"));
 
         MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(),dto.getBasePrice(), room, movie);
 

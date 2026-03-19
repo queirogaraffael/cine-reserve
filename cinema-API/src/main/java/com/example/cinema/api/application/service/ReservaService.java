@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.domain.movie.MovieSessionNotFoundException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
 import com.example.cinema.api.domain.seatreservation.exception.InvalidSeatNumberException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;

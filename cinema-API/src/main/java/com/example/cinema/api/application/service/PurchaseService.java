@@ -2,12 +2,9 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.purchase.exception.PurchaseNotFoundException;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationNotFoundException;
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
 import com.example.cinema.api.application.dto.purchase.PurchaseIdempotencyResponseDTO;
-import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
 import com.example.cinema.api.domain.movie.exception.MovieSessionNotAvailableForPurchaseException;
 import com.example.cinema.api.domain.purchase.PurchaseStatus;
-import com.example.cinema.api.domain.seatreservation.ReservationStatus;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.context.TicketPricingContext;
 import com.example.cinema.api.domain.purchase.Purchase;
@@ -63,9 +60,7 @@ public class PurchaseService {
             SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(item.getReservationId(), user)
                             .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
 
-            if (reservation.getStatus() != ReservationStatus.RESERVED) {
-                throw new ReservationCannotBeConsumedException("Reserva inválida para consumo");
-            }
+            reservation.consume();
 
             if(!reservation.getMovieSession().isAvailableForPurchase()){
                 throw new MovieSessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() +" não está disponivel para compra.");
@@ -74,8 +69,6 @@ public class PurchaseService {
             BigDecimal price = ticketPricingContext.calculate(item.getTicketCategory(), reservation.getMovieSession());
 
             purchase.addTicket(reservation, item.getTicketCategory(), price);
-
-            reservation.consume();
         }
 
         purchase.moveToStatus(PurchaseStatus.WAITING_PAYMENT);
@@ -93,10 +86,6 @@ public class PurchaseService {
         User user = userService.getAuthenticatedUser();
 
         Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada."));
-
-        if(purchase.getPayment() != null){
-            throw new PurchaseAlreadyHasPaymentException("IdempotencyKey não pode ser modificada porque um Pagamento já está associado.");
-        }
 
         purchase.changeIdempotencyKey(idempotencyKey);
 

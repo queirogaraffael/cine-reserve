@@ -1,6 +1,7 @@
 package com.example.cinema.api.domain.seatreservation;
 
 import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
 import com.example.cinema.api.domain.seatreservation.exception.SeatNumberRequiredException;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
@@ -66,6 +67,8 @@ public class SeatReservation {
     }
 
     public void consume() {
+        if (status != ReservationStatus.RESERVED)
+            throw new ReservationCannotBeConsumedException("Reserva inválida para consumo");
 
         if (isExpired())
             throw new ReservationExpiredException("Reserva expirada");
