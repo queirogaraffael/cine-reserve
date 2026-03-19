@@ -53,9 +53,9 @@ public class MovieSessionService {
             throw new InvalidMovieSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
 
-        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new MovieNotFoundException("Filme não encontrado"));
+        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new MovieNotFoundException("Filme: " + dto.getMovieId() + " não encontrado"));
 
-        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala não encontrada"));
+        Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "não encontrada"));
 
         boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(dto.getRoomId(), dto.getShowDate(), dto.getStartTime(), dto.getEndTime());
 
@@ -82,9 +82,11 @@ public class MovieSessionService {
     @Transactional(readOnly = true)
     public List<Integer> getAvailableSeats(Long sessionId) {
 
-        MovieSession session = movieSessionRepositoryJpa.findById(sessionId).orElseThrow(() -> new MovieSessionNotFoundException("Sessão " + sessionId + " não encontrada."));
+        Integer capacity = movieSessionRepositoryJpa.findCapacityBySessionId(sessionId);
 
-        int capacity = session.getCinemaRoom().getCapacity();
+        if (capacity == null) {
+            throw new MovieSessionNotFoundException("Sessão " + sessionId + " não encontrada.");
+        }
 
         List<Integer> unavailable = movieSessionRepositoryJpa.findUnavailableSeatNumbers(sessionId);
 

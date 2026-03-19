@@ -78,4 +78,6 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
     """)
     Optional<MovieSessionResponseDTO> findMovieSessionByTicketId(@Param("ticketId") Long ticketId);
 
+    @Query("SELECT s.cinemaRoom.capacity FROM MovieSession s WHERE s.id = :sessionId")
+    Integer findCapacityBySessionId(@Param("sessionId") Long sessionId);
 }
