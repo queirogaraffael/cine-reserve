@@ -1,7 +1,8 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.domain.movie.exception.MovieSessionNotAvailableException;
 import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
-import com.example.cinema.api.domain.seatreservation.exception.InvalidSeatNumberException;
+import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationNotFoundException;
@@ -12,7 +13,6 @@ import com.example.cinema.api.application.dto.seatreservation.SeatReservationReq
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
 import com.example.cinema.api.domain.seatreservation.exception.SeatNumberAlreadyReservedException;
 import com.example.cinema.api.application.mapper.SeatReservationMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,33 +34,29 @@ public class ReservaService {
     @Transactional
     public SeatReservationResponseDTO criarReserva(Long movieSessionId, SeatReservationRequestDTO dto) {
 
-        MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId)
+        User user = userService.getAuthenticatedUser();
+
+        MovieSession movieSession = movieSessionRepositoryJpa.findByIdWithRoom(movieSessionId)
                 .orElseThrow(() -> new MovieSessionNotFoundException("Sessão de filme não encontrada"));
 
-        Integer roomCapacity = movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(movieSessionId);
+        if (!movieSession.isAvailableForPurchase()) {
+            throw new MovieSessionNotAvailableException("Sessão não disponível para reserva.");
+        }
+
+        Room room = movieSession.getCinemaRoom();
 
         int seatNumber = dto.getSeatNumber();
 
-        if (seatNumber < 1 || seatNumber > roomCapacity) {
-            throw new InvalidSeatNumberException("Assento inválido");
-        }
+        room.validateSeatNumber(seatNumber);
 
         if (movieSessionRepositoryJpa.isSeatUnavailable(seatNumber, movieSessionId)) {
             throw new SeatNumberAlreadyReservedException("Assento já está reservado.");
         }
 
-        User user = userService.getAuthenticatedUser();
+        SeatReservation reservation = new SeatReservation(movieSession, seatNumber, user);
 
-        SeatReservation reservation = new SeatReservation(movieSession, dto.getSeatNumber(), user);
-
-        try {
-            SeatReservation savedSeatReservation = seatReservationRepositoryJpa.save(reservation);
-            return seatReservationMapper.toResponseDTO(savedSeatReservation);
-
-        } catch (DataIntegrityViolationException ex) {
-            throw new SeatNumberAlreadyReservedException("Assento já reservado para essa sessão");
-        }
-
+        SeatReservation savedSeatReservation = seatReservationRepositoryJpa.save(reservation);
+        return seatReservationMapper.toResponseDTO(savedSeatReservation);
     }
 
     @Transactional

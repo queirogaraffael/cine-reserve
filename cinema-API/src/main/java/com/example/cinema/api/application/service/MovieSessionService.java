@@ -82,7 +82,7 @@ public class MovieSessionService {
     @Transactional(readOnly = true)
     public List<Integer> getAvailableSeats(Long sessionId) {
 
-        Integer capacity = movieSessionRepositoryJpa.findCapacityBySessionId(sessionId);
+        Integer capacity = movieSessionRepositoryJpa.findRoomCapacityByMovieSessionId(sessionId);
 
         if (capacity == null) {
             throw new MovieSessionNotFoundException("Sessão " + sessionId + " não encontrada.");

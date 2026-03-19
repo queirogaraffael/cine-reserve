@@ -4,7 +4,6 @@ import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
 import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
-import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.user.ChangePasswordData;
 import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
@@ -23,8 +22,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService  {
@@ -46,9 +43,17 @@ public class UserService implements UserDetailsService  {
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 
+
+
+        // todo separar para saber qual campo ja existe
         if (userRepositoryJpa.existsByUsername(data.getUsername()) || userRepositoryJpa.existsByEmail(data.getEmail())) {
             throw new UserAlreadyExistsException("Usuário já existe");
         }
+
+
+
+
+
 
         String encryptedPassword = passwordEncoder.encode(data.getPassword());
 
@@ -64,11 +69,6 @@ public class UserService implements UserDetailsService  {
 
     }
 
-    @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
-        return userRepositoryJpa.existsByUsername(username);
-    }
-
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -76,22 +76,8 @@ public class UserService implements UserDetailsService  {
             throw new InsufficientAuthenticationException("Usuário não autenticado");
         }
 
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Optional) {
-            Optional<?> optional = (Optional<?>) principal;
-
-            if (optional.isPresent() && optional.get() instanceof User) {
-                return (User) optional.get();
-            }
-        }
-
-        if (principal instanceof User) {
-            return (User) principal;
-        }
-
-        throw new UserNotFoundException("Tipo de principal inesperado ou usuário não encontrado.");
+        return (User) authentication.getPrincipal();
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -101,7 +87,7 @@ public class UserService implements UserDetailsService  {
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDTO getCurrentUser() {
+    public UserResponseDTO getAuthenticatedUserProfile() {
         User user = self.getAuthenticatedUser();
         return userMapper.toUserResponseDTO(user);
     }

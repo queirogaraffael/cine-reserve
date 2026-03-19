@@ -58,9 +58,6 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
             @Param("endTime") LocalTime endTime
     );
 
-    @Query("SELECT r.capacity FROM MovieSession ms JOIN ms.cinemaRoom r WHERE ms.id = :sessionId")
-    Integer findRoomCapacityByMovieSessionId(@Param("sessionId") Long sessionId);
-
     @Query("""
     SELECT new com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO(
         ms.id,
@@ -78,6 +75,9 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
     """)
     Optional<MovieSessionResponseDTO> findMovieSessionByTicketId(@Param("ticketId") Long ticketId);
 
-    @Query("SELECT s.cinemaRoom.capacity FROM MovieSession s WHERE s.id = :sessionId")
-    Integer findCapacityBySessionId(@Param("sessionId") Long sessionId);
+    @Query("SELECT r.capacity FROM MovieSession ms JOIN ms.cinemaRoom r WHERE ms.id = :sessionId")
+    Integer findRoomCapacityByMovieSessionId(@Param("sessionId") Long sessionId);
+
+    @Query("SELECT ms FROM MovieSession ms JOIN FETCH ms.cinemaRoom WHERE ms.id = :sessionId")
+    Optional<MovieSession> findByIdWithRoom(@Param("id") Long sessionId);
 }

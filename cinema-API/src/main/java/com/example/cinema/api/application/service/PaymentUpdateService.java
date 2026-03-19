@@ -23,6 +23,7 @@ public class PaymentUpdateService {
     public void processPaymentUpdate(ExternalPaymentSnapshot externalPaymentSnapshot, PaymentWebhookEvent event) {
 
         if (externalPaymentSnapshot.getExternalReference() == null) {
+            // todo: mudar nome da exceção
             throw new IllegalStateException("Pagamento sem external_reference");
         }
 

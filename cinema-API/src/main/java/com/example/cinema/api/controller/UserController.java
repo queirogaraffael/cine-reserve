@@ -50,8 +50,8 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getCurrentUser() {
-        UserResponseDTO currentUser = userService.getCurrentUser();
+    public ResponseEntity<UserResponseDTO> getAuthenticatedUserProfile() {
+        UserResponseDTO currentUser = userService.getAuthenticatedUserProfile();
         return ResponseEntity.ok(currentUser);
     }
 

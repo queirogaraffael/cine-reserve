@@ -3,6 +3,7 @@ package com.example.cinema.api.domain.room;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
 import com.example.cinema.api.domain.room.exception.RoomInvalidNumberException;
+import com.example.cinema.api.domain.seatreservation.exception.InvalidSeatNumberException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -63,6 +64,12 @@ public class Room {
         }
 
         this.number = newNumber;
+    }
+
+    public void validateSeatNumber(int seatNumber) {
+        int capacity = this.getCapacity();
+        if (seatNumber < 1 || seatNumber > capacity)
+            throw new InvalidSeatNumberException("Assento inválido: " + seatNumber);
     }
 
 }
