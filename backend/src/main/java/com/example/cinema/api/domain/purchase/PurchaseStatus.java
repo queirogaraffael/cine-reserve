@@ -14,9 +14,7 @@ public enum PurchaseStatus {
     CREATED("created"),
     WAITING_PAYMENT("waiting_payment"),
     CONFIRMED("confirmed"),
-    REFUNDED("refunded"),
-    CANCELLED("cancelled"),
-    EXPIRED("expired");
+    CANCELLED("cancelled");
 
     private final String value;
     private Set<PurchaseStatus> allowedTransitions;

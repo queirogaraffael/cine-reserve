@@ -17,18 +17,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PaymentWebhookConsumer {
 
-    private final ExternalPaymentProvider paymentQueryService;
+    private final ExternalPaymentProvider externalPaymentProvider;
     private final PaymentWebhookRetryPolicy retryPolicy;
     private final PaymentUpdateService paymentUpdateService;
     private final PaymentFailureHandler failureHandler;
 
-    public PaymentWebhookConsumer(
-            ExternalPaymentProvider paymentQueryService,
-            PaymentWebhookRetryPolicy retryPolicy,
-            PaymentUpdateService paymentUpdateService,
-            PaymentFailureHandler failureHandler
-    ) {
-        this.paymentQueryService = paymentQueryService;
+    public PaymentWebhookConsumer(ExternalPaymentProvider paymentQueryService, PaymentWebhookRetryPolicy retryPolicy,
+                                  PaymentUpdateService paymentUpdateService,
+                                  PaymentFailureHandler failureHandler) {
+        this.externalPaymentProvider = paymentQueryService;
         this.retryPolicy = retryPolicy;
         this.paymentUpdateService = paymentUpdateService;
         this.failureHandler = failureHandler;
@@ -40,7 +37,7 @@ public class PaymentWebhookConsumer {
         int retries = retryPolicy.getRetryCount(message);
 
         try {
-            ExternalPaymentSnapshot externalPaymentSnapshot = paymentQueryService.getPayment(event.getPaymentId());
+            ExternalPaymentSnapshot externalPaymentSnapshot = externalPaymentProvider.getPayment(event.getPaymentId());
 
             paymentUpdateService.processPaymentUpdate(externalPaymentSnapshot, event);
 

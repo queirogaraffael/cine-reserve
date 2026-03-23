@@ -43,17 +43,11 @@ public class UserService implements UserDetailsService  {
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data) {
 
+        if (userRepositoryJpa.existsByUsername(data.getUsername()))
+            throw new UserAlreadyExistsException("Username já está em uso");
 
-
-        // todo separar para saber qual campo ja existe
-        if (userRepositoryJpa.existsByUsername(data.getUsername()) || userRepositoryJpa.existsByEmail(data.getEmail())) {
-            throw new UserAlreadyExistsException("Usuário já existe");
-        }
-
-
-
-
-
+        if (userRepositoryJpa.existsByEmail(data.getEmail()))
+            throw new UserAlreadyExistsException("E-mail já está em uso");
 
         String encryptedPassword = passwordEncoder.encode(data.getPassword());
 
