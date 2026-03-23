@@ -1,0 +1,1073 @@
+{
+  "info": {
+    "_postman_id": "818dca44-8c56-4ff3-9723-cb306aeaeac3",
+    "name": "CineReserve",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "25319040"
+  },
+  "item": [
+    {
+      "name": "genres",
+      "item": [
+        {
+          "name": "atualizar genero",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Ação\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/genres/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "genres",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "criar genero",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Comédia\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/genres",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "obter genero por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/genres/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "genres",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "buscar todos os generos paginados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/genres?page=0&size=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "genres"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "buscar generos por nome paginados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/genres/search?page=0&size=10&name=a",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "genres",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "name",
+                  "value": "a"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "movies",
+      "item": [
+        {
+          "name": "Buscar filme por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar fillme",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar novo filme",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/:genreId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                ":genreId"
+              ],
+              "variable": [
+                {
+                  "key": "genreId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar filmes paginados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies?page&size",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": null,
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Busca paginada de filmes por título",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/seach?page&size",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "seach"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": null,
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Busca paginada de filmes por título e gênero",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/search/genre/:genreId?page&size&titulo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "search",
+                "genre",
+                ":genreId"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": null,
+                  "type": "text"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "genreId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Busca paginada de filmes por gênero",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/genre/:genreId?page&size",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movies",
+                "genre",
+                ":genreId"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": null,
+                  "type": "text"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "genreId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rooms",
+      "item": [
+        {
+          "name": "buscar quarto por ID",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"senhaSegura123\"\r\n}\r\n"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rooms/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rooms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar quarto",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rooms/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rooms",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar salas paginadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rooms?page&size",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rooms"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "size",
+                  "value": null,
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar nova sala",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rooms"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "criar usuario",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"raffael123\",\r\n  \"name\": \"Raffael Queiroga\",\r\n  \"email\": \"raffaelqueirogaa@gmail.com\",\r\n  \"password\": \"senhaSegura123\",\r\n  \"dataJoined\": \"2025-10-09\",\r\n  \"birthdate\": \"2000-05-12\",\r\n  \"category\": \"REGULAR\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Retornar usuario logado",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaW5lbWEtYXBpIiwic3ViIjoicmFmZmFlbDEyMyIsImlhdCI6MTc2MDM2Mzg4NiwiZXhwIjoxNzYwMzcxMDg2fQ.05CeUpnmnEWbihy7iH0YUeoUplJYpXhFSazwkMF2PiM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar senha de usuario logado",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjaW5lbWEtYXBpIiwic3ViIjoicmFmZmFlbDEyMyIsImlhdCI6MTc2MDM2NTM3NywiZXhwIjoxNzYwMzcyNTc3fQ.hwPyLo-bMpICLwoBLGhjN7oeZWLW2q-ad8WpNB9o78E",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"currentPassword\": \"senhaSegura123\",\r\n  \"newPassword\": \"NovaSenhaSegura!2025\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "login",
+      "item": [
+        {
+          "name": "login_admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();\r",
+                  "\r",
+                  "var token = jsonData.token;\r",
+                  "\r",
+                  "pm.environment.set(\"adminToken\", token);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"senhaSegura123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login_user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "let userData = {\r",
+                  "  \"username\": \"raffael123\",\r",
+                  "  \"name\": \"Raffael Queiroga\",\r",
+                  "  \"email\": \"raffaelqueirogaa@gmail.com\",\r",
+                  "  \"password\": \"senhaSegura123\",\r",
+                  "  \"dataJoined\": \"2025-10-09\",\r",
+                  "  \"birthdate\": \"2000-05-12\",\r",
+                  "  \"category\": \"REGULAR\"\r",
+                  "};\r",
+                  "\r",
+                  "pm.sendRequest({\r",
+                  "    url: 'http://localhost:8080/api/users',\r",
+                  "    method: 'POST',\r",
+                  "    header: {\r",
+                  "        'Content-Type': 'application/json'\r",
+                  "    },\r",
+                  "    body: {\r",
+                  "        mode: 'raw',\r",
+                  "        raw: JSON.stringify(userData)\r",
+                  "    }\r",
+                  "}, function (err, res) {\r",
+                  "    if (err) {\r",
+                  "        console.error(\"Erro ao criar usuário:\", err);\r",
+                  "    } else {\r",
+                  "        console.log(\"Usuário criado com sucesso:\", res.json());\r",
+                  "        pm.environment.set(\"createdUserId\", res.json().id);\r",
+                  "    }\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Resposta contém token e refreshToken\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property(\"token\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"refreshToken\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token é um JWT válido\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.token.split('.').length).to.eql(3); \r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"RefreshToken não está vazio\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.refreshToken).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"authToken\", pm.response.json().token);\r",
+                  "pm.environment.set(\"refreshToken\", pm.response.json().refreshToken);\r",
+                  "\r",
+                  "var jsonData = pm.response.json();\r",
+                  "pm.environment.set(\"authToken\", jsonData.token);\r",
+                  "pm.environment.set(\"refreshToken\", jsonData.refreshToken);\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"raffael123\",\r\n  \"password\": \"senhaSegura123\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"token\": \"da5bdb3e-d5b9-4af8-9b86-6525c462dff4\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"token\": \"da5bdb3e-d5b9-4af8-9b86-6525c462dff4\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "movieSessions",
+      "item": []
+    },
+    {
+      "name": "payment",
+      "item": [
+        {
+          "name": "Criar pagamento PIX",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    if (jsonData.paymentId && jsonData.pixCopiaECola) {",
+                  "        pm.collectionVariables.set(\"lastPaymentId\", jsonData.paymentId);",
+                  "        console.log(\"Payment ID de Pix salvo: \" + jsonData.paymentId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"paymentMethod\": \"PIX\",\n    \"paymentDetails\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/purchases/:purchaseId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "purchases",
+                ":purchaseId"
+              ],
+              "variable": [
+                {
+                  "key": "purchaseId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar pagamento CARTÃO",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const numCartao = pm.environment.get(\"numero_cartao\");",
+                  "const mesExp = pm.environment.get(\"mes_expiracao\");",
+                  "const anoExp = pm.environment.get(\"ano_expiracao\");",
+                  "const cvv = pm.environment.get(\"cvv_cartao\");",
+                  "const nomeTitular = pm.environment.get(\"nome_titular\");",
+                  "",
+                  "const cardData = {",
+                  "    \"card_number\": numCartao,",
+                  "    \"expiration_month\": parseInt(mesExp),",
+                  "    \"expiration_year\": parseInt(anoExp),",
+                  "    \"security_code\": cvv,",
+                  "    \"cardholder\": {",
+                  "        \"name\": nomeTitular",
+                  "    }",
+                  "};",
+                  "",
+                  "const publicKey = pm.environment.get(\"public_key_teste\");",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: `https://api.mercadopago.com/v1/card_tokens?public_key=${publicKey}`,",
+                  "    method: 'POST',",
+                  "    header: {",
+                  "        'Content-Type': 'application/json'",
+                  "    },",
+                  "    body: {",
+                  "        mode: 'raw',",
+                  "        raw: JSON.stringify(cardData)",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (err) {",
+                  "        console.log(\"Erro ao gerar token do MP: \", err);",
+                  "    } else {",
+                  "        const responseJson = res.json();",
+                  "        const token = responseJson.id;",
+                  "        ",
+                  "        pm.collectionVariables.set(\"card_token_gerado\", token);",
+                  "        console.log(\"Token gerado com sucesso: \" + token);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "",
+                  "    if (jsonData.paymentId && jsonData.lastFourDigits) {",
+                  "        pm.collectionVariables.set(\"lastPaymentId\", jsonData.paymentId);",
+                  "        console.log(\"Payment ID de Cartão salvo: \" + jsonData.paymentId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"paymentMethod\": \"CARD\",\n    \"paymentDetails\": {\n        \"card_token\": \"{{card_token_gerado}}\",\n        \"payment_method_id\": \"{{bandeira_cartão}}\",\n        \"installments\": 1\n    }\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/purchases/:purchaseId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "purchases",
+                ":purchaseId"
+              ],
+              "variable": [
+                {
+                  "key": "purchaseId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment By ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{lastPaymentId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get PaymentStatus",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/:id/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{lastPaymentId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "purchase",
+      "item": [
+        {
+          "name": "Get Purchase B y ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "tickets",
+      "item": []
+    }
+  ]
+}
