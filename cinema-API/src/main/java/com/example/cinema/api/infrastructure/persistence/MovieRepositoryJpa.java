@@ -1,8 +1,9 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.entities.Movie;
+import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.infrastructure.persistence.projection.MovieResponseDTOProjection;
-import com.example.cinema.api.shared.dtos.movie.MovieResponseDTO;
+import com.example.cinema.api.application.dto.movie.MovieResponseDTO;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Repository;
 public interface MovieRepositoryJpa extends JpaRepository<Movie, Long> {
 
     @Query(
-            value = "SELECT new com.example.cinema.api.shared.dtos.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m",
+            value = "SELECT new com.example.cinema.api.application.dto.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m",
             countQuery = "SELECT count(m) FROM Movie m")
     Page<MovieResponseDTO> findAllPaginado(Pageable pageable);
 
@@ -24,18 +25,18 @@ public interface MovieRepositoryJpa extends JpaRepository<Movie, Long> {
 
 
     @Query(
-            value = "SELECT new com.example.cinema.api.shared.dtos.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m WHERE m.genre.id = :genreId",
+            value = "SELECT new com.example.cinema.api.application.dto.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m WHERE m.genre.id = :genreId",
             countQuery = "SELECT count(m) FROM Movie m WHERE m.genre.id = :genreId")
     Page<MovieResponseDTO> findByGenreId(@Param("genreId") Long genreId, Pageable pageable);
 
 
     @Query(
-            value = "SELECT new com.example.cinema.api.shared.dtos.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) " +
+            value = "SELECT new com.example.cinema.api.application.dto.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) " +
                     "FROM Movie m WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%')) AND m.genre.id = :genreId",
             countQuery = "SELECT count(m) FROM Movie m WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%')) AND m.genre.id = :genreId"
     )
     Page<MovieResponseDTO> findByTitleContainingAndGenreId(@Param("title") String title, @Param("genreId") Long genreId, Pageable pageable);
 
 
-    boolean existsById(Long id);
+    boolean existsById(@NonNull Long id);
 }

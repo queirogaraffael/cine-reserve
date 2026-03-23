@@ -1,13 +1,13 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.services.PaymentGatewayService;
-import com.example.cinema.api.shared.dtos.payment.requests.CardPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.card.CardGatewayResult;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.shared.exceptions.ApiPagamentoException;
+import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
+import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
+import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentCreateRequest;
@@ -80,9 +80,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             }
 
             String statusDetails = payment.getStatusDetail();
-
-            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
-
+            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
             String status = payment.getStatus();
 
             return new PixGatewayResult(
@@ -97,9 +95,9 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             );
 
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX", e);
         }
     }
 
@@ -133,7 +131,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
 
             Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
 
-            Long transactionId = (payment.getId() != null) ? Long.parseLong(payment.getId().toString()) : null;
+            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
             String status = payment.getStatus();
             String statusDetail = payment.getStatusDetail();
             Integer installments = payment.getInstallments();
@@ -151,9 +149,9 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             );
 
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar CARTÃO: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Payment provider communication failure", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta de pagamento: " + e.getMessage(), e);
+            throw new ApiPagamentoException("Unexpected payment processing error", e);
         }
     }
 }

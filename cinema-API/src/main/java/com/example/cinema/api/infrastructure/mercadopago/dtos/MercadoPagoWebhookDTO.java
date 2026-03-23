@@ -15,6 +15,7 @@ public class MercadoPagoWebhookDTO {
     private String type;
     private String action;
     private PaymentData data;
+    private int version;
 
     @JsonProperty("live_mode")
     private boolean liveMode;

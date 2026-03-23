@@ -1,15 +1,15 @@
 package com.example.cinema.api.domain.payment.strategy;
 
-import com.example.cinema.api.domain.entities.Payment;
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.PaymentStatus;
-import com.example.cinema.api.domain.enums.PaymentType;
-import com.example.cinema.api.domain.services.PaymentGatewayService;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.requests.PixPaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.pix.PixPaymentResponseDTO;
+import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.payment.PaymentStatus;
+import com.example.cinema.api.domain.payment.PaymentType;
+import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
+import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixPaymentResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,9 +34,9 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
 
         PixGatewayResult result = paymentGatewayService.createPixPayment(purchase, user, pixRequest);
 
-        payment.setTransactionId(result.getTransactionId());
-        payment.setPaymentStatus(PaymentStatus.fromValue(result.getStatus()));
-        payment.setStatusDetail(result.getStatusDetail());
+        payment.registerTransaction(result.getTransactionId());
+
+        payment.updateStatus(PaymentStatus.fromValue(result.getStatus()), result.getStatusDetail());
 
         return PixPaymentResponseDTO.builder()
                 .paymentStatus(payment.getPaymentStatus())

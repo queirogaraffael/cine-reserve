@@ -1,13 +1,12 @@
 package com.example.cinema.api.domain.payment.context;
 
-import com.example.cinema.api.domain.entities.Payment;
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
-import com.example.cinema.api.domain.enums.PaymentType;
+import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.payment.PaymentType;
 import com.example.cinema.api.domain.payment.strategy.PaymentStrategy;
-import com.example.cinema.api.shared.dtos.payment.requests.PaymentRequestDTO;
-import com.example.cinema.api.shared.dtos.payment.response.PaymentResponseDTO;
-import com.example.cinema.api.shared.dtos.payment.response.gateway.PaymentGatewayResponseDTO;
+import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

@@ -1,20 +1,19 @@
 package com.example.cinema.api.domain.purchase.event;
 
-import com.example.cinema.api.domain.entities.Purchase;
-import com.example.cinema.api.domain.entities.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
-public class PurchaseCreatedEvent extends ApplicationEvent {
+@AllArgsConstructor
+public class PurchaseCreatedEvent {
 
-    private final Purchase purchase;
-    private final User user;
-
-    public PurchaseCreatedEvent(Object source, User user, Purchase purchase) {
-        super(source);
-        this.user = user;
-        this.purchase = purchase;
-    }
+    private final Long purchaseId;
+    private final UUID userId;
+    private final BigDecimal totalPrice;
+    private final LocalDateTime purchaseDate;
 
 }
