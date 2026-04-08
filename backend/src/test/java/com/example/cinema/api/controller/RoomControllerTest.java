@@ -1,15 +1,16 @@
 package com.example.cinema.api.controller;
 
 
+import com.example.cinema.api.shared.TestUtils;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.TicketCategory;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.room.RoomRequestDTO;
-import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
 class RoomControllerTest {

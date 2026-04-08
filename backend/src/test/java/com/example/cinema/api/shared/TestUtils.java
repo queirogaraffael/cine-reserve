@@ -1,4 +1,4 @@
-package com.example.cinema.api.utils;
+package com.example.cinema.api.shared;
 
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.ticket.TicketCategory;

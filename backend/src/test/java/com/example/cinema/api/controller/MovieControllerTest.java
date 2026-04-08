@@ -1,5 +1,6 @@
 package com.example.cinema.api.controller;
 
+import com.example.cinema.api.shared.TestUtils;
 import com.example.cinema.api.domain.genre.Genre;
 import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.domain.ticket.TicketCategory;
@@ -9,9 +10,9 @@ import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
 import com.example.cinema.api.application.dto.movie.MovieUpdateDTO;
-import com.example.cinema.api.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
 class MovieControllerTest {
