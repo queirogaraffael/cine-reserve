@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
-class MovieControllerTest {
+class MovieControllerIT {
 
     @Autowired
     private MockMvc mockMvc;

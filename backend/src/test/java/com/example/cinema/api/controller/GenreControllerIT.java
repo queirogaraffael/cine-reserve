@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
-class GenreControllerTest {
+class GenreControllerIT {
 
     @Autowired
     private MockMvc mockMvc;

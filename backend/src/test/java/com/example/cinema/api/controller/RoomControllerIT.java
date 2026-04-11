@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
-class RoomControllerTest {
+class RoomControllerIT {
 
     @Autowired
     private MockMvc mockMvc;

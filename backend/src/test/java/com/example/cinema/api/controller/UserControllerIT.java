@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class UserControllerIT {
 
     @Test
     void testBasico(){
