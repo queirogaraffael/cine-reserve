@@ -1,18 +1,3 @@
-CREATE TYPE user_role AS ENUM ('ADMIN', 'USER');
-
-CREATE TYPE movie_session_status AS ENUM ('SCHEDULED', 'ACTIVE', 'FINISHED', 'CANCELED');
-
-CREATE TYPE reservation_status AS ENUM ('RESERVED', 'CONSUMED', 'EXPIRED', 'CANCELLED');
-
-CREATE TYPE ticket_category AS ENUM ('REGULAR', 'STUDENT', 'SENIOR');
-
-CREATE TYPE purchase_status AS ENUM ('CREATED', 'PENDING', 'PAID', 'CANCELLED', 'REFUNDED');
-
-CREATE TYPE payment_type AS ENUM ('PIX', 'CARTAO');
-
-CREATE TYPE payment_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'REFUNDED');
-
-
 CREATE TABLE genre (
     id      BIGSERIAL    PRIMARY KEY,
     name    VARCHAR(100) NOT NULL UNIQUE
@@ -76,7 +61,7 @@ CREATE TABLE users (
     failed_attempt  INTEGER      NOT NULL DEFAULT 0,
     lock_time       TIMESTAMP,
     is_locked       BOOLEAN      NOT NULL DEFAULT FALSE,
-    role            user_role    NOT NULL
+    role            VARCHAR(50)  NOT NULL
 );
 
 CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
@@ -87,12 +72,11 @@ CREATE TABLE purchase (
     purchase_date    TIMESTAMP      NOT NULL,
     total_price      NUMERIC(10, 2) NOT NULL DEFAULT 0,
     idempotency_key  CHAR(36)       NOT NULL UNIQUE,
-    purchase_status  purchase_status NOT NULL,
+    purchase_status  VARCHAR(50)    NOT NULL,
     user_id          UUID           NOT NULL REFERENCES users(id)
 );
 
 CREATE INDEX idx_purchase_user_id ON purchase(user_id);
-
 
 CREATE INDEX idx_purchase_status ON purchase(purchase_status);
 
@@ -104,8 +88,8 @@ CREATE TABLE payment (
     payment_date    TIMESTAMP,
     transaction_id  BIGINT,
     version         INTEGER        NOT NULL DEFAULT 0,
-    payment_method  payment_type   NOT NULL,
-    payment_status  payment_status NOT NULL,
+    payment_method  VARCHAR(50)    NOT NULL,
+    payment_status  VARCHAR(50)    NOT NULL,
     status_detail   VARCHAR(255),
     purchase_id     BIGINT         NOT NULL UNIQUE REFERENCES purchase(id)
 );
@@ -117,7 +101,7 @@ CREATE INDEX idx_payment_status ON payment(payment_status);
 CREATE TABLE tickets (
     id           BIGSERIAL      PRIMARY KEY,
     seat_number  INTEGER        NOT NULL,
-    category     ticket_category NOT NULL,
+    category     VARCHAR(50)    NOT NULL,
     price        NUMERIC(10, 2) NOT NULL CHECK (price > 0),
     session_id   BIGINT         NOT NULL REFERENCES movie_session(id),
     purchase_id  BIGINT         NOT NULL REFERENCES purchase(id),
@@ -130,12 +114,12 @@ CREATE INDEX idx_ticket_purchase_id ON tickets(purchase_id);
 CREATE INDEX idx_ticket_session_id ON tickets(session_id);
 
 CREATE TABLE seat_reservations (
-    id           BIGSERIAL          PRIMARY KEY,
-    seat_number  INTEGER            NOT NULL,
-    status       reservation_status NOT NULL,
-    expires_at   TIMESTAMP          NOT NULL,
-    session_id   BIGINT             NOT NULL REFERENCES movie_session(id),
-    user_id      UUID               NOT NULL REFERENCES users(id)
+    id           BIGSERIAL   PRIMARY KEY,
+    seat_number  INTEGER     NOT NULL,
+    status       VARCHAR(50) NOT NULL,
+    expires_at   TIMESTAMP   NOT NULL,
+    session_id   BIGINT      NOT NULL REFERENCES movie_session(id),
+    user_id      UUID        NOT NULL REFERENCES users(id)
 );
 
 CREATE INDEX idx_seat_reservation_session_id ON seat_reservations(session_id);
