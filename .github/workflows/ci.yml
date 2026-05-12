@@ -7,6 +7,7 @@ on:
     branches: ["**"]
 
 jobs:
+  unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
 
@@ -24,6 +25,14 @@ jobs:
       - name: Run unit tests
         working-directory: backend
         run: ./mvnw test -pl . --no-transfer-progress
+
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: backend/target/surefire-reports/
+          retention-days: 7
 
   integration-tests:
     name: Integration & Architecture Tests
@@ -43,14 +52,12 @@ jobs:
 
       - name: Run integration & architecture tests
         working-directory: backend
-        run: ./mvnw verify -pl . --no-transfer-progress
+        run: ./mvnw verify -pl . --no-transfer-progress -Dsurefire.skip=true
 
-      - name: Upload test reports
+      - name: Upload integration test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: |
-            backend/target/surefire-reports/
-            backend/target/failsafe-reports/
+          name: integration-test-reports
+          path: backend/target/failsafe-reports/
           retention-days: 7

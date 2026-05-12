@@ -43,4 +43,5 @@ public abstract class IntegrationTestBase {
         registry.add("spring.rabbitmq.host", RABBITMQ::getHost);
         registry.add("spring.rabbitmq.port", RABBITMQ::getAmqpPort);
     }
+
 }
