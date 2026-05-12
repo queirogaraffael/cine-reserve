@@ -1,12 +1,11 @@
 package com.example.cinema.api.domain.payment;
 
+import com.example.cinema.api.domain.purchase.PurchaseStatus;
 import lombok.Getter;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Getter
@@ -41,7 +40,6 @@ public enum PaymentStatus {
         PARTIALLY_REFUNDED.allowedTransitions = of(REFUNDED);
 
         FAILED.allowedTransitions = of(PENDING, IN_PROCESS);
-        UNKNOWN.allowedTransitions = of(PENDING, IN_PROCESS, AUTHORIZED, APPROVED);
     }
 
     private static Set<PaymentStatus> of(PaymentStatus... statuses) {
@@ -69,6 +67,25 @@ public enum PaymentStatus {
             if (status.value.equalsIgnoreCase(value)) return status;
         }
         return UNKNOWN;
+    }
+
+    private static final Map<PaymentStatus, PurchaseStatus> PURCHASE_STATUS_MAP =
+            Map.ofEntries(
+                    Map.entry(PENDING, PurchaseStatus.WAITING_PAYMENT),
+                    Map.entry(IN_PROCESS, PurchaseStatus.WAITING_PAYMENT),
+                    Map.entry(AUTHORIZED, PurchaseStatus.WAITING_PAYMENT),
+                    Map.entry(APPROVED, PurchaseStatus.CONFIRMED),
+                    Map.entry(REJECTED, PurchaseStatus.CANCELLED),
+                    Map.entry(CANCELLED, PurchaseStatus.CANCELLED),
+                    Map.entry(EXPIRED, PurchaseStatus.CANCELLED),
+                    Map.entry(FAILED, PurchaseStatus.CANCELLED),
+                    Map.entry(PARTIALLY_REFUNDED, PurchaseStatus.CANCELLED),
+                    Map.entry(REFUNDED, PurchaseStatus.CANCELLED),
+                    Map.entry(CHARGED_BACK, PurchaseStatus.CANCELLED)
+            );
+
+    public Optional<PurchaseStatus> toPurchaseStatus() {
+        return Optional.ofNullable(PURCHASE_STATUS_MAP.get(this));
     }
 }
 

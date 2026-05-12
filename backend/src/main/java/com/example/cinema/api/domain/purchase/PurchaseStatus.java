@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static com.example.cinema.api.domain.payment.PaymentStatus.EXPIRED;
+import static com.example.cinema.api.domain.payment.PaymentStatus.REFUNDED;
+
 @Slf4j
 @Getter
 public enum PurchaseStatus {
@@ -22,21 +25,6 @@ public enum PurchaseStatus {
     PurchaseStatus(String value) {
         this.value = value;
         this.allowedTransitions = Collections.emptySet();
-    }
-
-    static {
-
-        CREATED.allowedTransitions = of(WAITING_PAYMENT, CANCELLED, EXPIRED);
-
-        WAITING_PAYMENT.allowedTransitions = of(CONFIRMED, CANCELLED, EXPIRED);
-
-        CONFIRMED.allowedTransitions = of(REFUNDED);
-
-        REFUNDED.allowedTransitions = Collections.emptySet();
-
-        CANCELLED.allowedTransitions = Collections.emptySet();
-
-        EXPIRED.allowedTransitions = Collections.emptySet();
     }
 
     private static Set<PurchaseStatus> of(PurchaseStatus... statuses) {

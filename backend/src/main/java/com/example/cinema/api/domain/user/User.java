@@ -95,6 +95,17 @@ public class User implements UserDetails {
         return lockTime == null || !lockTime.isAfter(LocalDateTime.now());
     }
 
+    public void lockAccount(LocalDateTime until) {
+        this.isLocked = true;
+        this.lockTime = until;
+    }
+
+    public void unlockAccount() {
+        this.isLocked = false;
+        this.lockTime = null;
+        this.failedAttempt = 0;
+    }
+
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
