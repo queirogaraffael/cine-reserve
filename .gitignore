@@ -10,12 +10,6 @@ override.tf
 override.tf.json
 
 # ========================
-# LocalStack
-# ========================
-.localstack/
-localstack_volume/
-
-# ========================
 # Docker
 # ========================
 docker/volumes/
@@ -29,20 +23,20 @@ Thumbs.db
 # ========================
 # IDEs
 # ========================
-.idea/
-*.iml
-.vscode/
-*.swp
+**/.idea/
+**/*.iml
+**/.vscode/
+**/*.swp
 
 # ========================
 # Logs
 # ========================
-logs/
-*.log
+**/logs/
+**/*.log
 
 # ========================
 # Secrets / env
 # ========================
-.env
-.env.*
-!.env.example
+**/.env
+**/.env.*
+!**/.env.example
