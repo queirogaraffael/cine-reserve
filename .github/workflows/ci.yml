@@ -43,6 +43,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fix Testcontainers Docker API Version
+        run: echo "api.version=1.45" > ~/.docker-java.properties
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:

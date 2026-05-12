@@ -253,7 +253,10 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <groups>integration,arch</groups>
+                    <groups>integration,arch</groups>                 
+                    <environmentVariables>
+                        <DOCKER_API_VERSION>1.45</DOCKER_API_VERSION>
+                    </environmentVariables>
                 </configuration>
                 <executions>
                     <execution>
