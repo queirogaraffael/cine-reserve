@@ -1,4 +1,4 @@
-package com.example.cinema.api.arch;
+package com.example.cinema.api.architecture;
 
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -14,7 +14,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@AnalyzeClasses(packages = "com.example.lojix", importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = "com.example.cinema.api", importOptions = ImportOption.DoNotIncludeTests.class)
 public class ArchitectureTest {
 
     @ArchTest
