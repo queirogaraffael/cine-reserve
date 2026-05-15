@@ -1,157 +1,203 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.domain.purchase.Purchase;
-import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.application.service.PaymentGatewayService;
 import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
+import com.example.cinema.api.domain.purchase.exception.InvalidPaymentAmountException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
+import com.example.cinema.api.application.dto.payment.PaymentAddressDTO;
+import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentCreateRequest;
+import com.mercadopago.client.payment.PaymentPayerAddressRequest;
 import com.mercadopago.client.payment.PaymentPayerRequest;
 import com.mercadopago.core.MPRequestOptions;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.payment.Payment;
-import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 
-@Service
+@Component
+@Slf4j
 public class MercadoPagoGatewayService implements PaymentGatewayService {
 
-    private final PaymentClient paymentClient;
+    private final PaymentClient paymentClientMercadoPago;
+
+    @Value("${cinereserve.payment.pix.expiration-minutes}")
+    private long pixExpirationMinutes;
+
     public static final String IDEMPOTENCY_KEY_HEADER = "X-Idempotency-Key";
 
-    public MercadoPagoGatewayService(PaymentClient paymentClient) {
-        this.paymentClient = paymentClient;
+    public MercadoPagoGatewayService(PaymentClient paymentClientMercadoPago) {
+        this.paymentClientMercadoPago = paymentClientMercadoPago;
     }
 
     @Override
-    public PixGatewayResult createPixPayment(Purchase purchase, User user, PixPaymentRequestDTO request) {
+    public PixGatewayResult createPixPayment(PaymentPurchaseContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
+        validateTotalPrice(purchase);
 
         try {
-            MPRequestOptions requestOptions = MPRequestOptions.builder()
-                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, purchase.getIdempotencyKey()))
-                    .build();
+            MPRequestOptions requestOptions = buildRequestOptions(purchase.idempotencyKey());
+            PaymentPayerRequest payerRequest = buildPayerRequest(user);
 
-            IdentificationRequest identificationRequest = IdentificationRequest.builder()
-                    .type("CPF")
-                    .number(user.getCpf())
-                    .build();
-
-            PaymentPayerRequest payerRequest = PaymentPayerRequest.builder()
-                    .email(user.getEmail())
-                    .identification(identificationRequest)
-                    .build();
-
-            ZonedDateTime expirationDate = ZonedDateTime.now().plusMinutes(30).truncatedTo(ChronoUnit.SECONDS);
+            ZonedDateTime expirationDate = ZonedDateTime.now(ZoneOffset.UTC)
+                    .plusMinutes(pixExpirationMinutes)
+                    .truncatedTo(ChronoUnit.SECONDS);
 
             PaymentCreateRequest paymentCreateRequest = PaymentCreateRequest.builder()
-                    .transactionAmount(purchase.getTotalPrice())
-                    .description("Pedido do Cliente " + user.getName())
+                    .transactionAmount(purchase.totalPrice())
+                    .description("CineReserve - Compra #" + purchase.id())
                     .paymentMethodId("pix")
                     .payer(payerRequest)
-                    .externalReference(purchase.getId().toString())
+                    .externalReference(purchase.id().toString())
                     .dateOfExpiration(expirationDate.toOffsetDateTime())
                     .build();
 
-            Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
+            log.info("Iniciando criação de pagamento PIX. purchaseId={}", purchase.id());
 
-            ZonedDateTime expirationConfirmada = (payment.getDateOfExpiration() != null)
+            Payment payment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
+
+            log.info("Pagamento PIX criado. purchaseId={} transactionId={} status={}",
+                    purchase.id(), payment.getId(), payment.getStatus());
+            log.info("AUDIT: Dados pessoais transmitidos ao Mercado Pago. purchaseId={} dataTypes=[cpf,email]",
+                    purchase.id());
+
+            if (payment.getPointOfInteraction() == null || payment.getPointOfInteraction().getTransactionData() == null) {
+                throw new ApiPagamentoException("Resposta do PIX sem dados de transação. transactionId=" + payment.getId(), null);
+            }
+
+            var data = payment.getPointOfInteraction().getTransactionData();
+
+            ZonedDateTime confirmedExpiration = (payment.getDateOfExpiration() != null)
                     ? payment.getDateOfExpiration().toZonedDateTime()
                     : expirationDate;
 
-            String pixCopiaECola = "";
-            String qrCode = "";
-            String qrCodeBase64 = "";
-            String instrucoesUrl = "";
-
-            if (payment.getPointOfInteraction() != null && payment.getPointOfInteraction().getTransactionData() != null) {
-                var data = payment.getPointOfInteraction().getTransactionData();
-                pixCopiaECola = data.getQrCode();
-                qrCode = data.getQrCode();
-                qrCodeBase64 = data.getQrCodeBase64();
-                instrucoesUrl = data.getTicketUrl();
-            }
-
-            String statusDetails = payment.getStatusDetail();
-            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
-            String status = payment.getStatus();
-
             return new PixGatewayResult(
-                    transactionId,
-                    status,
-                    statusDetails,
-                    pixCopiaECola,
-                    qrCode,
-                    qrCodeBase64,
-                    instrucoesUrl,
-                    expirationConfirmada
+                    payment.getId(),
+                    payment.getStatus(),
+                    payment.getStatusDetail(),
+                    data.getQrCode(),
+                    data.getQrCodeBase64(),
+                    data.getTicketUrl(),
+                    confirmedExpiration
             );
 
+        } catch (ApiPagamentoException e) {
+            throw e;
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Erro na API do Mercado Pago ao processar PIX", e);
+            log.error("Falha na API do Mercado Pago ao processar PIX. purchaseId={}", purchase.id(), e);
+            throw new ApiPagamentoException("Falha na API do provedor de pagamento ao processar PIX", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Erro interno inesperado ao processar resposta do PIX", e);
+            log.error("Erro inesperado ao processar PIX. purchaseId={}", purchase.id(), e);
+            throw new ApiPagamentoException("Erro inesperado ao processar resposta do PIX", e);
         }
     }
 
     @Override
-    public CardGatewayResult createCardPayment(Purchase purchase, User user, CardPaymentRequestDTO request) {
+    public CardGatewayResult createCardPayment(PaymentPurchaseContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
+        validateTotalPrice(purchase);
 
         try {
-            MPRequestOptions requestOptions = MPRequestOptions.builder()
-                    .customHeaders(java.util.Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, purchase.getIdempotencyKey()))
-                    .build();
-
-            IdentificationRequest identificationRequest = IdentificationRequest.builder()
-                    .type("CPF")
-                    .number(user.getCpf())
-                    .build();
-
-            PaymentPayerRequest payerRequest = PaymentPayerRequest.builder()
-                    .email(user.getEmail())
-                    .identification(identificationRequest)
-                    .build();
+            MPRequestOptions requestOptions = buildRequestOptions(purchase.idempotencyKey());
+            PaymentPayerRequest payerRequest = buildPayerRequest(user, request.getPaymentAddressDTO());
 
             PaymentCreateRequest paymentCreateRequest = PaymentCreateRequest.builder()
-                    .transactionAmount(purchase.getTotalPrice())
-                    .description("Pedido do Cliente " + user.getName())
+                    .transactionAmount(purchase.totalPrice())
+                    .description("CineReserve - Compra #" + purchase.id())
                     .paymentMethodId(request.getPaymentMethodId())
                     .token(request.getCardToken())
                     .installments(request.getInstallments())
                     .payer(payerRequest)
-                    .externalReference(purchase.getId().toString())
+                    .externalReference(purchase.id().toString())
                     .build();
 
-            Payment payment = paymentClient.create(paymentCreateRequest, requestOptions);
+            log.info("Iniciando criação de pagamento com cartão. purchaseId={}", purchase.id());
 
-            Long transactionId = (payment.getId() != null) ? payment.getId() : null;
-            String status = payment.getStatus();
-            String statusDetail = payment.getStatusDetail();
-            Integer installments = payment.getInstallments();
-            String paymentMethodId = payment.getPaymentMethodId();
+            Payment payment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
 
-            String lastFourDigits = (payment.getCard() != null) ? payment.getCard().getLastFourDigits() : "N/A";
+            log.info("Pagamento com cartão criado. purchaseId={} transactionId={} status={}",
+                    purchase.id(), payment.getId(), payment.getStatus());
+            log.info("AUDIT: Dados pessoais transmitidos ao Mercado Pago. purchaseId={} dataTypes=[cpf,email,address]",
+                    purchase.id());
+
+            String lastFourDigits = (payment.getCard() != null)
+                    ? payment.getCard().getLastFourDigits()
+                    : null;
 
             return new CardGatewayResult(
-                    transactionId,
-                    status,
-                    statusDetail,
+                    payment.getId(),
+                    payment.getStatus(),
+                    payment.getStatusDetail(),
                     lastFourDigits,
-                    installments,
-                    paymentMethodId
+                    payment.getInstallments(),
+                    payment.getPaymentMethodId()
             );
 
         } catch (MPException | MPApiException e) {
-            throw new ApiPagamentoException("Payment provider communication failure", e);
+            log.error("Falha na API do Mercado Pago ao processar cartão. purchaseId={}", purchase.id(), e);
+            throw new ApiPagamentoException("Falha na API do provedor de pagamento ao processar pagamento com cartão", e);
         } catch (Exception e) {
-            throw new ApiPagamentoException("Unexpected payment processing error", e);
+            log.error("Erro inesperado ao processar pagamento com cartão. purchaseId={}", purchase.id(), e);
+            throw new ApiPagamentoException("Erro inesperado ao processar resposta do pagamento com cartão", e);
         }
+    }
+
+    private void validateTotalPrice(PaymentPurchaseContext purchase) {
+        if (purchase.totalPrice() == null || purchase.totalPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidPaymentAmountException("Valor total da compra deve ser maior que zero. purchaseId=" + purchase.id());
+        }
+    }
+
+    private MPRequestOptions buildRequestOptions(String idempotencyKey) {
+        return MPRequestOptions.builder()
+                .customHeaders(Collections.singletonMap(IDEMPOTENCY_KEY_HEADER, idempotencyKey))
+                .build();
+    }
+
+    private PaymentPayerRequest buildPayerRequest(PaymentUserContext user) {
+        IdentificationRequest identification = IdentificationRequest.builder()
+                .type("CPF")
+                .number(user.cpf())
+                .build();
+
+        return PaymentPayerRequest.builder()
+                .email(user.email())
+                .identification(identification)
+                .build();
+    }
+
+    private PaymentPayerRequest buildPayerRequest(PaymentUserContext user, PaymentAddressDTO address) {
+        IdentificationRequest identification = IdentificationRequest.builder()
+                .type("CPF")
+                .number(user.cpf())
+                .build();
+
+        PaymentPayerAddressRequest addressRequest = PaymentPayerAddressRequest.builder()
+                .zipCode(address.zipCode())
+                .streetName(address.streetName())
+                .streetNumber(address.streetNumber())
+                .neighborhood(address.neighborhood())
+                .city(address.city())
+                .state(address.federalUnit())
+                .build();
+
+        return PaymentPayerRequest.builder()
+                .email(user.email())
+                .identification(identification)
+                .address(addressRequest)
+                .build();
     }
 }

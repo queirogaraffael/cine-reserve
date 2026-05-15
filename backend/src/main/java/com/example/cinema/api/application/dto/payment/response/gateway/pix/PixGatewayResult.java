@@ -9,17 +9,15 @@ import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PixGatewayResult implements PaymentGatewayResponseDTO {
+
     private Long transactionId;
     private String status;
     private String statusDetail;
     private String pixCopiaECola;
-    private String qrCode;
     private String qrCodeBase64;
     private String instrucoesUrl;
     private ZonedDateTime expirationDate;
-
 }
