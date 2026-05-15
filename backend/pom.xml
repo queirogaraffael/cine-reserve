@@ -242,9 +242,22 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+
                 <configuration>
-                    <groups>unit</groups>
+
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                        <exclude>**/*ArchitectureTest.java</exclude>
+                        <exclude>**/*ArchTest.java</exclude>
+                    </excludes>
+
                     <excludedGroups>integration,arch</excludedGroups>
+
                 </configuration>
             </plugin>
 
@@ -252,12 +265,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.2.5</version>
+
                 <configuration>
-                    <groups>integration,arch</groups>                 
+
+                    <includes>
+                        <include>**/*IT.java</include>
+                        <include>**/*IntegrationTest.java</include>
+                        <include>**/*ArchitectureTest.java</include>
+                        <include>**/*ArchTest.java</include>
+                    </includes>
+
+                    <groups>integration,arch</groups>
+
                     <environmentVariables>
                         <DOCKER_API_VERSION>1.45</DOCKER_API_VERSION>
                     </environmentVariables>
+
                 </configuration>
+
                 <executions>
                     <execution>
                         <goals>
