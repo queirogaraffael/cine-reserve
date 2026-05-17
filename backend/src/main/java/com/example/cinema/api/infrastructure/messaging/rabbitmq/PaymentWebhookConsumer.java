@@ -39,7 +39,7 @@ public class PaymentWebhookConsumer {
         try {
             ExternalPaymentSnapshot externalPaymentSnapshot = externalPaymentProvider.getPayment(event.getPaymentId());
 
-            paymentUpdateService.processPaymentUpdate(externalPaymentSnapshot, event);
+            paymentUpdateService.processPaymentUpdate(externalPaymentSnapshot);
 
             log.info("Pagamento {} processado com sucesso.", event.getPaymentId());
 

@@ -1,16 +1,16 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.InvalidPaymentSnapshotException;
+import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
+import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.purchase.PurchaseStatus;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
-import com.example.cinema.api.application.dto.webhook.PaymentWebhookEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -23,31 +23,51 @@ public class PaymentUpdateService {
     }
 
     @Transactional
-    public void processPaymentUpdate(ExternalPaymentSnapshot externalPaymentSnapshot, PaymentWebhookEvent event) {
+    public void processPaymentUpdate(ExternalPaymentSnapshot snapshot) {
 
-        Long purchaseId = externalPaymentSnapshot.externalReference();
+        if (snapshot.externalReference() == null) {
+            throw new InvalidPaymentSnapshotException("Pagamento sem external_reference");
+        }
 
-        var paymentLocal = paymentRepositoryJpa.findByPurchaseId(purchaseId)
-                .orElseThrow(() ->
-                        new PaymentNotFoundException("Pagamento não encontrado para o PurchaseId: " + purchaseId));
+        Long purchaseId = snapshot.externalReference();
 
-        if (paymentLocal.isOutdatedVersion(event.getVersion())) {
-            log.info("Evento desatualizado ignorado para o pagamento {}", purchaseId);
+        Payment payment = paymentRepositoryJpa.findByPurchaseId(purchaseId)
+                .orElseThrow(() -> new PaymentNotFoundException(
+                        "Pagamento nao encontrado para purchaseId: " + purchaseId));
+
+        PaymentStatus newPaymentStatus = PaymentStatus.fromValue(snapshot.status());
+
+        if (newPaymentStatus == PaymentStatus.UNKNOWN) {
+            log.warn("Status desconhecido '{}' recebido para purchaseId={}, ignorando",
+                    snapshot.status(), purchaseId);
             return;
         }
 
-        paymentLocal.updateVersion(event.getVersion());
-
-        PaymentStatus novoStatus = PaymentStatus.fromValue(externalPaymentSnapshot.status());
-
-        if (paymentLocal.getPaymentStatus() == novoStatus) {
-            log.info("Pagamento {} já está no status {}", purchaseId, novoStatus);
+        if (payment.getPaymentStatus() == newPaymentStatus) {
+            log.info("Pagamento {} ja esta no status {}, ignorando", purchaseId, newPaymentStatus);
             return;
         }
 
-        paymentLocal.updateStatus(novoStatus, externalPaymentSnapshot.statusDetail());
+        Purchase purchase = payment.getPurchase();
 
-        paymentRepositoryJpa.save(paymentLocal);
+        if (purchase.getPurchaseStatus().isTerminal()) {
+            log.warn("Webhook recebido para compra {} ja em status terminal {}, ignorando",
+                    purchaseId, purchase.getPurchaseStatus());
+            return;
+        }
+
+        PurchaseStatus newPurchaseStatus = newPaymentStatus.toPurchaseStatus()
+                .orElseThrow(() -> new IllegalStateException(
+                        "PaymentStatus sem mapeamento: " + newPaymentStatus));
+
+        payment.updateStatus(newPaymentStatus, snapshot.statusDetail());
+        purchase.moveToStatus(newPurchaseStatus);
+
+        paymentRepositoryJpa.save(payment);
+
+        log.info("Compra {} atualizada: paymentStatus={} purchaseStatus={}",
+                purchaseId, newPaymentStatus, newPurchaseStatus);
     }
+
 }
 
