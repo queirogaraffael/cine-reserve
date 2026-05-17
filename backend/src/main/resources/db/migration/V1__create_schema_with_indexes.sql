@@ -68,32 +68,29 @@ CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
 
 
 CREATE TABLE purchase (
-    id               BIGSERIAL      PRIMARY KEY,
-    purchase_date    TIMESTAMP      NOT NULL,
-    total_price      NUMERIC(10, 2) NOT NULL DEFAULT 0,
-    idempotency_key  CHAR(36)       NOT NULL UNIQUE,
-    purchase_status  VARCHAR(50)    NOT NULL,
-    user_id          UUID           NOT NULL REFERENCES users(id)
+                          id               BIGSERIAL      PRIMARY KEY,
+                          purchase_date    TIMESTAMP      NOT NULL,
+                          total_price      NUMERIC(10, 2) NOT NULL DEFAULT 0,
+                          idempotency_key  CHAR(36)       NOT NULL UNIQUE,
+                          purchase_status  VARCHAR(50)    NOT NULL,
+                          version          BIGINT         NOT NULL DEFAULT 0,
+                          user_id          UUID           NOT NULL REFERENCES users(id)
 );
 
 CREATE INDEX idx_purchase_user_id ON purchase(user_id);
-
 CREATE INDEX idx_purchase_status ON purchase(purchase_status);
-
 CREATE INDEX idx_purchase_user_status ON purchase(user_id, purchase_status);
 
-
 CREATE TABLE payment (
-    id              BIGSERIAL      PRIMARY KEY,
-    payment_date    TIMESTAMP,
-    transaction_id  BIGINT,
-    version         INTEGER        NOT NULL DEFAULT 0,
-    payment_method  VARCHAR(50)    NOT NULL,
-    payment_status  VARCHAR(50)    NOT NULL,
-    status_detail   VARCHAR(255),
-    purchase_id     BIGINT         NOT NULL UNIQUE REFERENCES purchase(id)
+                         id              BIGSERIAL      PRIMARY KEY,
+                         payment_date    TIMESTAMP,
+                         transaction_id  BIGINT,
+                         version         BIGINT         NOT NULL DEFAULT 0,
+                         payment_method  VARCHAR(50)    NOT NULL,
+                         payment_status  VARCHAR(50)    NOT NULL,
+                         status_detail   VARCHAR(255),
+                         purchase_id     BIGINT         NOT NULL UNIQUE REFERENCES purchase(id)
 );
-
 CREATE INDEX idx_payment_transaction_id ON payment(transaction_id);
 
 CREATE INDEX idx_payment_status ON payment(payment_status);

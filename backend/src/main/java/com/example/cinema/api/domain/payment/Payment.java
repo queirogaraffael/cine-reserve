@@ -23,11 +23,12 @@ public class Payment {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Version
+    private Long version;
+
     private LocalDateTime paymentDate;
 
     private Long transactionId;
-
-    private int version;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -78,20 +79,10 @@ public class Payment {
         this.transactionId = transactionId;
     }
 
-    public boolean isOutdatedVersion(int eventVersion) {
-        return eventVersion < this.version;
-    }
-
-    public void updateVersion(int newVersion) {
-        this.version = newVersion;
-    }
-
     public void updateStatus(PaymentStatus newStatus, String statusDetail) {
-
-        if (newStatus == null) {
-            throw new InvalidPaymentStatusException("O status do pagamento é obrigatório.");
+        if (newStatus == null || newStatus == PaymentStatus.UNKNOWN) {
+            throw new InvalidPaymentStatusException("Status invalido: " + newStatus);
         }
-
         moveToStatus(newStatus);
         this.statusDetail = statusDetail;
     }

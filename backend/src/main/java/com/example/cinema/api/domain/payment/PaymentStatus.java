@@ -46,7 +46,7 @@ public enum PaymentStatus {
         if (statuses == null || statuses.length == 0) {
             return Collections.emptySet();
         }
-        return Collections.unmodifiableSet(EnumSet.of(statuses[0], statuses));
+        return Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(statuses)));
     }
 
     public boolean canTransitionTo(PaymentStatus next) {

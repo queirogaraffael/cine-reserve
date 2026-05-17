@@ -32,6 +32,9 @@ public class Purchase {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Version
+    private Long version;
+
     private LocalDateTime purchaseDate;
 
     private BigDecimal totalPrice = BigDecimal.ZERO;
