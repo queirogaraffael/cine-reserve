@@ -1,5 +1,7 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
+import com.example.cinema.api.HmacValidator;
+import com.example.cinema.api.InvalidWebhookSignatureException;
 import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.application.service.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
@@ -11,7 +13,6 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Service
@@ -20,21 +21,28 @@ public class WebhookMercadoPagoService implements WebhookService {
 
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
+    private final HmacValidator hmacValidator;
 
-    public WebhookMercadoPagoService(ObjectMapper objectMapper, RabbitTemplate rabbitTemplate) {
+    public WebhookMercadoPagoService(ObjectMapper objectMapper, RabbitTemplate rabbitTemplate, HmacValidator hmacValidator) {
         this.objectMapper = objectMapper;
         this.rabbitTemplate = rabbitTemplate;
+        this.hmacValidator = hmacValidator;
     }
 
     @Override
-    public void processWebhook(String payload) {
+    public void processWebhook(String signature, String requestId, String payload) {
+
+        if (!hmacValidator.isValid(signature, requestId, payload)) {
+            log.warn("Webhook com assinatura invalida rejeitado. requestId={}", requestId);
+            throw new InvalidWebhookSignatureException("Assinatura invalida");
+        }
 
         MercadoPagoWebhookDTO webhook;
 
         try {
             webhook = objectMapper.readValue(payload, MercadoPagoWebhookDTO.class);
         } catch (JsonProcessingException e) {
-            log.error("Payload inválido: {}", payload, e);
+            log.error("Payload invalido: {}", payload, e);
             return;
         }
 
@@ -44,15 +52,14 @@ public class WebhookMercadoPagoService implements WebhookService {
         }
 
         if (webhook.getData() == null || webhook.getData().getId() == null) {
-            log.error("Webhook payment sem data/id válido: {}", payload);
+            log.error("Webhook payment sem data/id valido: {}", payload);
             return;
         }
 
         PaymentWebhookEvent event = new PaymentWebhookEvent();
         event.setPaymentId(webhook.getData().getId());
-        event.setVersion(webhook.getVersion());
         event.setRawPayload(payload);
-        event.setReceivedAt(OffsetDateTime.from(LocalDateTime.now()));
+        event.setReceivedAt(OffsetDateTime.now());
 
         try {
             rabbitTemplate.convertAndSend(
