@@ -1,23 +1,30 @@
 package com.example.cinema.api.application.dto.payment.response.gateway.pix;
 
-import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResponseDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
+import com.example.cinema.api.domain.payment.PaymentStatus;
 
 import java.time.ZonedDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class PixGatewayResult implements PaymentGatewayResponseDTO {
+public record PixGatewayResult(Long transactionId,
+                               String status,
+                               String statusDetail,
+                               String pixCopiaECola,
+                               String qrCodeBase64,
+                               String instrucoesUrl,
+                               ZonedDateTime
+                               expirationDate) implements PaymentGatewayResult {
 
-    private Long transactionId;
-    private String status;
-    private String statusDetail;
-    private String pixCopiaECola;
-    private String qrCodeBase64;
-    private String instrucoesUrl;
-    private ZonedDateTime expirationDate;
+    @Override
+    public PaymentResponseDTO toResponseDTO(Long paymentId) {
+        return PixPaymentResponseDTO.builder()
+                .paymentId(paymentId)
+                .paymentStatus(PaymentStatus.fromValue(status))
+                .statusDetail(statusDetail)
+                .pixCopiaECola(pixCopiaECola)
+                .qrCodeBase64(qrCodeBase64)
+                .instrucoesUrl(instrucoesUrl)
+                .expirationDate(expirationDate)
+                .build();
+    }
 }

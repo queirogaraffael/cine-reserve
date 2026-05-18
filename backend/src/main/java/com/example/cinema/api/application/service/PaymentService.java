@@ -1,5 +1,8 @@
 package com.example.cinema.api.application.service;
 
+import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentUserContext;
+import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.purchase.Purchase;
@@ -8,7 +11,7 @@ import com.example.cinema.api.domain.purchase.exception.PurchaseNotFoundExceptio
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;
-import com.example.cinema.api.domain.payment.context.PaymentContext;
+import com.example.cinema.api.application.payment.context.PaymentContext;
 import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
@@ -41,31 +44,40 @@ public class PaymentService {
         User user = userService.getAuthenticatedUser();
 
         Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
-                .orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada ou não pertence ao usuário"));
+                .orElseThrow(() -> new PurchaseNotFoundException(
+                        "Compra não encontrada ou não pertence ao usuário"));
 
         if (paymentRepositoryJpa.existsByPurchase(purchase)) {
             throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
         }
 
-        Payment payment = new Payment(purchase, paymentRequestDTO.getPaymentType());
+        PaymentPurchaseContext purchaseCtx = PaymentPurchaseContext.from(purchase);
+        PaymentUserContext userCtx = PaymentUserContext.from(user);
 
-        PaymentResponseDTO response = paymentContext.execute(purchase, user, paymentRequestDTO, payment);
+        PaymentGatewayResult gatewayResult = paymentContext.execute(purchaseCtx, userCtx, paymentRequestDTO);
+
+        Payment payment = new Payment(purchase, paymentRequestDTO.getPaymentType());
+        payment.registerTransaction(gatewayResult.transactionId());
+        payment.updateStatus(PaymentStatus.fromValue(gatewayResult.status()), gatewayResult.statusDetail());
 
         Payment savedPayment = paymentRepositoryJpa.save(payment);
 
-        response.setPaymentId(savedPayment.getId());
-
-        // evento só é disparado para cartão, pois o pagamento é iniciado imediatamente (o que não acontece no PIX)
         if (payment.getPaymentMethod() == PaymentType.CARD) {
-            eventPublisher.publishEvent(new PaymentCardInitiatedEvent(payment.getId(), user.getId(), payment.getPaymentDate(), purchase.getTotalPrice()));
+            eventPublisher.publishEvent(new PaymentCardInitiatedEvent(
+                    savedPayment.getId(),
+                    user.getId(),
+                    payment.getPaymentDate(),
+                    purchase.getTotalPrice()
+            ));
         }
 
-        return response;
+        return gatewayResult.toResponseDTO(savedPayment.getId());
     }
 
     @Transactional(readOnly = true)
-    public PaymentStatus getPaymentStatus(Long idPayment){
-        return paymentRepositoryJpa.findStatusById(idPayment).orElseThrow(()-> new PaymentNotFoundException("Payment " + idPayment + " não encontrado."));
+    public PaymentStatus getPaymentStatus(Long idPayment) {
+        return paymentRepositoryJpa.findStatusById(idPayment)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment " + idPayment + " não encontrado."));
     }
 
     @Transactional(readOnly = true)
@@ -75,10 +87,10 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId){
+    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId) {
         User user = userService.getAuthenticatedUser();
 
-        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user).orElseThrow(()-> new PaymentNotFoundException("Pagamento para a compra: " + " não encontrado/não disponível."));
+        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user)
+                .orElseThrow(() -> new PaymentNotFoundException("Pagamento para a compra: " + purchaseId + " não encontrado/não disponível."));
     }
-
 }

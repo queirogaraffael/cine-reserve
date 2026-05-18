@@ -3,24 +3,16 @@ package com.example.cinema.api.application.dto.payment.response.gateway.card;
 
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import lombok.Builder;
-
-@Data
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class CardPaymentResponseDTO implements PaymentResponseDTO {
 
-    private Long paymentId;
-    private PaymentStatus paymentStatus;
-
-    private String statusDetail;
-
-    private String lastFourDigits;
-    private Integer installments;
-    private String paymentMethodId;
+    Long paymentId;
+    PaymentStatus paymentStatus;
+    String statusDetail;
+    String lastFourDigits;
+    Integer installments;
+    String paymentMethodId;
 }

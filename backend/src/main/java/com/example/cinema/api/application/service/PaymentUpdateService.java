@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.InvalidPaymentSnapshotException;
+import com.example.cinema.api.application.exception.InvalidPaymentSnapshotException;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;

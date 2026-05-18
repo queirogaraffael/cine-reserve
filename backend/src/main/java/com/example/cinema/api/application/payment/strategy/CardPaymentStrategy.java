@@ -1,0 +1,34 @@
+package com.example.cinema.api.application.payment.strategy;
+
+import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentUserContext;
+import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
+import com.example.cinema.api.domain.payment.PaymentType;
+import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CardPaymentStrategy implements PaymentStrategy<CardPaymentRequestDTO> {
+
+    private final PaymentGatewayService paymentGatewayService;
+
+    public CardPaymentStrategy(PaymentGatewayService paymentGatewayService) {
+        this.paymentGatewayService = paymentGatewayService;
+    }
+
+    @Override
+    public PaymentType getType() {
+        return PaymentType.CARD;
+    }
+
+    @Override
+    public Class<CardPaymentRequestDTO> getRequestType() {
+        return CardPaymentRequestDTO.class;
+    }
+
+    @Override
+    public PaymentGatewayResult process(PaymentPurchaseContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
+        return paymentGatewayService.createCardPayment(purchase, user, request);
+    }
+}

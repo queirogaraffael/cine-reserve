@@ -1,20 +1,24 @@
 package com.example.cinema.api.application.dto.payment.response.gateway.card;
 
-import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResponseDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
+import com.example.cinema.api.domain.payment.PaymentStatus;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CardGatewayResult implements PaymentGatewayResponseDTO {
-    private Long transactionId;
-    private String status;
-    private String statusDetail;
-    private String lastFourDigits;
-    private Integer installments;
-    private String paymentMethodId;
+public record CardGatewayResult(Long transactionId, String status,
+                                String statusDetail,
+                                String lastFourDigits,
+                                Integer installments,
+                                String paymentMethodId) implements PaymentGatewayResult {
+
+    @Override
+    public PaymentResponseDTO toResponseDTO(Long paymentId) {
+        return CardPaymentResponseDTO.builder()
+                .paymentId(paymentId)
+                .paymentStatus(PaymentStatus.fromValue(status))
+                .statusDetail(statusDetail)
+                .lastFourDigits(lastFourDigits)
+                .installments(installments)
+                .paymentMethodId(paymentMethodId)
+                .build();
+    }
 }

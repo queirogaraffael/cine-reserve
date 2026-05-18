@@ -1,16 +1,23 @@
 package com.example.cinema.api.application.dto.payment;
 
-import java.math.BigDecimal;
-import java.util.UUID;
+import com.example.cinema.api.domain.payment.exception.PaymentValidationException;
+import com.example.cinema.api.domain.purchase.Purchase;
 
-public record PaymentPurchaseContext(
-        String idempotencyKey,
-        BigDecimal totalPrice,
-        UUID id
-) {
+import java.math.BigDecimal;
+
+public record PaymentPurchaseContext(String idempotencyKey, BigDecimal totalPrice, Long id) {
+
     public PaymentPurchaseContext {
-        if (idempotencyKey == null || idempotencyKey.isBlank()) throw new ValidationException("Chave de idempotência é obrigatória");
-        if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) <= 0) throw new ValidationException("Valor da compra deve ser maior que zero");
-        if (id == null) throw new ValidationException("ID da compra é obrigatório");
+        if (idempotencyKey == null || idempotencyKey.isBlank()) throw new PaymentValidationException("Chave de idempotência é obrigatória");
+        if (totalPrice == null || totalPrice.compareTo(BigDecimal.ZERO) <= 0) throw new PaymentValidationException("Valor da compra deve ser maior que zero");
+        if (id == null) throw new PaymentValidationException("ID da compra é obrigatório");
+    }
+
+    public static PaymentPurchaseContext from(Purchase purchase) {
+        return new PaymentPurchaseContext(
+                purchase.getIdempotencyKey(),
+                purchase.getTotalPrice(),
+                purchase.getId()
+        );
     }
 }

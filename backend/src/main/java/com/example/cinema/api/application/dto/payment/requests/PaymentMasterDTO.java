@@ -3,6 +3,7 @@ package com.example.cinema.api.application.dto.payment.requests;
 import com.example.cinema.api.domain.payment.PaymentType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 @Data
