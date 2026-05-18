@@ -1,27 +1,29 @@
-package com.example.cinema.api;
+package com.example.cinema.api.infrastructure.mercadopago;
 
+import com.example.cinema.api.shared.util.HmacUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-@Component
-public class HmacValidator {
+import java.time.Instant;
+import java.util.Locale;
 
-    private static final String HMAC_ALGORITHM = "HmacSHA256";
+@Component
+public class MercadoPagoWebhookValidator {
+
+    private static final long TOLERANCE_SECONDS = 300L;
 
     @Value("${mercadopago.webhook.secret}")
     private String secret;
 
     private final ObjectMapper objectMapper;
 
-    public HmacValidator(ObjectMapper objectMapper) {
+    public MercadoPagoWebhookValidator(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -37,18 +39,28 @@ public class HmacValidator {
             return false;
         }
 
-        String manifest = "id:" + extractDataId(payload) + ";request-id:" + requestId + ";ts:" + ts + ";";
-
-        String computed = computeHmac(manifest);
-
-        if (computed == null) {
+        if (isTimestampOutOfTolerance(ts)) {
             return false;
         }
 
+        String manifest = "id:" + extractDataId(payload) + ";request-id:" + requestId + ";ts:" + ts + ";";
+
+        String computed = HmacUtils.compute(manifest, secret);
+
         return MessageDigest.isEqual(
-                computed.getBytes(StandardCharsets.UTF_8),
-                v1.getBytes(StandardCharsets.UTF_8)
+                computed.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8),
+                v1.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8)
         );
+    }
+
+    private boolean isTimestampOutOfTolerance(String ts) {
+        try {
+            long webhookEpochSeconds = Long.parseLong(ts);
+            long currentEpochSeconds = Instant.now().getEpochSecond();
+            return Math.abs(currentEpochSeconds - webhookEpochSeconds) > TOLERANCE_SECONDS;
+        } catch (NumberFormatException e) {
+            return true;
+        }
     }
 
     private String extractField(String header, String key) {
@@ -68,21 +80,6 @@ public class HmacValidator {
             return dataId.isMissingNode() ? "" : dataId.asText();
         } catch (Exception e) {
             return "";
-        }
-    }
-
-    private String computeHmac(String data) {
-        try {
-            Mac mac = Mac.getInstance(HMAC_ALGORITHM);
-            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM));
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex = new StringBuilder();
-            for (byte b : hash) {
-                hex.append(String.format("%02x", b));
-            }
-            return hex.toString();
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            return null;
         }
     }
 }

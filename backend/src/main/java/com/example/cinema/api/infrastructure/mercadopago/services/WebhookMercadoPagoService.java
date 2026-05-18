@@ -1,7 +1,5 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.HmacValidator;
-import com.example.cinema.api.InvalidWebhookSignatureException;
 import com.example.cinema.api.infrastructure.messaging.rabbitmq.config.RabbitMQPaymentWebhookConfig;
 import com.example.cinema.api.application.service.WebhookService;
 import com.example.cinema.api.infrastructure.mercadopago.dtos.MercadoPagoWebhookDTO;
@@ -21,21 +19,13 @@ public class WebhookMercadoPagoService implements WebhookService {
 
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
-    private final HmacValidator hmacValidator;
-
-    public WebhookMercadoPagoService(ObjectMapper objectMapper, RabbitTemplate rabbitTemplate, HmacValidator hmacValidator) {
+    public WebhookMercadoPagoService(ObjectMapper objectMapper, RabbitTemplate rabbitTemplate) {
         this.objectMapper = objectMapper;
         this.rabbitTemplate = rabbitTemplate;
-        this.hmacValidator = hmacValidator;
     }
 
     @Override
-    public void processWebhook(String signature, String requestId, String payload) {
-
-        if (!hmacValidator.isValid(signature, requestId, payload)) {
-            log.warn("Webhook com assinatura invalida rejeitado. requestId={}", requestId);
-            throw new InvalidWebhookSignatureException("Assinatura invalida");
-        }
+    public void processWebhook(String payload) {
 
         MercadoPagoWebhookDTO webhook;
 
