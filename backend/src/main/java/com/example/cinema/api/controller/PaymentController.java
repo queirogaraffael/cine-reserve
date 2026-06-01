@@ -5,6 +5,7 @@ import com.example.cinema.api.application.service.PaymentService;
 import com.example.cinema.api.application.dto.payment.requests.PaymentMasterDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -90,9 +92,11 @@ public class PaymentController {
 
             @io.swagger.v3.oas.annotations.parameters
                     .RequestBody(description = "Objeto de pagamento unificado. A estrutura de `paymentDetails` depende do campo `paymentMethod`.", required = true)
-            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO) {
+            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO,
 
-        PaymentResponseDTO paymentResponse = paymentService.processPayment(purchaseId, paymentMasterDTO.getPaymentDetails());
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+
+        PaymentResponseDTO paymentResponse = paymentService.processPayment(purchaseId, paymentMasterDTO.getPaymentDetails(), principal.getId());
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(paymentResponse.getPaymentId()).toUri();
 
@@ -133,9 +137,11 @@ public class PaymentController {
     @PreAuthorize("hasRole('USER')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/purchases/{purchaseId}")
-    public ResponseEntity<PaymentGetResponseDTO> getPaymentByPurchaseId(@PathVariable Long purchaseId) {
+    public ResponseEntity<PaymentGetResponseDTO> getPaymentByPurchaseId(
+            @PathVariable Long purchaseId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
 
-        PaymentGetResponseDTO payment = paymentService.getPaymentByPurchaseId(purchaseId);
+        PaymentGetResponseDTO payment = paymentService.getPaymentByPurchaseId(purchaseId, principal.getId());
 
         return ResponseEntity.ok()
                 .cacheControl(noCache)

@@ -2,6 +2,7 @@ package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.dto.login.*;
 import com.example.cinema.api.application.service.AuthService;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -140,8 +142,8 @@ public class LoginController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/sessions")
-    public ResponseEntity<Set<UserSessionDTO>> getSessions(){
-        return ResponseEntity.ok(authService.getValidSessions());
+    public ResponseEntity<Set<UserSessionDTO>> getSessions(@AuthenticationPrincipal AuthenticatedUser principal){
+        return ResponseEntity.ok(authService.getValidSessions(principal.getId()));
     }
 
     @Operation(
@@ -168,8 +170,8 @@ public class LoginController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/logout/all")
-    public ResponseEntity<Void> logoutAll(){
-        authService.logoutAllUserSessions();
+    public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal AuthenticatedUser principal){
+        authService.logoutAllUserSessions(principal.getId());
 
         return ResponseEntity.noContent().build();
     }

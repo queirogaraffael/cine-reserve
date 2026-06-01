@@ -3,12 +3,14 @@ package com.example.cinema.api.controller;
 import com.example.cinema.api.application.service.ReservaService;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationRequestDTO;
 import com.example.cinema.api.application.dto.seatreservation.SeatReservationResponseDTO;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,8 +39,11 @@ public class ReservaController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/session/{sessionId}")
-    public ResponseEntity<SeatReservationResponseDTO> criarReserva(@PathVariable Long sessionId, @RequestBody SeatReservationRequestDTO requestDTO) {
-        SeatReservationResponseDTO response = reservaService.criarReserva(sessionId, requestDTO);
+    public ResponseEntity<SeatReservationResponseDTO> criarReserva(
+            @PathVariable Long sessionId,
+            @RequestBody SeatReservationRequestDTO requestDTO,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        SeatReservationResponseDTO response = reservaService.criarReserva(sessionId, requestDTO, principal.getId());
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.getId()).toUri();
@@ -54,9 +59,11 @@ public class ReservaController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Void> cancelarReserva(@PathVariable Long reservationId) {
+    public ResponseEntity<Void> cancelarReserva(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
 
-        reservaService.cancelarReservaDeUsuario(reservationId);
+        reservaService.cancelarReservaDeUsuario(reservationId, principal.getId());
 
         return ResponseEntity.noContent().build();
     }

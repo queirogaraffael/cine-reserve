@@ -5,17 +5,21 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import com.example.cinema.api.infrastructure.security.exception.TokenCreationException;
 import com.example.cinema.api.infrastructure.security.exception.TokenValidationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,9 +43,14 @@ public class TokenService {
     public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
+            List<String> authorities = user.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
             return JWT.create()
                     .withIssuer(issuer)
-                    .withSubject(user.getUsername())
+                    .withSubject(user.getId().toString())
+                    .withClaim("roles", authorities)
                     .withIssuedAt(new Date())
                     .withExpiresAt(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))
                     .sign(algorithm);
@@ -50,23 +59,24 @@ public class TokenService {
         }
     }
 
-    public String validateToken(String token) {
+    public AuthenticatedUser validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             DecodedJWT decoded = JWT.require(algorithm)
                     .withIssuer(issuer)
                     .build()
                     .verify(token);
-            return decoded.getSubject();
+
+            UUID userId = UUID.fromString(decoded.getSubject());
+            List<String> roles = decoded.getClaim("roles").asList(String.class);
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+
+            return new AuthenticatedUser(userId, authorities);
         } catch (JWTVerificationException e) {
             throw new TokenValidationException("Token inválido ou expirado", e);
         }
-    }
-
-    public String generateJwt(String username) {
-        User user = userRepositoryJpa.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
-        return generateToken(user);
     }
 
     public String generateJwt(UUID userId) {

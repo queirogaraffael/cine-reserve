@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 public class PurchaseService {
@@ -42,28 +43,29 @@ public class PurchaseService {
     }
 
     @Transactional
-    public PurchaseResponseDTO createPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey) {
-        User user = userService.getAuthenticatedUser();
+    public PurchaseResponseDTO createPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey, UUID userId) {
 
         return purchaseRepository
-                .findByIdempotencyKeyAndUser(idempotencyKey, user)
+                .findByIdempotencyKeyAndUserId(idempotencyKey, userId)
                 .map(purchaseMapper::toResponseDTO)
-                .orElseGet(() -> processNewPurchase(dto, idempotencyKey, user));
+                .orElseGet(() -> processNewPurchase(dto, idempotencyKey, userId));
     }
 
-    private PurchaseResponseDTO processNewPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey, User user) {
+    private PurchaseResponseDTO processNewPurchase(TicketPurchaseRequestDTO dto, String idempotencyKey, UUID userId) {
+
+        User user = userService.findById(userId);
 
         Purchase purchase = new Purchase(user, idempotencyKey);
 
         for (TicketItemDTO item : dto.getItems()) {
 
-            SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(item.getReservationId(), user)
-                            .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
+            SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUserId(item.getReservationId(), userId)
+                    .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada ou não pertence ao usuário"));
 
             reservation.consume();
 
-            if(!reservation.getMovieSession().isAvailableForPurchase()){
-                throw new MovieSessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() +" não está disponivel para compra.");
+            if (!reservation.getMovieSession().isAvailableForPurchase()) {
+                throw new MovieSessionNotAvailableForPurchaseException("Movie Session: " + reservation.getMovieSession().getId() + " não está disponivel para compra.");
             }
 
             BigDecimal price = ticketPricingContext.calculate(item.getTicketCategory(), reservation.getMovieSession());
@@ -81,11 +83,10 @@ public class PurchaseService {
     }
 
     @Transactional
-    public PurchaseIdempotencyResponseDTO modificarIdempotencyKeyPurchase(Long idPurchase, String idempotencyKey) {
+    public PurchaseIdempotencyResponseDTO modificarIdempotencyKeyPurchase(Long idPurchase, String idempotencyKey, UUID userId) {
 
-        User user = userService.getAuthenticatedUser();
-
-        Purchase purchase = purchaseRepository.findByIdAndUser(idPurchase, user).orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada."));
+        Purchase purchase = purchaseRepository.findByIdAndUserId(idPurchase, userId)
+                .orElseThrow(() -> new PurchaseNotFoundException("Compra não encontrada."));
 
         purchase.changeIdempotencyKey(idempotencyKey);
 

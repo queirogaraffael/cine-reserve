@@ -16,6 +16,8 @@ import com.example.cinema.api.application.mapper.SeatReservationMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 public class ReservaService {
 
@@ -32,9 +34,9 @@ public class ReservaService {
     }
 
     @Transactional
-    public SeatReservationResponseDTO criarReserva(Long movieSessionId, SeatReservationRequestDTO dto) {
+    public SeatReservationResponseDTO criarReserva(Long movieSessionId, SeatReservationRequestDTO dto, UUID userId) {
 
-        User user = userService.getAuthenticatedUser();
+        User user = userService.findById(userId);
 
         MovieSession movieSession = movieSessionRepositoryJpa.findByIdWithRoom(movieSessionId)
                 .orElseThrow(() -> new MovieSessionNotFoundException("Sessão de filme não encontrada"));
@@ -60,12 +62,10 @@ public class ReservaService {
     }
 
     @Transactional
-    public void cancelarReservaDeUsuario(Long idReserva) {
+    public void cancelarReservaDeUsuario(Long idReserva, UUID userId) {
 
-        User user = userService.getAuthenticatedUser();
-
-        SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUser(idReserva, user).orElseThrow(() ->
-                        new ReservationNotFoundException("Reserva de usurio: " + user.getId() +"não encontrada"));
+        SeatReservation reservation = seatReservationRepositoryJpa.findByIdAndUserId(idReserva, userId)
+                .orElseThrow(() -> new ReservationNotFoundException("Reserva do usuário: " + userId + " não encontrada"));
 
         reservation.cancel();
     }

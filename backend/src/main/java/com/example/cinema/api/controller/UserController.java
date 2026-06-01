@@ -1,10 +1,11 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.application.service.UserService;
 import com.example.cinema.api.application.dto.user.ChangePasswordData;
+import com.example.cinema.api.application.dto.user.UserContextDTO;
 import com.example.cinema.api.application.dto.user.UserCreatedResponseDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
-import com.example.cinema.api.application.dto.user.UserResponseDTO;
+import com.example.cinema.api.application.service.UserService;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -50,9 +52,8 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getAuthenticatedUserProfile() {
-        UserResponseDTO currentUser = userService.getAuthenticatedUserProfile();
-        return ResponseEntity.ok(currentUser);
+    public ResponseEntity<UserContextDTO> getUserProfile(@AuthenticationPrincipal AuthenticatedUser principal) {
+        return ResponseEntity.ok(userService.getUserProfile(principal.getId()));
     }
 
     @Operation(summary = "Alterar a senha do usuário autenticado")
@@ -63,8 +64,9 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordData data) {
-        userService.changePassword(data);
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal AuthenticatedUser principal,
+                                               @RequestBody @Valid ChangePasswordData data) {
+        userService.changePassword(principal.getId(), data);
         return ResponseEntity.noContent().build();
     }
 

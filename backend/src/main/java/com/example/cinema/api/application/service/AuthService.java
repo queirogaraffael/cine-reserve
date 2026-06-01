@@ -1,7 +1,6 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.application.dto.login.UserSessionDTO;
-import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.security.service.UserSessionService;
 import com.example.cinema.api.application.dto.login.RefreshTokenDTO;
 import com.example.cinema.api.application.dto.login.TokenRefreshResponseDTO;
@@ -9,6 +8,7 @@ import com.example.cinema.api.infrastructure.security.service.TokenService;
 import com.example.cinema.api.application.dto.login.TokenResponseDTO;
 import com.example.cinema.api.application.dto.login.UserLoginDTO;
 import com.example.cinema.api.domain.exception.RefreshTokenInvalidException;
+import com.example.cinema.api.domain.user.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -22,13 +22,11 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final UserService userService;
     private final UserSessionService userSessionService;
 
-    public AuthService(AuthenticationManager authenticationManager, TokenService tokenService, UserService userService, UserSessionService userSessionService) {
+    public AuthService(AuthenticationManager authenticationManager, TokenService tokenService, UserSessionService userSessionService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
-        this.userService = userService;
         this.userSessionService = userSessionService;
     }
 
@@ -42,7 +40,7 @@ public class AuthService {
 
         String refreshToken = userSessionService.createUserSession(user.getId(), deviceId, userAgent, ip);
 
-        return new TokenRefreshResponseDTO(jwt,refreshToken);
+        return new TokenRefreshResponseDTO(jwt, refreshToken);
     }
 
     public TokenResponseDTO generateAccessTokenFromValidRefreshToken(RefreshTokenDTO refreshToken) {
@@ -71,25 +69,19 @@ public class AuthService {
 
         String newRefreshToken = userSessionService.createUserSession(userId, session.getDeviceId(), session.getUserAgent(), session.getIp());
 
-        String newAccessToken = tokenService.generateJwt(userId.toString());
+        String newAccessToken = tokenService.generateJwt(userId);
 
         return new TokenRefreshResponseDTO(newAccessToken, newRefreshToken);
     }
 
-    public Set<UserSessionDTO> getValidSessions(){
-
-        User user = userService.getAuthenticatedUser();
-
-        UUID userId = user.getId();
+    public Set<UserSessionDTO> getValidSessions(UUID userId) {
 
         Set<String> validSessions = userSessionService.getValidSessions(userId);
 
         Set<UserSessionDTO> sessions = new HashSet<>();
 
         for (String hashedToken : validSessions) {
-
             UserSessionDTO session = userSessionService.getSession(hashedToken);
-
             if (session != null) {
                 sessions.add(session);
             }
@@ -97,11 +89,7 @@ public class AuthService {
         return sessions;
     }
 
-    public void logoutAllUserSessions(){
-        User user = userService.getAuthenticatedUser();
-
-        UUID userId = user.getId();
-
+    public void logoutAllUserSessions(UUID userId) {
         userSessionService.invalidateAllUserSessions(userId);
     }
 

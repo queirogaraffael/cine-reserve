@@ -3,6 +3,7 @@ package com.example.cinema.api.controller;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 import com.example.cinema.api.application.service.MovieSessionService;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -76,9 +78,11 @@ public class MovieSessionController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/by-ticket/{ticketId}")
-    public ResponseEntity<MovieSessionResponseDTO> findMovieSessionByTicketId(@PathVariable Long ticketId) {
+    public ResponseEntity<MovieSessionResponseDTO> findMovieSessionByTicketId(
+            @PathVariable Long ticketId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
 
-        MovieSessionResponseDTO response = movieSessionService.getMovieSessionByTicketId(ticketId);
+        MovieSessionResponseDTO response = movieSessionService.getMovieSessionByTicketId(ticketId, principal.getId());
 
         return ResponseEntity.ok(response);
     }

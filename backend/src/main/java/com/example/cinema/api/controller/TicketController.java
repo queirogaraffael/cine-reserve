@@ -2,6 +2,7 @@ package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.service.TicketService;
 import com.example.cinema.api.application.dto.tickets.TicketResponseDTO;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,8 +39,10 @@ public class TicketController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long id) {
-        TicketResponseDTO ticket = ticketService.getById(id);
+    public ResponseEntity<TicketResponseDTO> getTicketById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        TicketResponseDTO ticket = ticketService.getById(id, principal.getId());
 
         return ResponseEntity.ok().cacheControl(noCache).body(ticket);
     }
@@ -51,8 +55,10 @@ public class TicketController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/purchase/{purchaseId}")
-    public ResponseEntity<List<TicketResponseDTO>> getTicketsByPurchaseId(@PathVariable Long purchaseId) {
-        List<TicketResponseDTO> tickets = ticketService.getAllByPurchaseId(purchaseId);
+    public ResponseEntity<List<TicketResponseDTO>> getTicketsByPurchaseId(
+            @PathVariable Long purchaseId,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+        List<TicketResponseDTO> tickets = ticketService.getAllByPurchaseId(purchaseId, principal.getId());
 
         return ResponseEntity.ok().cacheControl(noCache).body(tickets);
     }

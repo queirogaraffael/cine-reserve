@@ -22,6 +22,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 public class PaymentService {
 
@@ -40,16 +42,17 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO) {
-        User user = userService.getAuthenticatedUser();
+    public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO, UUID userId) {
 
-        Purchase purchase = purchaseRepository.findByIdAndUser(purchaseId, user)
+        Purchase purchase = purchaseRepository.findByIdAndUserId(purchaseId, userId)
                 .orElseThrow(() -> new PurchaseNotFoundException(
                         "Compra não encontrada ou não pertence ao usuário"));
 
         if (paymentRepositoryJpa.existsByPurchase(purchase)) {
             throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
         }
+
+        User user = userService.findById(userId);
 
         PaymentPurchaseContext purchaseCtx = PaymentPurchaseContext.from(purchase);
         PaymentUserContext userCtx = PaymentUserContext.from(user);
@@ -65,7 +68,7 @@ public class PaymentService {
         if (payment.getPaymentMethod() == PaymentType.CARD) {
             eventPublisher.publishEvent(new PaymentCardInitiatedEvent(
                     savedPayment.getId(),
-                    user.getId(),
+                    userId,
                     payment.getPaymentDate(),
                     purchase.getTotalPrice()
             ));
@@ -87,10 +90,8 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId) {
-        User user = userService.getAuthenticatedUser();
-
-        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUser(purchaseId, user)
+    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId, UUID userId) {
+        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUserId(purchaseId, userId)
                 .orElseThrow(() -> new PaymentNotFoundException("Pagamento para a compra: " + purchaseId + " não encontrado/não disponível."));
     }
 }

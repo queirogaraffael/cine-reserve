@@ -5,6 +5,7 @@ import com.example.cinema.api.application.dto.purchase.PurchaseResponseDTO;
 import com.example.cinema.api.application.dto.purchase.UpdateIdempotencyKeyRequestDTO;
 import com.example.cinema.api.application.service.PurchaseService;
 import com.example.cinema.api.application.dto.purchase.TicketPurchaseRequestDTO;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -50,10 +52,11 @@ public class PurchaseController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<PurchaseResponseDTO> createPurchase(
+            @AuthenticationPrincipal AuthenticatedUser principal,
             @RequestHeader("X-Idempotency-Key") String idempotencyKey,
             @Valid @RequestBody TicketPurchaseRequestDTO ticketPurchaseRequestDTO) {
 
-        PurchaseResponseDTO purchase = purchaseService.createPurchase(ticketPurchaseRequestDTO, idempotencyKey);
+        PurchaseResponseDTO purchase = purchaseService.createPurchase(ticketPurchaseRequestDTO, idempotencyKey, principal.getId());
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(purchase.getId()).toUri();
@@ -94,9 +97,11 @@ public class PurchaseController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nova idempotency key", required = true)
             @Valid
             @RequestBody
-            UpdateIdempotencyKeyRequestDTO request) {
+            UpdateIdempotencyKeyRequestDTO request,
 
-        PurchaseIdempotencyResponseDTO response = purchaseService.modificarIdempotencyKeyPurchase(idPurchase, request.getIdempotencyKey());
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+
+        PurchaseIdempotencyResponseDTO response = purchaseService.modificarIdempotencyKeyPurchase(idPurchase, request.getIdempotencyKey(), principal.getId());
 
         return ResponseEntity.ok(response);
     }

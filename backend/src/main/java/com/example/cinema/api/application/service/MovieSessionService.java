@@ -10,7 +10,6 @@ import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.ticket.exception.TicketNotFoundException;
-import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 @Service
@@ -35,15 +35,13 @@ public class MovieSessionService {
     private final RoomRepositoryJpa roomRepositoryJpa;
     private final TicketRepositoryJpa ticketRepositoryJpa;
     private final SessionMapper sessionMapper;
-    private final UserService userService;
 
-    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa, MovieRepositoryJpa movieRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa, TicketRepositoryJpa ticketRepositoryJpa, SessionMapper sessionMapper, UserService userService) {
+    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa, MovieRepositoryJpa movieRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa, TicketRepositoryJpa ticketRepositoryJpa, SessionMapper sessionMapper) {
         this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
         this.movieRepositoryJpa = movieRepositoryJpa;
         this.roomRepositoryJpa = roomRepositoryJpa;
         this.ticketRepositoryJpa = ticketRepositoryJpa;
         this.sessionMapper = sessionMapper;
-        this.userService = userService;
     }
 
     @Transactional
@@ -63,18 +61,17 @@ public class MovieSessionService {
 
         Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "não encontrada"));
 
-        MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(),dto.getBasePrice(), room, movie);
+        MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(), dto.getBasePrice(), room, movie);
 
         movieSession = movieSessionRepositoryJpa.save(movieSession);
 
         return sessionMapper.toResponseDTO(movieSession);
-
     }
 
     @Transactional(readOnly = true)
-    public MovieSessionResponseDTO getMovieSessionById(Long movieSessionId){
+    public MovieSessionResponseDTO getMovieSessionById(Long movieSessionId) {
 
-        MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId).orElseThrow(()-> new MovieSessionNotFoundException("MovieSession: " + movieSessionId + " não encontrada."));
+        MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId).orElseThrow(() -> new MovieSessionNotFoundException("MovieSession: " + movieSessionId + " não encontrada."));
 
         return sessionMapper.toResponseDTO(movieSession);
     }
@@ -99,18 +96,13 @@ public class MovieSessionService {
     }
 
     @Transactional
-    public MovieSessionResponseDTO getMovieSessionByTicketId(Long ticketId){
+    public MovieSessionResponseDTO getMovieSessionByTicketId(Long ticketId, UUID userId) {
 
-        User user = userService.getAuthenticatedUser();
-
-        Ticket ticket = ticketRepositoryJpa.findByIdAndUser(ticketId, user).orElseThrow(() -> new TicketNotFoundException("Ticket: " + ticketId + " não encontrado."));
+        Ticket ticket = ticketRepositoryJpa.findByIdAndUserId(ticketId, userId)
+                .orElseThrow(() -> new TicketNotFoundException("Ticket: " + ticketId + " não encontrado."));
 
         return movieSessionRepositoryJpa.findMovieSessionByTicketId(ticket.getId())
-                .orElseThrow(()-> new MovieSessionNotFoundException("MovieSession para Ticket: " + ticketId + " não encontrada."));
-
+                .orElseThrow(() -> new MovieSessionNotFoundException("MovieSession para Ticket: " + ticketId + " não encontrada."));
     }
 
 }
-
-
-
