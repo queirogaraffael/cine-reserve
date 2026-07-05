@@ -28,12 +28,9 @@ public class User implements UserDetails {
     @EqualsAndHashCode.Include
     private UUID id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
-
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     @EqualsAndHashCode.Include
     private String cpf;
 
@@ -41,6 +38,18 @@ public class User implements UserDetails {
     private String email;
 
     private String password;
+
+    @Column(nullable = false)
+    private String celular;
+
+    @Enumerated(EnumType.STRING)
+    private Sexo sexo;
+
+    @Embedded
+    private Endereco endereco;
+
+    @Column(name = "email_confirmado", nullable = false)
+    private boolean emailConfirmado = false;
 
     private LocalDate dataJoined;
 
@@ -63,20 +72,57 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
-    public User(String username, String cpf, String name, String email, String password, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
-        this.username = username;
+    public User(String name, String email, String password, String celular, LocalDate dataJoined, UserRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.celular = celular;
+        this.dataJoined = dataJoined;
+        this.role = role;
+        this.emailConfirmado = false;
+    }
+
+    public User(String cpf, String name, String email, String password, String celular, Sexo sexo, Endereco endereco, boolean emailConfirmado, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
         this.cpf = cpf;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.celular = celular;
+        this.sexo = sexo;
+        this.endereco = endereco;
+        this.emailConfirmado = emailConfirmado;
         this.dataJoined = dataJoined;
         this.birthdate = birthdate;
         this.role = role;
     }
 
+    public void completarPerfil(Sexo sexo, LocalDate birthdate, String cpf) {
+        if (sexo != null) {
+            this.sexo = sexo;
+        }
+        if (birthdate != null) {
+            this.birthdate = birthdate;
+        }
+        if (cpf != null) {
+            this.cpf = cpf;
+        }
+    }
+
+    public void atualizarEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public void marcarEmailComoConfirmado() {
+        this.emailConfirmado = true;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         if (role == UserRole.ADMIN)
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
@@ -88,7 +134,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-
         if (isLocked)
             return false;
 
@@ -111,7 +156,6 @@ public class User implements UserDetails {
     @Override public boolean isEnabled() { return true; }
 
     public void changePassword(String newPassword) {
-
         if (newPassword == null || newPassword.isBlank()) {
             throw new InvalidPasswordException("A senha não pode ser vazia.");
         }
@@ -122,5 +166,4 @@ public class User implements UserDetails {
 
         this.password = newPassword;
     }
-
 }

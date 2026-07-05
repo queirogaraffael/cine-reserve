@@ -1,6 +1,7 @@
 package com.example.cinema.api.infrastructure.email;
 
 import com.example.cinema.api.application.service.EmailService;
+import com.example.cinema.api.application.dto.email.EmailVerificacaoNotificationData;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
@@ -44,12 +45,27 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendWelcomeEmail(UserCreatedNotificationData dto) {
-        String subject = "Bem-vindo(a) ao CineMaster!";
+    public void sendWelcomeEmailComVerificacao(UserCreatedNotificationData dto) {
+        String subject = "Bem-vindo(a) ao CineMaster - Confirme seu e-mail!";
         String templateName = "welcome-user";
 
         Context context = new Context(new Locale("pt", "BR"));
         context.setVariable("userName", dto.getName());
+        context.setVariable("codigoVerificacao", dto.getCodigoVerificacao());
+
+        String htmlContent = emailTemplateEngine.process(templateName, context);
+
+        sendHtmlMessage(dto.getEmail(), subject, htmlContent);
+    }
+
+    @Override
+    public void sendEmailVerificacao(EmailVerificacaoNotificationData dto) {
+        String subject = "Código de Verificação - CineMaster";
+        String templateName = "verificacao-email";
+
+        Context context = new Context(new Locale("pt", "BR"));
+        context.setVariable("userName", dto.getName());
+        context.setVariable("codigoVerificacao", dto.getCodigo());
 
         String htmlContent = emailTemplateEngine.process(templateName, context);
 
@@ -71,19 +87,14 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void notifyPaymentCardInitiatedEmail(PaymentCardInitiatedNotificationData dto) {
-
         Context context = new Context(new Locale("pt", "BR"));
         context.setVariable("userName", dto.getName());
-        context.setVariable("paymentDate", dto.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-        );
+        context.setVariable("paymentDate", dto.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         context.setVariable("totalPrice", dto.getTotalPrice());
 
-        String htmlContent =
-                emailTemplateEngine.process("payment-card-initiated", context);
-
+        String htmlContent = emailTemplateEngine.process("payment-card-initiated", context);
         String subject = "Recebemos seu pagamento – aguardando confirmação";
 
         sendHtmlMessage(dto.getEmail(), subject, htmlContent);
     }
-
 }

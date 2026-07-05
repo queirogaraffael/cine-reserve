@@ -26,22 +26,26 @@ public class LoginAttemptService {
     }
 
     @Transactional
-    public void loginSucceeded(String username) {
-        userRepositoryJpa.resetFailedAttempts(username);
+    public void loginSucceeded(String email) {
+        userRepositoryJpa.resetFailedAttempts(email);
     }
 
     @Transactional
-    public void loginFailed(String username) {
-        User user = userRepositoryJpa.findByUsername(username).orElseThrow(()-> new RuntimeException("Usuario: " + username + " não encontrado"));
+    public void loginFailed(String email) {
+        var userOptional = userRepositoryJpa.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return;
+        }
+        User user = userOptional.get();
 
         int newAttempt = user.getFailedAttempt() + 1;
 
         if (newAttempt >= MAX_ATTEMPTS) {
             LocalDateTime lockTime = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
-            userRepositoryJpa.lockUser(username, newAttempt, lockTime);
+            userRepositoryJpa.lockUser(email, newAttempt, lockTime);
             userSessionService.invalidateAllUserSessions(user.getId());
         } else {
-            userRepositoryJpa.increaseFailedAttempts(username);
+            userRepositoryJpa.increaseFailedAttempts(email);
         }
     }
 }

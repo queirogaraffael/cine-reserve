@@ -16,7 +16,7 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
 
     @Override
     public void onApplicationEvent(AuthenticationSuccessEvent event) {
-        String username = event.getAuthentication().getName();
-        loginAttemptService.loginSucceeded(username);
+        String email = event.getAuthentication().getName();
+        loginAttemptService.loginSucceeded(email);
     }
 }

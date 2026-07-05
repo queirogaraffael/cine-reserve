@@ -1,26 +1,16 @@
 package com.example.cinema.api.application.dto.user;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.br.CPF;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequestDTO {
-
-    @NotBlank(message = "O username é obrigatório.")
-    @Size(min = 4, max = 50, message = "O username deve ter entre 4 e 50 caracteres.")
-    private String username;
 
     @NotBlank(message = "O nome completo é obrigatório.")
     @Size(max = 100, message = "O nome não pode exceder 100 caracteres.")
@@ -32,19 +22,9 @@ public class UserRequestDTO {
     private String email;
 
     @NotBlank(message = "A senha é obrigatória.")
-    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres.")
+    @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres.")
     private String password;
 
-    @NotNull(message = "A data de cadastro é obrigatória.")
-    private LocalDate dataJoined;
-
-    @NotNull(message = "A data de nascimento é obrigatória.")
-    @Past(message = "A data de nascimento deve ser uma data no passado.")
-    private LocalDate birthdate;
-
-    @NotBlank(message = "O CPF não pode estar vazio")
-    @CPF(message = "CPF inválido")
-    private String cpf;
-
-    private UserAddressDTO address;
+    @NotBlank(message = "O celular é obrigatório.")
+    private String celular;
 }

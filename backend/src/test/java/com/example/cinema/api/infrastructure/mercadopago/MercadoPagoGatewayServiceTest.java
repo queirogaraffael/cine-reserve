@@ -7,7 +7,7 @@ import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequest
 import com.example.cinema.api.shared.fixtures.PaymentFixture;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.domain.purchase.exception.InvalidPaymentAmountException;
+import com.example.cinema.api.domain.payment.exception.PaymentValidationException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.example.cinema.api.infrastructure.mercadopago.services.MercadoPagoGatewayService;
 import com.mercadopago.client.payment.PaymentClient;
@@ -27,8 +27,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,7 +62,6 @@ class MercadoPagoGatewayServiceTest {
         cardRequest = PaymentFixture.validCardRequest();
     }
 
-    // PIX - caminho feliz
     @Test
     void createPixPayment_deveRetornarPixGatewayResult_quandoPagamentoCriadoComSucesso() throws MPException, MPApiException {
         PaymentTransactionData transactionData = mock(PaymentTransactionData.class);
@@ -87,15 +84,14 @@ class MercadoPagoGatewayServiceTest {
         PixGatewayResult result = service.createPixPayment(purchase, user, pixRequest);
 
         assertNotNull(result);
-        assertEquals(123L, result.getTransactionId());
-        assertEquals("pending", result.getStatus());
-        assertEquals("qr-code-string", result.getPixCopiaECola());
-        assertEquals("qr-code-base64", result.getQrCodeBase64());
-        assertEquals("https://mercadopago.com/ticket", result.getInstrucoesUrl());
-        assertNotNull(result.getExpirationDate());
+        assertEquals(123L, result.transactionId());
+        assertEquals("pending", result.status());
+        assertEquals("qr-code-string", result.pixCopiaECola());
+        assertEquals("qr-code-base64", result.qrCodeBase64());
+        assertEquals("https://mercadopago.com/ticket", result.instrucoesUrl());
+        assertNotNull(result.expirationDate());
     }
 
-    // PIX - PointOfInteraction nulo
     @Test
     void createPixPayment_deveLancarApiPagamentoException_quandoTransactionDataForNula() throws MPException, MPApiException {
         Payment payment = mock(Payment.class);
@@ -107,7 +103,6 @@ class MercadoPagoGatewayServiceTest {
                 () -> service.createPixPayment(purchase, user, pixRequest));
     }
 
-    // PIX - MPApiException lançada pelo SDK
     @Test
     void createPixPayment_deveLancarApiPagamentoException_quandoMercadoPagoRetornarErro() throws MPException, MPApiException {
         when(paymentClientMercadoPago.create(any(), any())).thenThrow(mock(MPApiException.class));
@@ -116,16 +111,12 @@ class MercadoPagoGatewayServiceTest {
                 () -> service.createPixPayment(purchase, user, pixRequest));
     }
 
-    // PIX - valor inválido
     @Test
     void createPixPayment_deveLancarInvalidPaymentAmountException_quandoValorForZero() {
-        PaymentPurchaseContext purchaseInvalida = PaymentFixture.zeroPurchaseContext();
-
-        assertThrows(InvalidPaymentAmountException.class,
-                () -> service.createPixPayment(purchaseInvalida, user, pixRequest));
+        assertThrows(PaymentValidationException.class,
+                () -> service.createPixPayment(PaymentFixture.zeroPurchaseContext(), user, pixRequest));
     }
 
-    // Cartão - caminho feliz
     @Test
     void createCardPayment_deveRetornarCardGatewayResult_quandoPagamentoCriadoComSucesso() throws MPException, MPApiException {
         Payment payment = mock(Payment.class);
@@ -141,15 +132,14 @@ class MercadoPagoGatewayServiceTest {
         CardGatewayResult result = service.createCardPayment(purchase, user, cardRequest);
 
         assertNotNull(result);
-        assertEquals(456L, result.getTransactionId());
-        assertEquals("approved", result.getStatus());
-        assertEquals("accredited", result.getStatusDetail());
-        assertEquals(1, result.getInstallments());
-        assertEquals("visa", result.getPaymentMethodId());
-        assertNull(result.getLastFourDigits());
+        assertEquals(456L, result.transactionId());
+        assertEquals("approved", result.status());
+        assertEquals("accredited", result.statusDetail());
+        assertEquals(1, result.installments());
+        assertEquals("visa", result.paymentMethodId());
+        assertNull(result.lastFourDigits());
     }
 
-    // Cartão - payment.getCard() não nulo (lastFourDigits presente)
     @Test
     void createCardPayment_deveRetornarLastFourDigits_quandoCardNaoForNulo() throws MPException, MPApiException {
 
@@ -168,10 +158,9 @@ class MercadoPagoGatewayServiceTest {
 
         CardGatewayResult result = service.createCardPayment(purchase, user, cardRequest);
 
-        assertEquals("1234", result.getLastFourDigits());
+        assertEquals("1234", result.lastFourDigits());
     }
 
-    // Cartão - MPApiException lançada pelo SDK
     @Test
     void createCardPayment_deveLancarApiPagamentoException_quandoMercadoPagoRetornarErro() throws MPException, MPApiException {
         when(paymentClientMercadoPago.create(any(), any())).thenThrow(mock(MPApiException.class));
@@ -180,12 +169,9 @@ class MercadoPagoGatewayServiceTest {
                 () -> service.createCardPayment(purchase, user, cardRequest));
     }
 
-    // Cartão - valor inválido
     @Test
     void createCardPayment_deveLancarInvalidPaymentAmountException_quandoValorForZero() {
-        PaymentPurchaseContext purchaseInvalida = PaymentFixture.zeroPurchaseContext();
-
-        assertThrows(InvalidPaymentAmountException.class,
-                () -> service.createCardPayment(purchaseInvalida, user, cardRequest));
+        assertThrows(PaymentValidationException.class,
+                () -> service.createCardPayment(PaymentFixture.zeroPurchaseContext(), user, cardRequest));
     }
 }

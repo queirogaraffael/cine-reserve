@@ -13,9 +13,6 @@ import java.time.LocalDate;
 @Component
 public class UserAdminInitializer implements CommandLineRunner {
 
-    @Value("${app.admin.username}")
-    private String adminUsername;
-
     @Value("${app.admin.password}")
     private String adminPassword;
 
@@ -39,18 +36,21 @@ public class UserAdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        if (!userRepositoryJpa.existsByUsername(adminUsername)) {
+        if (!userRepositoryJpa.existsByEmail(adminEmail)) {
             User admin = new User(
-                    adminUsername,
                     adminCpf,
                     adminNome,
                     adminEmail,
                     passwordEncoder.encode(adminPassword),
+                    "11988888888",
+                    null,
+                    null,
+                    true,
                     LocalDate.now(),
                     LocalDate.of(1990, 1, 1),
                     UserRole.ADMIN);
             userRepositoryJpa.save(admin);
-            System.out.println("Usuário admin (" + adminUsername + ") criado!");
+            System.out.println("Usuário admin (" + adminEmail + ") criado!");
         }
 
     }

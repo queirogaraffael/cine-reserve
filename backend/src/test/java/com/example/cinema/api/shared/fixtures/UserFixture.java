@@ -1,5 +1,7 @@
 package com.example.cinema.api.shared.fixtures;
 
+import com.example.cinema.api.domain.user.Endereco;
+import com.example.cinema.api.domain.user.Sexo;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 
@@ -10,26 +12,32 @@ public class UserFixture {
 
     public static User valid() {
         return new User(
-                "raffael.queiroga",
                 "529.982.247-25",
                 "Raffael Queiroga",
                 "raffael.queiroga@example.com",
                 "hashed_password",
-                LocalDate.of(1998, 1, 1),
+                "11999999999",
+                Sexo.MASCULINO,
+                new Endereco("01001-000", "Praça da Sé", "100", "Apto 1", "Sé", "São Paulo", "SP"),
+                true,
                 LocalDate.of(2024, 1, 1),
+                LocalDate.of(1998, 1, 1),
                 UserRole.USER
         );
     }
 
     public static User admin() {
         return new User(
-                "admin.user",
                 "123.456.789-09",
                 "Admin User",
                 "admin@example.com",
                 "hashed_password",
-                LocalDate.of(1990, 1, 1),
+                "11988888888",
+                Sexo.MASCULINO,
+                new Endereco("01001-000", "Praça da Sé", "200", null, "Sé", "São Paulo", "SP"),
+                true,
                 LocalDate.of(2024, 1, 1),
+                LocalDate.of(1990, 1, 1),
                 UserRole.ADMIN
         );
     }

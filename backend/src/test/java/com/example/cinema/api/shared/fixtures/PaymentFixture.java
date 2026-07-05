@@ -7,7 +7,6 @@ import com.example.cinema.api.application.dto.payment.requests.CardPaymentReques
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public class PaymentFixture {
 
@@ -15,7 +14,7 @@ public class PaymentFixture {
         return new PaymentPurchaseContext(
                 "idempotency-key-123",
                 new BigDecimal("50.00"),
-                UUID.randomUUID()
+                1L
         );
     }
 
@@ -23,7 +22,7 @@ public class PaymentFixture {
         return new PaymentPurchaseContext(
                 "idempotency-key-123",
                 BigDecimal.ZERO,
-                UUID.randomUUID()
+                1L
         );
     }
 

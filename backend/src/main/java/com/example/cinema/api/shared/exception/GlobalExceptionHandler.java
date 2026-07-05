@@ -1,9 +1,6 @@
 package com.example.cinema.api.shared.exception;
 
-import com.example.cinema.api.domain.exception.RefreshTokenInvalidException;
-import com.example.cinema.api.domain.exception.ResourceNotFoundException;
-import com.example.cinema.api.domain.exception.StateConflictException;
-import com.example.cinema.api.domain.exception.ValidationException;
+import com.example.cinema.api.domain.exception.*;
 import com.example.cinema.api.infrastructure.exception.InfrastructureException;
 import com.example.cinema.api.infrastructure.security.exception.TokenCreationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +36,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ApiErrorResponse> handleDomainException(DomainException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
 
@@ -56,6 +60,12 @@ public class GlobalExceptionHandler {
         String safeMessage = "Credenciais de acesso inválidas (usuário ou senha incorretos).";
 
         return buildErrorResponse(safeMessage, HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiErrorResponse> handleLockedException(LockedException ex, HttpServletRequest request) {
+
+        return buildErrorResponse("A conta está temporariamente bloqueada devido ao excesso de tentativas falhas.", HttpStatus.LOCKED, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

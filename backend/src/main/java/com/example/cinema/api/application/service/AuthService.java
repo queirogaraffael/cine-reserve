@@ -32,7 +32,7 @@ public class AuthService {
 
     public TokenRefreshResponseDTO login(UserLoginDTO data, String deviceId, String userAgent, String ip) {
 
-        var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data.getUsername(), data.getPassword()));
+        var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
 
         var user = (User) auth.getPrincipal();
 

@@ -11,4 +11,5 @@ public class UserCreatedEvent {
     private UUID userId;
     private String name;
     private String email;
+    private String codigoVerificacao;
 }

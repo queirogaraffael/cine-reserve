@@ -14,22 +14,20 @@ import java.util.UUID;
 @Repository
 public interface UserRepositoryJpa extends JpaRepository<User, UUID> {
 
-    Optional<User> findByUsername(String username);
-    boolean existsByUsername(String username);
-
+    Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 
     @Modifying
-    @Query("UPDATE users u SET u.failedAttempt = 0 WHERE u.username = :username")
-    void resetFailedAttempts(String username);
+    @Query("UPDATE users u SET u.failedAttempt = 0 WHERE u.email = :email")
+    void resetFailedAttempts(String email);
 
     @Modifying
-    @Query("UPDATE users u SET u.failedAttempt = u.failedAttempt + 1 WHERE u.username = :username")
-    void increaseFailedAttempts(String username);
+    @Query("UPDATE users u SET u.failedAttempt = u.failedAttempt + 1 WHERE u.email = :email")
+    void increaseFailedAttempts(String email);
 
     @Modifying
-    @Query("UPDATE users u SET u.failedAttempt = :attempts, u.lockTime = :lockTime WHERE u.username = :username")
-    void lockUser(String username, int attempts, LocalDateTime lockTime);
+    @Query("UPDATE users u SET u.failedAttempt = :attempts, u.lockTime = :lockTime WHERE u.email = :email")
+    void lockUser(String email, int attempts, LocalDateTime lockTime);
 
     Optional<UserNameEmailProjection> findProjectedById(UUID id);
 }

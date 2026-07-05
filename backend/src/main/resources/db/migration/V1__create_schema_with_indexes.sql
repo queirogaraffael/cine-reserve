@@ -50,21 +50,40 @@ CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled)
     WHERE canceled = FALSE;
 
 CREATE TABLE users (
-    id              UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    username        VARCHAR(100) NOT NULL UNIQUE,
-    name            VARCHAR(255),
-    cpf             VARCHAR(14)  NOT NULL UNIQUE,
-    email           VARCHAR(255) NOT NULL UNIQUE,
-    password        VARCHAR(255) NOT NULL,
-    data_joined     DATE,
-    birthdate       DATE,
-    failed_attempt  INTEGER      NOT NULL DEFAULT 0,
-    lock_time       TIMESTAMP,
-    is_locked       BOOLEAN      NOT NULL DEFAULT FALSE,
-    role            VARCHAR(50)  NOT NULL
+    id               UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    name             VARCHAR(255),
+    cpf              VARCHAR(14)  UNIQUE,
+    email            VARCHAR(255) NOT NULL UNIQUE,
+    password         VARCHAR(255) NOT NULL,
+    celular          VARCHAR(20)  NOT NULL,
+    sexo             VARCHAR(20),
+    cep              VARCHAR(10),
+    logradouro       VARCHAR(255),
+    numero           VARCHAR(20),
+    complemento      VARCHAR(255),
+    bairro           VARCHAR(100),
+    cidade           VARCHAR(100),
+    estado           VARCHAR(50),
+    email_confirmado BOOLEAN      NOT NULL DEFAULT FALSE,
+    data_joined      DATE,
+    birthdate        DATE,
+    failed_attempt   INTEGER      NOT NULL DEFAULT 0,
+    lock_time        TIMESTAMP,
+    is_locked        BOOLEAN      NOT NULL DEFAULT FALSE,
+    role             VARCHAR(50)  NOT NULL
 );
 
 CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
+
+CREATE TABLE confirmacoes_cadastro (
+    id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    usuario_id     UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    codigo         VARCHAR(6)   NOT NULL,
+    data_expiracao TIMESTAMP    NOT NULL,
+    utilizado      BOOLEAN      NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX idx_confirmacao_usuario_id ON confirmacoes_cadastro(usuario_id);
 
 
 CREATE TABLE purchase (

@@ -23,20 +23,18 @@ public class EmailUserWelcomeListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserCreated(UserCreatedEvent event) {
-
         try {
-            UserCreatedNotificationData notificationData = new UserCreatedNotificationData(event.getName(), event.getEmail());
+            UserCreatedNotificationData notificationData = new UserCreatedNotificationData(
+                    event.getName(),
+                    event.getEmail(),
+                    event.getCodigoVerificacao()
+            );
 
-            emailServicePort.sendWelcomeEmail(notificationData);
-
+            emailServicePort.sendWelcomeEmailComVerificacao(notificationData);
         } catch (EmailSendException e) {
-
             log.error("Falha ao enviar e-mail de boas-vindas: userId={}", event.getUserId(), e);
-
         } catch (Exception e) {
-
             log.error("Erro inesperado ao processar notificação de criação de usuário: userId={}", event.getUserId(), e);
         }
     }
-
 }
