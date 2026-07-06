@@ -27,12 +27,16 @@ public class LoginAttemptService {
 
     @Transactional
     public void loginSucceeded(String email) {
-        userRepositoryJpa.resetFailedAttempts(email);
+        if (email != null) {
+            userRepositoryJpa.resetFailedAttempts(email.trim().toLowerCase());
+        }
     }
 
     @Transactional
     public void loginFailed(String email) {
-        var userOptional = userRepositoryJpa.findByEmail(email);
+        if (email == null) return;
+        String normalizedEmail = email.trim().toLowerCase();
+        var userOptional = userRepositoryJpa.findByEmail(normalizedEmail);
         if (userOptional.isEmpty()) {
             return;
         }
@@ -42,10 +46,10 @@ public class LoginAttemptService {
 
         if (newAttempt >= MAX_ATTEMPTS) {
             LocalDateTime lockTime = LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES);
-            userRepositoryJpa.lockUser(email, newAttempt, lockTime);
+            userRepositoryJpa.lockUser(normalizedEmail, newAttempt, lockTime);
             userSessionService.invalidateAllUserSessions(user.getId());
         } else {
-            userRepositoryJpa.increaseFailedAttempts(email);
+            userRepositoryJpa.increaseFailedAttempts(normalizedEmail);
         }
     }
 }

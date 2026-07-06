@@ -19,6 +19,7 @@ public class UserContextDTO {
     private String celular;
     private Sexo sexo;
     private boolean emailConfirmado;
+    private boolean ativo;
     private Endereco endereco;
     private UserRole role;
 }

@@ -47,4 +47,10 @@ public class UserFixture {
         user.lockAccount(LocalDateTime.now().plusMinutes(30));
         return user;
     }
+
+    public static User desativado() {
+        User user = valid();
+        user.desativar();
+        return user;
+    }
 }

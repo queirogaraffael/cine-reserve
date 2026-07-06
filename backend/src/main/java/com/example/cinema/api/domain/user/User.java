@@ -2,6 +2,7 @@ package com.example.cinema.api.domain.user;
 
 import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
 import com.example.cinema.api.domain.user.exception.PasswordReuseException;
+import com.example.cinema.api.domain.user.exception.UserUnderageException;
 import com.example.cinema.api.domain.purchase.Purchase;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import jakarta.persistence.*;
@@ -51,6 +52,9 @@ public class User implements UserDetails {
     @Column(name = "email_confirmado", nullable = false)
     private boolean emailConfirmado = false;
 
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
     private LocalDate dataJoined;
 
     private LocalDate birthdate;
@@ -74,26 +78,29 @@ public class User implements UserDetails {
 
     public User(String name, String email, String password, String celular, LocalDate dataJoined, UserRole role) {
         this.name = name;
-        this.email = email;
+        this.email = email != null ? email.trim().toLowerCase() : null;
         this.password = password;
         this.celular = celular;
         this.dataJoined = dataJoined;
         this.role = role;
         this.emailConfirmado = false;
+        this.ativo = true;
     }
 
     public User(String cpf, String name, String email, String password, String celular, Sexo sexo, Endereco endereco, boolean emailConfirmado, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
         this.cpf = cpf;
         this.name = name;
-        this.email = email;
+        this.email = email != null ? email.trim().toLowerCase() : null;
         this.password = password;
         this.celular = celular;
         this.sexo = sexo;
         this.endereco = endereco;
         this.emailConfirmado = emailConfirmado;
         this.dataJoined = dataJoined;
+        validateBirthdate(birthdate);
         this.birthdate = birthdate;
         this.role = role;
+        this.ativo = true;
     }
 
     public void completarPerfil(Sexo sexo, LocalDate birthdate, String cpf) {
@@ -101,11 +108,33 @@ public class User implements UserDetails {
             this.sexo = sexo;
         }
         if (birthdate != null) {
+            validateBirthdate(birthdate);
             this.birthdate = birthdate;
         }
         if (cpf != null) {
             this.cpf = cpf;
         }
+    }
+
+    private void validateBirthdate(LocalDate birthdate) {
+        if (birthdate != null) {
+            LocalDate dezoitoAnosAtras = LocalDate.now().minusYears(18);
+            if (birthdate.isAfter(dezoitoAnosAtras)) {
+                throw new UserUnderageException("O usuário deve ter pelo menos 18 anos completos.");
+            }
+        }
+    }
+
+    public void ativar() {
+        this.ativo = true;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    public boolean isAtivo() {
+        return this.ativo;
     }
 
     public void atualizarEndereco(Endereco endereco) {
@@ -153,7 +182,7 @@ public class User implements UserDetails {
 
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override public boolean isEnabled() { return this.ativo; }
 
     public void changePassword(String newPassword) {
         if (newPassword == null || newPassword.isBlank()) {

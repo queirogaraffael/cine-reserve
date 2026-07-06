@@ -290,4 +290,27 @@ class UserControllerIT {
         mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void testRegisterWithUppercaseEmailNormalized() throws Exception {
+        UserRequestDTO request = new UserRequestDTO("Raffael Queiroga", "RAFFAEL.MAIUSCULO@EXAMPLE.COM", "senha123456", "11999999999");
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value("raffael.maiusculo@example.com"));
+    }
+
+    @Test
+    void testUpdateProfileUnderageUser() throws Exception {
+        var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
+        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.now().minusYears(16), "12345678909");
+
+        mockMvc.perform(put("/api/users/me")
+                        .header("Authorization", "Bearer " + created.getAccessToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
 }

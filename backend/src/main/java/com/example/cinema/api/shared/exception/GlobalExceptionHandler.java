@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -132,5 +133,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RefreshTokenInvalidException.class)
     public ResponseEntity<ApiErrorResponse> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex, HttpServletRequest request) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiErrorResponse> handleDisabledException(DisabledException ex, HttpServletRequest request) {
+        return buildErrorResponse("A conta do usuário está desativada. Entre em contato com o suporte.", HttpStatus.FORBIDDEN, request);
     }
 }

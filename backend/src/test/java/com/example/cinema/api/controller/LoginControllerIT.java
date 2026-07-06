@@ -123,4 +123,35 @@ class LoginControllerIT {
                         .content(objectMapper.writeValueAsString(loginDTO)))
                 .andExpect(status().isLocked());
     }
+
+    @Test
+    void testLoginWithUppercaseEmail() throws Exception {
+        User user = new User("123.456.789-00", "Raffael Queiroga", "raffael@example.com", passwordEncoder.encode("senha123456"), "11999999999", null, null, true, LocalDate.now(), LocalDate.of(1998, 1, 1), UserRole.USER);
+        userRepositoryJpa.save(user);
+
+        UserLoginDTO loginDTO = new UserLoginDTO("RAFFAEL@EXAMPLE.COM", "senha123456");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .header("X-Device-Id", "device-test-123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists());
+    }
+
+    @Test
+    void testLoginDisabledUser() throws Exception {
+        User user = new User("123.456.789-00", "Raffael Queiroga", "raffael@example.com", passwordEncoder.encode("senha123456"), "11999999999", null, null, true, LocalDate.now(), LocalDate.of(1998, 1, 1), UserRole.USER);
+        user.desativar();
+        userRepositoryJpa.save(user);
+
+        UserLoginDTO loginDTO = new UserLoginDTO("raffael@example.com", "senha123456");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .header("X-Device-Id", "device-test-123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDTO)))
+                .andExpect(status().isForbidden());
+    }
 }

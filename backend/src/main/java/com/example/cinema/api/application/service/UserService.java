@@ -52,7 +52,8 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserCreatedResponseDTO createUser(UserRequestDTO data, String deviceId, String userAgent, String ip) {
-        if (userRepositoryJpa.existsByEmail(data.getEmail())) {
+        String normalizedEmail = data.getEmail() != null ? data.getEmail().trim().toLowerCase() : null;
+        if (userRepositoryJpa.existsByEmail(normalizedEmail)) {
             throw new UserAlreadyExistsException("E-mail já está em uso");
         }
 
@@ -60,7 +61,7 @@ public class UserService implements UserDetailsService {
 
         User newUser = new User(
                 data.getName(),
-                data.getEmail(),
+                normalizedEmail,
                 encryptedPassword,
                 data.getCelular(),
                 LocalDate.now(),
@@ -119,7 +120,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepositoryJpa.findByEmail(email)
+        String normalizedEmail = email != null ? email.trim().toLowerCase() : null;
+        return userRepositoryJpa.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
     }
 
@@ -133,6 +135,7 @@ public class UserService implements UserDetailsService {
                 user.getCelular(),
                 user.getSexo(),
                 user.isEmailConfirmado(),
+                user.isAtivo(),
                 user.getEndereco(),
                 user.getRole()
         );

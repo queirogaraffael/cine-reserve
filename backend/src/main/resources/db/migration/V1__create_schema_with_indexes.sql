@@ -65,6 +65,7 @@ CREATE TABLE users (
     cidade           VARCHAR(100),
     estado           VARCHAR(50),
     email_confirmado BOOLEAN      NOT NULL DEFAULT FALSE,
+    ativo            BOOLEAN      NOT NULL DEFAULT TRUE,
     data_joined      DATE,
     birthdate        DATE,
     failed_attempt   INTEGER      NOT NULL DEFAULT 0,
@@ -74,6 +75,8 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
+
+CREATE INDEX idx_users_ativo ON users(ativo) WHERE ativo = FALSE;
 
 CREATE TABLE confirmacoes_cadastro (
     id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
