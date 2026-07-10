@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 public class RoomResponseDTO {
 
     private Long id;
-    private String number;
+    private String name;
     private int capacity;
+    private Long cinemaId;
 
 }

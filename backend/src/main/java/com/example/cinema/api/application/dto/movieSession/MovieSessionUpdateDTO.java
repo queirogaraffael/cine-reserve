@@ -31,7 +31,7 @@ public class MovieSessionUpdateDTO {
     private BigDecimal basePrice;
 
     private Long roomId;
-    private Long movieId;
+    private Long exhibitionId;
 
     private Boolean canceled;
 }

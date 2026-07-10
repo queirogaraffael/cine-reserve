@@ -32,6 +32,6 @@ public class MovieSessionRequestDTO {
 
     private Long roomId;
 
-    private Long movieId;
+    private Long exhibitionId;
 }
 

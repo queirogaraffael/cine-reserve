@@ -1,16 +1,16 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
-import com.example.cinema.api.domain.movie.exception.MovieNotFoundException;
+import com.example.cinema.api.domain.movie.exception.MovieExhibitionNotFoundException;
 import com.example.cinema.api.domain.room.exception.RoomNotFoundException;
 import com.example.cinema.api.domain.room.exception.RoomScheduleConflictException;
 import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
-import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.movie.MovieExhibition;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.room.Room;
 import com.example.cinema.api.domain.ticket.Ticket;
 import com.example.cinema.api.domain.ticket.exception.TicketNotFoundException;
-import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.MovieExhibitionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
@@ -31,14 +31,14 @@ import java.util.stream.IntStream;
 public class MovieSessionService {
 
     private final MovieSessionRepositoryJpa movieSessionRepositoryJpa;
-    private final MovieRepositoryJpa movieRepositoryJpa;
+    private final MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa;
     private final RoomRepositoryJpa roomRepositoryJpa;
     private final TicketRepositoryJpa ticketRepositoryJpa;
     private final SessionMapper sessionMapper;
 
-    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa, MovieRepositoryJpa movieRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa, TicketRepositoryJpa ticketRepositoryJpa, SessionMapper sessionMapper) {
+    public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa, MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa, TicketRepositoryJpa ticketRepositoryJpa, SessionMapper sessionMapper) {
         this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
-        this.movieRepositoryJpa = movieRepositoryJpa;
+        this.movieExhibitionRepositoryJpa = movieExhibitionRepositoryJpa;
         this.roomRepositoryJpa = roomRepositoryJpa;
         this.ticketRepositoryJpa = ticketRepositoryJpa;
         this.sessionMapper = sessionMapper;
@@ -57,11 +57,11 @@ public class MovieSessionService {
             throw new RoomScheduleConflictException("A sala já está reservada para esse horário.");
         }
 
-        Movie movie = movieRepositoryJpa.findById(dto.getMovieId()).orElseThrow(() -> new MovieNotFoundException("Filme: " + dto.getMovieId() + " não encontrado"));
+        MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(dto.getExhibitionId()).orElseThrow(() -> new MovieExhibitionNotFoundException("Exibição: " + dto.getExhibitionId() + " não encontrada"));
 
         Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(() -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "não encontrada"));
 
-        MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(), dto.getBasePrice(), room, movie);
+        MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(), dto.getBasePrice(), room, exhibition);
 
         movieSession = movieSessionRepositoryJpa.save(movieSession);
 

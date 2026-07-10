@@ -67,7 +67,7 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
         ms.basePrice,
         ms.canceled,
         ms.cinemaRoom.id,
-        ms.movie.id
+        ms.movieExhibition.id
     )
     FROM MovieSession ms
     JOIN ms.tickets t

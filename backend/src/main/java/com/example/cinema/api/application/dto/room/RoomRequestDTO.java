@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoomRequestDTO {
 
-    private String number;
+    private String name;
     private int capacity;
+    private Long cinemaId;
 
 }

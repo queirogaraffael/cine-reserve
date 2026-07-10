@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoomUpdateDTO {
 
-    private String number;
+    private String name;
     private int capacity;
 
 }

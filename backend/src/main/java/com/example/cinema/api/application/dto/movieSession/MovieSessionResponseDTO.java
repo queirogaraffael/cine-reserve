@@ -24,5 +24,5 @@ public class MovieSessionResponseDTO {
     private boolean canceled;
 
     private Long roomId;
-    private Long movieId;
+    private Long exhibitionId;
 }

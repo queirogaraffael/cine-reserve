@@ -1,7 +1,8 @@
 package com.example.cinema.api.domain.movie;
 
 
-import com.example.cinema.api.domain.movie.exception.MovieRequiredException;
+import com.example.cinema.api.domain.movie.exception.MovieExhibitionRequiredException;
+import com.example.cinema.api.domain.movie.exception.RoomCinemaMismatchException;
 import com.example.cinema.api.domain.room.exception.RoomRequiredException;
 import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
@@ -40,9 +41,9 @@ public class MovieSession {
     private Room cinemaRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_id")
+    @JoinColumn(name = "exhibition_id", nullable = false)
     @ToString.Exclude
-    private Movie movie;
+    private MovieExhibition movieExhibition;
 
     @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
@@ -54,20 +55,19 @@ public class MovieSession {
     @ToString.Exclude
     private List<SeatReservation> seatReservations = new ArrayList<>();
 
-    public MovieSession(LocalDate showDate, LocalTime startTime, LocalTime endTime, BigDecimal basePrice, Room cinemaRoom, Movie movie) {
-
+    public MovieSession(LocalDate showDate, LocalTime startTime, LocalTime endTime, BigDecimal basePrice, Room cinemaRoom, MovieExhibition movieExhibition) {
         if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
             throw new InvalidMovieSessionTimeRangeException("A hora de início deve ser antes da hora de término.");
         }
-
         if (cinemaRoom == null) {
             throw new RoomRequiredException("Room não pode ser nulo");
         }
-
-        if (movie == null) {
-            throw new MovieRequiredException("Movie não pode ser nulo");
+        if (movieExhibition == null) {
+            throw new MovieExhibitionRequiredException("Exibição não pode ser nula");
         }
-
+        if (!cinemaRoom.getCinema().getId().equals(movieExhibition.getCinema().getId())) {
+            throw new RoomCinemaMismatchException("A sala pertence a um cinema diferente da exibição.");
+        }
         this.showDate = showDate;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -75,7 +75,7 @@ public class MovieSession {
         this.canceled = false;
 
         cinemaRoom.addSession(this);
-        movie.addMovieSession(this);
+        movieExhibition.addSession(this);
     }
 
     public void addTicket(Ticket ticket) {
@@ -94,22 +94,18 @@ public class MovieSession {
 
     @Transient
     public MovieSessionStatus getStatus() {
-
         if (canceled) {
             return MovieSessionStatus.CANCELED;
         }
-
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
         if (today.isBefore(showDate) || (today.isEqual(showDate) && now.isBefore(startTime))) {
             return MovieSessionStatus.SCHEDULED;
         }
-
         if (today.isEqual(showDate) && (now.equals(startTime) || now.isAfter(startTime)) && now.isBefore(endTime)) {
             return MovieSessionStatus.ACTIVE;
         }
-
         return MovieSessionStatus.FINISHED;
     }
 
