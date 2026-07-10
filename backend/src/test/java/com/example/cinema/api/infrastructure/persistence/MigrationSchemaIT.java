@@ -60,6 +60,8 @@ class MigrationSchemaIT {
     private static final List<String> EXPECTED_TABLES = List.of(
             "genre",
             "movie",
+            "cinema",
+            "movie_exhibition",
             "room",
             "movie_session",
             "users",
@@ -72,7 +74,10 @@ class MigrationSchemaIT {
     private static final List<String> EXPECTED_INDEXES = List.of(
             "idx_movie_genre_id",
             "idx_movie_release_date",
-            "idx_movie_session_movie_id",
+            "idx_room_name_cinema",
+            "idx_movie_exhibition_movie_id",
+            "idx_movie_exhibition_cinema_id",
+            "idx_movie_session_exhibition_id",
             "idx_movie_session_room_id",
             "idx_movie_session_show_date",
             "idx_movie_session_available",
