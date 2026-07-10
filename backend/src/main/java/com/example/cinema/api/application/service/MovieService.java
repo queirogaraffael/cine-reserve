@@ -36,7 +36,7 @@ public class MovieService {
     public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
         Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
-        Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre);
+        Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre, dto.getRating(), dto.isPreRelease());
 
         Movie movieSaved = movieRepositoryJpa.save(movie);
         return movieMapper.toDTO(movieSaved);
@@ -77,7 +77,6 @@ public class MovieService {
     @Transactional
     @CachePut(value = "movies", key = "#idMovie")
     public MovieResponseDTO updateMovie(Long idMovie, MovieUpdateDTO dto) {
-
         Movie movie = movieRepositoryJpa.findById(idMovie)
                 .orElseThrow(() -> new MovieNotFoundException("Filme não encontrado"));
 
@@ -85,6 +84,20 @@ public class MovieService {
                 .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         movie.setGenre(genre);
+
+        if (dto.getRating() != null) {
+            movie.setRating(dto.getRating());
+        }
+        if (dto.getInTheaters() != null) {
+            if (dto.getInTheaters()) {
+                movie.putInTheaters();
+            } else {
+                movie.takeOffTheaters();
+            }
+        }
+        if (dto.getPreRelease() != null) {
+            movie.setPreReleaseStatus(dto.getPreRelease());
+        }
 
         movieMapper.updateEntityFromDTO(dto, movie);
         Movie movieUpdated = movieRepositoryJpa.save(movie);

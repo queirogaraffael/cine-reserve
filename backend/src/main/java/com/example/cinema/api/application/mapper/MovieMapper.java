@@ -6,6 +6,7 @@ import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
 import com.example.cinema.api.application.dto.movie.MovieResponseDTO;
 import com.example.cinema.api.application.dto.movie.MovieUpdateDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
@@ -17,7 +18,8 @@ public interface MovieMapper {
 
     MovieResponseDTO projectionToDTO(MovieResponseDTOProjection movie);
 
+    @Mapping(target = "inTheaters", ignore = true)
+    @Mapping(target = "preRelease", ignore = true)
     void updateEntityFromDTO(MovieUpdateDTO dto, @MappingTarget Movie movie);
 
 }
-

@@ -1,5 +1,6 @@
 package com.example.cinema.api.application.dto.movie;
 
+import com.example.cinema.api.domain.movie.MovieRating;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,5 +18,8 @@ public class MovieUpdateDTO {
     private int duration;
     private String imageUrl;
     private Long genreId;
+    private MovieRating rating;
+    private Boolean inTheaters;
+    private Boolean preRelease;
 
 }

@@ -1,5 +1,6 @@
 package com.example.cinema.api.application.dto.movie;
 
+import com.example.cinema.api.domain.movie.MovieRating;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,7 @@ public class MovieRequestDTO {
     private LocalDate releaseDate;
     private int duration;
     private String imageUrl;
+    private MovieRating rating;
+    private boolean preRelease;
 
 }

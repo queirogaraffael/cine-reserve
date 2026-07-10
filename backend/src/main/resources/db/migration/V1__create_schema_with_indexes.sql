@@ -11,6 +11,9 @@ CREATE TABLE movie (
     release_date DATE         NOT NULL,
     duration     INTEGER      NOT NULL CHECK (duration > 0),
     image_url    VARCHAR(512),
+    rating       VARCHAR(10)  NOT NULL,
+    in_theaters  BOOLEAN      NOT NULL DEFAULT TRUE,
+    pre_release  BOOLEAN      NOT NULL DEFAULT FALSE,
     genre_id     BIGINT       NOT NULL REFERENCES genre(id)
 );
 
@@ -20,27 +23,59 @@ CREATE INDEX idx_movie_genre_id ON movie(genre_id);
 CREATE INDEX idx_movie_release_date ON movie(release_date);
 
 
-CREATE TABLE room (
+CREATE TABLE cinema (
     id       BIGSERIAL    PRIMARY KEY,
-    number   VARCHAR(20)  NOT NULL UNIQUE,
-    capacity INTEGER      NOT NULL CHECK (capacity > 0)
+    name     VARCHAR(255) NOT NULL,
+    city     VARCHAR(100) NOT NULL,
+    state    VARCHAR(2)   NOT NULL,
+    logo_url VARCHAR(500)
 );
+
+INSERT INTO cinema (id, name, city, state)
+VALUES (1, 'CineReserve Matriz', 'São Paulo', 'SP');
+
+
+CREATE TABLE room (
+    id        BIGSERIAL    PRIMARY KEY,
+    name      VARCHAR(255) NOT NULL,
+    capacity  INTEGER      NOT NULL CHECK (capacity > 0),
+    cinema_id BIGINT       NOT NULL REFERENCES cinema(id)
+);
+
+CREATE UNIQUE INDEX idx_room_name_cinema ON room(name, cinema_id);
+
+
+
+CREATE TABLE movie_exhibition (
+    id        BIGSERIAL    PRIMARY KEY,
+    movie_id  BIGINT       NOT NULL REFERENCES movie(id),
+    cinema_id BIGINT       NOT NULL REFERENCES cinema(id),
+    format    VARCHAR(50)  NOT NULL,
+    audio     VARCHAR(50)  NOT NULL,
+    active    BOOLEAN      NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT uq_movie_exhibition UNIQUE (movie_id, cinema_id, format, audio)
+);
+
+CREATE INDEX idx_movie_exhibition_movie_id ON movie_exhibition(movie_id);
+CREATE INDEX idx_movie_exhibition_cinema_id ON movie_exhibition(cinema_id);
+
 
 
 CREATE TABLE movie_session (
-    id         BIGSERIAL      PRIMARY KEY,
-    show_date  DATE           NOT NULL,
-    start_time TIME           NOT NULL,
-    end_time   TIME           NOT NULL,
-    base_price NUMERIC(10, 2) NOT NULL CHECK (base_price >= 0),
-    canceled   BOOLEAN        NOT NULL DEFAULT FALSE,
-    room_id    BIGINT         NOT NULL REFERENCES room(id),
-    movie_id   BIGINT         NOT NULL REFERENCES movie(id),
+    id            BIGSERIAL      PRIMARY KEY,
+    show_date     DATE           NOT NULL,
+    start_time    TIME           NOT NULL,
+    end_time      TIME           NOT NULL,
+    base_price    NUMERIC(10, 2) NOT NULL CHECK (base_price >= 0),
+    canceled      BOOLEAN        NOT NULL DEFAULT FALSE,
+    room_id       BIGINT         NOT NULL REFERENCES room(id),
+    exhibition_id BIGINT         NOT NULL REFERENCES movie_exhibition(id),
 
     CONSTRAINT chk_session_time CHECK (start_time < end_time)
 );
 
-CREATE INDEX idx_movie_session_movie_id ON movie_session(movie_id);
+CREATE INDEX idx_movie_session_exhibition_id ON movie_session(exhibition_id);
 
 CREATE INDEX idx_movie_session_room_id ON movie_session(room_id);
 
