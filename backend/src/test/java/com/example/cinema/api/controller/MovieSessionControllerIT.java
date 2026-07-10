@@ -75,15 +75,20 @@ class MovieSessionControllerIT {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
-        Movie movie = new Movie();
-        movie.setTitle("Inception");
-        movie.setDuration(148);
+        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Action", null);
+        genreRepository.save(genre);
+
+        Movie movie = new Movie("Inception", "Desc", LocalDate.now(), 148, "", genre, com.example.cinema.api.domain.movie.MovieRating.LIVRE, false);
         movieRepositoryJpa.save(movie);
 
-        Room room = new Room();
-        room.setNumber("1");
-        room.setCapacity(100);
+        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema Matriz", "São Paulo", "SP", null);
+        cinemaRepositoryJpa.save(cinema);
+
+        Room room = new Room("Sala 1", 100, cinema);
         roomRepositoryJpa.save(room);
+
+        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F2D, AudioType.LEGENDADO);
+        movieExhibitionRepositoryJpa.save(exhibition);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(1));
@@ -91,7 +96,7 @@ class MovieSessionControllerIT {
         dto.setEndTime(LocalTime.of(21, 30));
         dto.setBasePrice(new BigDecimal("25.50"));
         dto.setRoomId(room.getId());
-        dto.setMovieId(movie.getId());
+        dto.setExhibitionId(exhibition.getId());
 
         mockMvc.perform(post("/api/sessions")
                         .header("Authorization", "Bearer " + token)
@@ -105,7 +110,7 @@ class MovieSessionControllerIT {
                 .andExpect(jsonPath("$.basePrice").value(dto.getBasePrice().doubleValue()))
                 .andExpect(jsonPath("$.status").value("SCHEDULED"))
                 .andExpect(jsonPath("$.roomId").value(room.getId()))
-                .andExpect(jsonPath("$.movieId").value(movie.getId()));
+                .andExpect(jsonPath("$.exhibitionId").value(exhibition.getId()));
     }
 
 
@@ -114,16 +119,20 @@ class MovieSessionControllerIT {
 
         String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
-        Movie movie1 = new Movie();
-        movie1.setTitle("Matrix");
-        movie1.setDuration(136);
+        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Sci-Fi", null);
+        genreRepository.save(genre);
 
-        Room room1 = new Room();
-        room1.setNumber("2");
-        room1.setCapacity(50);
+        Movie movie = new Movie("Matrix", "Desc", LocalDate.now(), 136, "", genre, com.example.cinema.api.domain.movie.MovieRating.A14, false);
+        movieRepositoryJpa.save(movie);
 
-        Movie movie = movieRepositoryJpa.save(movie1);
-        Room room = roomRepositoryJpa.save(room1);
+        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema 2", "Rio de Janeiro", "RJ", null);
+        cinemaRepositoryJpa.save(cinema);
+
+        Room room = new Room("Sala 2", 50, cinema);
+        roomRepositoryJpa.save(room);
+
+        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F2D, AudioType.DUBLADO);
+        movieExhibitionRepositoryJpa.save(exhibition);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().minusDays(1)); // data inválida
@@ -131,7 +140,7 @@ class MovieSessionControllerIT {
         dto.setEndTime(LocalTime.of(20, 0));
         dto.setBasePrice(new BigDecimal("30.00"));
         dto.setRoomId(room.getId());
-        dto.setMovieId(movie.getId());
+        dto.setExhibitionId(exhibition.getId());
 
         mockMvc.perform(post("/api/sessions")
                         .header("Authorization", "Bearer " + token)
@@ -147,16 +156,20 @@ class MovieSessionControllerIT {
 
         String token = testUtils.authenticateAs(UserRole.USER, TicketCategory.REGULAR).get("token");
 
-        Movie movie1 = new Movie();
-        movie1.setTitle("Avatar");
-        movie1.setDuration(155);
+        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Adventure", null);
+        genreRepository.save(genre);
 
-        Room room1 = new Room();
-        room1.setNumber("3");
-        room1.setCapacity(80);
+        Movie movie = new Movie("Avatar", "Desc", LocalDate.now(), 155, "", genre, com.example.cinema.api.domain.movie.MovieRating.LIVRE, false);
+        movieRepositoryJpa.save(movie);
 
-        Movie movie = movieRepositoryJpa.save(movie1);
-        Room room = roomRepositoryJpa.save(room1);
+        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema 3", "Curitiba", "PR", null);
+        cinemaRepositoryJpa.save(cinema);
+
+        Room room = new Room("Sala 3", 80, cinema);
+        roomRepositoryJpa.save(room);
+
+        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F3D, AudioType.DUBLADO);
+        movieExhibitionRepositoryJpa.save(exhibition);
 
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(1));
@@ -164,7 +177,7 @@ class MovieSessionControllerIT {
         dto.setEndTime(LocalTime.of(16, 30));
         dto.setBasePrice(new BigDecimal("35.00"));
         dto.setRoomId(room.getId());
-        dto.setMovieId(movie.getId());
+        dto.setExhibitionId(exhibition.getId());
 
         mockMvc.perform(post("/api/sessions")
                         .header("Authorization", "Bearer " + token)
@@ -172,7 +185,5 @@ class MovieSessionControllerIT {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isForbidden());
     }
-
-
- */
+*/
 }
