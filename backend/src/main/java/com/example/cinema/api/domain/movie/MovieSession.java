@@ -73,6 +73,8 @@ public class MovieSession {
         this.endTime = endTime;
         this.basePrice = basePrice;
         this.canceled = false;
+        this.cinemaRoom = cinemaRoom;
+        this.movieExhibition = movieExhibition;
 
         cinemaRoom.addSession(this);
         movieExhibition.addSession(this);
