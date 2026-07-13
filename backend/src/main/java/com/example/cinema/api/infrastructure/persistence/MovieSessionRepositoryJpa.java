@@ -80,4 +80,21 @@ public interface MovieSessionRepositoryJpa extends JpaRepository<MovieSession, L
 
     @Query("SELECT ms FROM MovieSession ms JOIN FETCH ms.cinemaRoom WHERE ms.id = :sessionId")
     Optional<MovieSession> findByIdWithRoom(@Param("id") Long sessionId);
+
+    @Query("""
+        SELECT s FROM MovieSession s
+        JOIN FETCH s.cinemaRoom r
+        JOIN FETCH s.movieExhibition e
+        JOIN FETCH e.movie m
+        JOIN FETCH m.genre g
+        WHERE e.id = :exhibitionId
+          AND s.showDate BETWEEN :startDate AND :endDate
+          AND s.canceled = false
+        ORDER BY s.showDate ASC, r.name ASC, s.startTime ASC
+    """)
+    List<MovieSession> findSessionsByExhibitionAndDateRange(
+            @Param("exhibitionId") Long exhibitionId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

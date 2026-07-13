@@ -1,5 +1,6 @@
 package com.example.cinema.api.controller;
 
+import com.example.cinema.api.application.dto.movieSession.ExhibitionSessionsResponseDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
 import com.example.cinema.api.application.service.MovieSessionService;
@@ -85,6 +86,17 @@ public class MovieSessionController {
         MovieSessionResponseDTO response = movieSessionService.getMovieSessionByTicketId(ticketId, principal.getId());
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Listar sessões de uma exibição",
+            description = "Retorna hoje + próximos 6 dias de sessões agrupadas por data e sala com status de disponibilidade")
+    @ApiResponse(responseCode = "200", description = "Sessões retornadas com sucesso")
+    @ApiResponse(responseCode = "404", description = "Exibição não encontrada")
+    @GetMapping
+    public ResponseEntity<ExhibitionSessionsResponseDTO> getSessionsByExhibition(
+            @RequestParam Long exhibitionId
+    ) {
+        return ResponseEntity.ok(movieSessionService.getSessionsByExhibition(exhibitionId));
     }
 
 }

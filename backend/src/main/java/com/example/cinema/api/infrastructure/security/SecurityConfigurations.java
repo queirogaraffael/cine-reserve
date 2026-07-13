@@ -48,6 +48,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/api/movies/search/genre/{genreId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cinemas/*/exibicoes", "/api/cinemas/*/exhibitions", "/api/exibicoes/*", "/api/exhibitions/*").permitAll()
 
+                        // Endpoint público do MovieSessionController
+                        .requestMatchers(HttpMethod.GET, "/api/sessions").permitAll()
+
                         // Endpoints públicos do UserController
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
 
