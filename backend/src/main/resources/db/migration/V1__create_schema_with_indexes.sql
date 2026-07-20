@@ -113,15 +113,15 @@ CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
 
 CREATE INDEX idx_users_ativo ON users(ativo) WHERE ativo = FALSE;
 
-CREATE TABLE confirmacoes_cadastro (
-    id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    usuario_id     UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    codigo         VARCHAR(6)   NOT NULL,
-    data_expiracao TIMESTAMP    NOT NULL,
-    utilizado      BOOLEAN      NOT NULL DEFAULT FALSE
+CREATE TABLE registration_confirmations (
+    id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id    UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code       VARCHAR(6)   NOT NULL,
+    expires_at TIMESTAMP    NOT NULL,
+    used       BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_confirmacao_usuario_id ON confirmacoes_cadastro(usuario_id);
+CREATE INDEX idx_registration_confirmations_user_id ON registration_confirmations(user_id);
 
 
 CREATE TABLE purchase (
