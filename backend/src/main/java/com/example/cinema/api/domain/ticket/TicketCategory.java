@@ -1,7 +1,8 @@
 package com.example.cinema.api.domain.ticket;
 
 public enum TicketCategory {
-    REGULAR,
-    STUDENT,
-    SENIOR
+    INTEIRA,
+    MEIA_ENTRADA,
+    PROMOCIONAL,
+    CORTESIA
 }
