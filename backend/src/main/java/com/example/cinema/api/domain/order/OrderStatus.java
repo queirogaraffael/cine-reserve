@@ -1,4 +1,4 @@
-package com.example.cinema.api.domain.purchase;
+package com.example.cinema.api.domain.order;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +8,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.example.cinema.api.domain.payment.PaymentStatus.EXPIRED;
-import static com.example.cinema.api.domain.payment.PaymentStatus.REFUNDED;
-
 @Slf4j
 @Getter
-public enum PurchaseStatus {
+public enum OrderStatus {
 
     CREATED("created"),
     WAITING_PAYMENT("waiting_payment"),
@@ -21,28 +18,28 @@ public enum PurchaseStatus {
     CANCELLED("cancelled");
 
     private final String value;
-    private Set<PurchaseStatus> allowedTransitions;
+    private Set<OrderStatus> allowedTransitions;
 
-    PurchaseStatus(String value) {
+    OrderStatus(String value) {
         this.value = value;
         this.allowedTransitions = Collections.emptySet();
     }
 
     static {
-        CREATED.allowedTransitions          = of(WAITING_PAYMENT, CANCELLED);
+        CREATED.allowedTransitions         = of(WAITING_PAYMENT, CANCELLED);
         WAITING_PAYMENT.allowedTransitions  = of(CONFIRMED, CANCELLED);
         CONFIRMED.allowedTransitions        = Collections.emptySet();
         CANCELLED.allowedTransitions        = Collections.emptySet();
     }
 
-    private static Set<PurchaseStatus> of(PurchaseStatus... statuses) {
+    private static Set<OrderStatus> of(OrderStatus... statuses) {
         if (statuses == null || statuses.length == 0) {
             return Collections.emptySet();
         }
         return Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(statuses)));
     }
 
-    public boolean canTransitionTo(PurchaseStatus next) {
+    public boolean canTransitionTo(OrderStatus next) {
         return next != null && allowedTransitions.contains(next);
     }
 
@@ -50,7 +47,7 @@ public enum PurchaseStatus {
         return this == CONFIRMED || this == CANCELLED;
     }
 
-    public PurchaseStatus transitionTo(PurchaseStatus next) {
+    public OrderStatus transitionTo(OrderStatus next) {
         if (!canTransitionTo(next)) {
             log.error("Transição inválida: {} -> {}", this, next);
             throw new IllegalStateException("Transição inválida: " + this + " -> " + next);
@@ -58,9 +55,9 @@ public enum PurchaseStatus {
         return next;
     }
 
-    public static PurchaseStatus fromValue(String value) {
+    public static OrderStatus fromValue(String value) {
         if (value == null) return null;
-        for (PurchaseStatus status : values()) {
+        for (OrderStatus status : values()) {
             if (status.value.equalsIgnoreCase(value)) return status;
         }
         return null;

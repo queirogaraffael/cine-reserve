@@ -1,4 +1,4 @@
-package com.example.cinema.api.domain.purchase.event;
+package com.example.cinema.api.domain.order.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,11 +9,10 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
-public class PurchaseCreatedEvent {
+public class OrderCreatedEvent {
 
-    private final Long purchaseId;
+    private final Long orderId;
     private final UUID userId;
     private final BigDecimal totalPrice;
-    private final LocalDateTime purchaseDate;
-
+    private final LocalDateTime createdAt;
 }
