@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.confirmacao.ConfirmacaoCadastro;
+import com.example.cinema.api.domain.registration.RegistrationConfirmation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
@@ -10,11 +10,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ConfirmacaoCadastroRepositoryJpa extends JpaRepository<ConfirmacaoCadastro, UUID> {
+public interface RegistrationConfirmationRepositoryJpa extends JpaRepository<RegistrationConfirmation, UUID> {
 
-    Optional<ConfirmacaoCadastro> findByUsuarioIdAndUtilizadoFalse(UUID usuarioId);
+    Optional<RegistrationConfirmation> findByUserIdAndUsedFalse(UUID userId);
 
     @Modifying
     @Transactional
-    void deleteByUsuarioId(UUID usuarioId);
+    void deleteByUserId(UUID userId);
 }
