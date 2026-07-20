@@ -1,7 +1,7 @@
 package com.example.cinema.api.infrastructure.email;
 
 import com.example.cinema.api.application.service.EmailService;
-import com.example.cinema.api.application.dto.email.EmailVerificacaoNotificationData;
+import com.example.cinema.api.application.dto.email.EmailVerificationNotificationData;
 import com.example.cinema.api.application.dto.email.PaymentCardInitiatedNotificationData;
 import com.example.cinema.api.application.dto.email.PurchaseCreatedNotificationData;
 import com.example.cinema.api.application.dto.email.UserCreatedNotificationData;
@@ -59,13 +59,13 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendEmailVerificacao(EmailVerificacaoNotificationData dto) {
+    public void sendEmailVerificacao(EmailVerificationNotificationData dto) {
         String subject = "Código de Verificação - CineMaster";
         String templateName = "verificacao-email";
 
         Context context = new Context(new Locale("pt", "BR"));
         context.setVariable("userName", dto.getName());
-        context.setVariable("codigoVerificacao", dto.getCodigo());
+        context.setVariable("codigoVerificacao", dto.getCode());
 
         String htmlContent = emailTemplateEngine.process(templateName, context);
 
