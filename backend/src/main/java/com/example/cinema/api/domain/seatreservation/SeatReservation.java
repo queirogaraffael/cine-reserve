@@ -1,12 +1,12 @@
 package com.example.cinema.api.domain.seatreservation;
 
-import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredException;
-import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
-import com.example.cinema.api.domain.seatreservation.exception.SeatNumberRequiredException;
 import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredException;
+import com.example.cinema.api.domain.order.Order;
+import com.example.cinema.api.domain.room.Seat;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeCancelledException;
+import com.example.cinema.api.domain.seatreservation.exception.ReservationCannotBeConsumedException;
 import com.example.cinema.api.domain.seatreservation.exception.ReservationExpiredException;
-import com.example.cinema.api.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,29 +32,34 @@ public class SeatReservation {
     @Setter
     private MovieSession movieSession;
 
-    @Column(nullable = false)
-    private Integer seatNumber;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "seat_id", nullable = false)
     @ToString.Exclude
-    private User user;
+    private Seat seat;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
+    @ToString.Exclude
+    private Order order;
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
     private LocalDateTime expiresAt;
 
-    public SeatReservation(MovieSession movieSession, Integer seatNumber, User user) {
+    public SeatReservation(MovieSession movieSession, Seat seat, Order order) {
 
         if (movieSession == null)
             throw new MovieSessionRequiredException("Sessão é obrigatória.");
 
-        if (seatNumber == null)
-            throw new SeatNumberRequiredException("Número do assento é obrigatório.");
+        if (seat == null)
+            throw new IllegalArgumentException("Assento é obrigatório.");
 
-        this.seatNumber = seatNumber;
-        this.user = user;
+        if (order == null)
+            throw new IllegalArgumentException("Pedido é obrigatório.");
+
+        this.seat = seat;
+        this.order = order;
 
         this.status = ReservationStatus.RESERVED;
         this.expiresAt = LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);
@@ -84,4 +89,7 @@ public class SeatReservation {
         this.status = ReservationStatus.CANCELLED;
     }
 
+    public void expire() {
+        this.status = ReservationStatus.EXPIRED;
+    }
 }
