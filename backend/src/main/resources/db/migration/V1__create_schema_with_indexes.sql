@@ -31,9 +31,6 @@ CREATE TABLE cinema (
     logo_url VARCHAR(500)
 );
 
-INSERT INTO cinema (id, name, city, state)
-VALUES (1, 'CineReserve Matriz', 'São Paulo', 'SP');
-
 
 CREATE TABLE rooms (
     id        BIGSERIAL    PRIMARY KEY,
