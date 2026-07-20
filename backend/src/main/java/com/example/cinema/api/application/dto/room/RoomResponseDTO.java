@@ -11,7 +11,6 @@ public class RoomResponseDTO {
 
     private Long id;
     private String name;
-    private int capacity;
     private Long cinemaId;
 
 }

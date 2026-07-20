@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class RoomUpdateDTO {
 
     private String name;
-    private int capacity;
+    private Long cinemaId;
 
 }

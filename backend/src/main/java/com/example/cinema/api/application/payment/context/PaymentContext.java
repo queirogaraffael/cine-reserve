@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.payment.context;
 
-import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.PaymentType;
@@ -26,7 +26,7 @@ public class PaymentContext {
                 ));
     }
 
-    public PaymentGatewayResult execute(PaymentPurchaseContext purchase, PaymentUserContext user,
+    public PaymentGatewayResult execute(PaymentOrderContext purchase, PaymentUserContext user,
                                              PaymentRequestDTO request) {
         PaymentType paymentType = request.getPaymentType();
         PaymentStrategy<?> strategy = strategies.get(paymentType);
@@ -39,7 +39,7 @@ public class PaymentContext {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends PaymentRequestDTO> PaymentGatewayResult dispatch(PaymentStrategy<T> strategy, PaymentPurchaseContext purchase,
+    private <T extends PaymentRequestDTO> PaymentGatewayResult dispatch(PaymentStrategy<T> strategy, PaymentOrderContext purchase,
                                                                         PaymentUserContext user,
                                                                         PaymentRequestDTO request) {
         T typed = strategy.getRequestType().cast(request);
