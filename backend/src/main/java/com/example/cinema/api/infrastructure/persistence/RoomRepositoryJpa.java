@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface RoomRepositoryJpa extends JpaRepository<Room, Long> {
 
     @Query(
-            value = "SELECT new com.example.cinema.api.application.dto.room.RoomResponseDTO(r.id, r.name, r.capacity, r.cinema.id) FROM Room r",
+            value = "SELECT new com.example.cinema.api.application.dto.room.RoomResponseDTO(r.id, r.name, r.cinema.id) FROM Room r",
             countQuery = "SELECT count(r) FROM Room r"
     )
     Page<RoomResponseDTO> findAllPaginado(Pageable pageable);

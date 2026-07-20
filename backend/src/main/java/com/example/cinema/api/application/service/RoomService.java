@@ -39,7 +39,7 @@ public class RoomService {
             throw new RoomNameAlreadyExistsInCinemaException("Nome de sala já cadastrado neste cinema.");
         }
 
-        Room room = new Room(roomRequestDTO.getName(), roomRequestDTO.getCapacity(), cinema);
+        Room room = new Room(roomRequestDTO.getName(), cinema);
 
         room = roomRepositoryJpa.save(room);
         return roomMapper.toDTO(room);
@@ -71,7 +71,7 @@ public class RoomService {
         }
 
         room.changeName(roomRequestDTO.getName());
-        room.changeCapacity(roomRequestDTO.getCapacity());
+
 
         return roomMapper.toDTO(roomRepositoryJpa.save(room));
     }

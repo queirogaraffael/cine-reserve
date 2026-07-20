@@ -3,9 +3,8 @@ package com.example.cinema.api.domain.room;
 import com.example.cinema.api.domain.cinema.Cinema;
 import com.example.cinema.api.domain.cinema.exception.CinemaRequiredException;
 import com.example.cinema.api.domain.movie.MovieSession;
-import com.example.cinema.api.domain.room.exception.RoomInvalidCapacityException;
+
 import com.example.cinema.api.domain.room.exception.RoomInvalidNameException;
-import com.example.cinema.api.domain.seatreservation.exception.InvalidSeatNumberException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +25,10 @@ public class Room {
     @Column(nullable = false)
     private String name;
 
-    private int capacity;
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.NONE)
+    @ToString.Exclude
+    private List<Seat> seats = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cinema_id", nullable = false)
@@ -38,18 +40,14 @@ public class Room {
     @ToString.Exclude
     private List<MovieSession> movieSessions = new ArrayList<>();
 
-    public Room(String name, int capacity, Cinema cinema) {
+    public Room(String name, Cinema cinema) {
         if (cinema == null) {
             throw new CinemaRequiredException("A sala deve pertencer a um cinema.");
         }
         if (name == null || name.isBlank()) {
             throw new RoomInvalidNameException("Nome da sala inválido.");
         }
-        if (capacity <= 0) {
-            throw new RoomInvalidCapacityException("Capacidade inválida");
-        }
         this.name = name;
-        this.capacity = capacity;
         this.cinema = cinema;
         cinema.addRoom(this);
     }
@@ -61,11 +59,10 @@ public class Room {
         }
     }
 
-    public void changeCapacity(int newCapacity) {
-        if (newCapacity <= 0) {
-            throw new RoomInvalidCapacityException("A capacidade da sala deve ser maior que zero");
+    public void addSeat(Seat seat) {
+        if (!seats.contains(seat)) {
+            seats.add(seat);
         }
-        this.capacity = newCapacity;
     }
 
     public void changeName(String newName) {
@@ -73,11 +70,5 @@ public class Room {
             throw new RoomInvalidNameException("O nome da sala não pode ser nulo ou vazio.");
         }
         this.name = newName;
-    }
-
-    public void validateSeatNumber(int seatNumber) {
-        if (seatNumber < 1 || seatNumber > this.capacity) {
-            throw new InvalidSeatNumberException("Assento inválido: " + seatNumber);
-        }
     }
 }
