@@ -1,20 +1,20 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
-import com.example.cinema.api.domain.purchase.Purchase;
-import com.example.cinema.api.domain.purchase.exception.PurchaseAlreadyHasPaymentException;
-import com.example.cinema.api.domain.purchase.exception.PurchaseNotFoundException;
+import com.example.cinema.api.domain.order.Order;
+import com.example.cinema.api.domain.order.exception.OrderAlreadyHasPaymentException;
+import com.example.cinema.api.domain.order.exception.OrderNotFoundException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.PaymentType;
 import com.example.cinema.api.application.payment.context.PaymentContext;
 import com.example.cinema.api.domain.payment.events.PaymentCardInitiatedEvent;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
-import com.example.cinema.api.infrastructure.persistence.PurchaseRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.OrderRepositoryJpa;
 import com.example.cinema.api.application.dto.payment.requests.PaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import com.example.cinema.api.application.dto.payment.response.PaymentResponseDTO;
@@ -27,14 +27,14 @@ import java.util.UUID;
 @Service
 public class PaymentService {
 
-    private final PurchaseRepositoryJpa purchaseRepository;
+    private final OrderRepositoryJpa orderRepository;
     private final PaymentRepositoryJpa paymentRepositoryJpa;
     private final UserService userService;
     private final PaymentContext paymentContext;
     private final ApplicationEventPublisher eventPublisher;
 
-    public PaymentService(PurchaseRepositoryJpa purchaseRepository, PaymentRepositoryJpa paymentRepositoryJpa, UserService userService, PaymentContext paymentContext, ApplicationEventPublisher eventPublisher) {
-        this.purchaseRepository = purchaseRepository;
+    public PaymentService(OrderRepositoryJpa orderRepository, PaymentRepositoryJpa paymentRepositoryJpa, UserService userService, PaymentContext paymentContext, ApplicationEventPublisher eventPublisher) {
+        this.orderRepository = orderRepository;
         this.paymentRepositoryJpa = paymentRepositoryJpa;
         this.userService = userService;
         this.paymentContext = paymentContext;
@@ -42,24 +42,24 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDTO processPayment(Long purchaseId, PaymentRequestDTO paymentRequestDTO, UUID userId) {
+    public PaymentResponseDTO processPayment(Long orderId, PaymentRequestDTO paymentRequestDTO, UUID userId) {
 
-        Purchase purchase = purchaseRepository.findByIdAndUserId(purchaseId, userId)
-                .orElseThrow(() -> new PurchaseNotFoundException(
-                        "Compra não encontrada ou não pertence ao usuário"));
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Pedido não encontrado ou não pertence ao usuário"));
 
-        if (paymentRepositoryJpa.existsByPurchase(purchase)) {
-            throw new PurchaseAlreadyHasPaymentException("Essa compra já tem um pagamento associado");
+        if (paymentRepositoryJpa.existsByOrder(order)) {
+            throw new OrderAlreadyHasPaymentException("Esse pedido já tem um pagamento associado");
         }
 
         User user = userService.findById(userId);
 
-        PaymentPurchaseContext purchaseCtx = PaymentPurchaseContext.from(purchase);
+        PaymentOrderContext purchaseCtx = PaymentOrderContext.from(order);
         PaymentUserContext userCtx = PaymentUserContext.from(user);
 
         PaymentGatewayResult gatewayResult = paymentContext.execute(purchaseCtx, userCtx, paymentRequestDTO);
 
-        Payment payment = new Payment(purchase, paymentRequestDTO.getPaymentType());
+        Payment payment = new Payment(order, paymentRequestDTO.getPaymentType());
         payment.registerTransaction(gatewayResult.transactionId());
         payment.updateStatus(PaymentStatus.fromValue(gatewayResult.status()), gatewayResult.statusDetail());
 
@@ -70,7 +70,7 @@ public class PaymentService {
                     savedPayment.getId(),
                     userId,
                     payment.getPaymentDate(),
-                    purchase.getTotalPrice()
+                    order.getTotalPrice()
             ));
         }
 
@@ -90,8 +90,8 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentGetResponseDTO getPaymentByPurchaseId(Long purchaseId, UUID userId) {
-        return paymentRepositoryJpa.findPaymentDtoByPurchaseIdAndUserId(purchaseId, userId)
-                .orElseThrow(() -> new PaymentNotFoundException("Pagamento para a compra: " + purchaseId + " não encontrado/não disponível."));
+    public PaymentGetResponseDTO getPaymentByOrderId(Long orderId, UUID userId) {
+        return paymentRepositoryJpa.findPaymentDtoByOrderIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new PaymentNotFoundException("Pagamento para o pedido: " + orderId + " não encontrado/não disponível."));
     }
 }

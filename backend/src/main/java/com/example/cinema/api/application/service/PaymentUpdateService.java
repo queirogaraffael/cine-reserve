@@ -4,8 +4,8 @@ import com.example.cinema.api.application.exception.InvalidPaymentSnapshotExcept
 import com.example.cinema.api.domain.payment.Payment;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
-import com.example.cinema.api.domain.purchase.Purchase;
-import com.example.cinema.api.domain.purchase.PurchaseStatus;
+import com.example.cinema.api.domain.order.Order;
+import com.example.cinema.api.domain.order.OrderStatus;
 import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import lombok.extern.slf4j.Slf4j;
@@ -29,44 +29,44 @@ public class PaymentUpdateService {
             throw new InvalidPaymentSnapshotException("Pagamento sem external_reference");
         }
 
-        Long purchaseId = snapshot.externalReference();
+        Long orderId = snapshot.externalReference();
 
-        Payment payment = paymentRepositoryJpa.findByPurchaseId(purchaseId)
+        Payment payment = paymentRepositoryJpa.findByOrderId(orderId)
                 .orElseThrow(() -> new PaymentNotFoundException(
-                        "Pagamento nao encontrado para purchaseId: " + purchaseId));
+                        "Pagamento nao encontrado para orderId: " + orderId));
 
         PaymentStatus newPaymentStatus = PaymentStatus.fromValue(snapshot.status());
 
         if (newPaymentStatus == PaymentStatus.UNKNOWN) {
-            log.warn("Status desconhecido '{}' recebido para purchaseId={}, ignorando",
-                    snapshot.status(), purchaseId);
+            log.warn("Status desconhecido '{}' recebido para orderId={}, ignorando",
+                    snapshot.status(), orderId);
             return;
         }
 
         if (payment.getPaymentStatus() == newPaymentStatus) {
-            log.info("Pagamento {} ja esta no status {}, ignorando", purchaseId, newPaymentStatus);
+            log.info("Pagamento {} ja esta no status {}, ignorando", orderId, newPaymentStatus);
             return;
         }
 
-        Purchase purchase = payment.getPurchase();
+        Order order = payment.getOrder();
 
-        if (purchase.getPurchaseStatus().isTerminal()) {
-            log.warn("Webhook recebido para compra {} ja em status terminal {}, ignorando",
-                    purchaseId, purchase.getPurchaseStatus());
+        if (order.getStatus().isTerminal()) {
+            log.warn("Webhook recebido para pedido {} ja em status terminal {}, ignorando",
+                    orderId, order.getStatus());
             return;
         }
 
-        PurchaseStatus newPurchaseStatus = newPaymentStatus.toPurchaseStatus()
+        OrderStatus newOrderStatus = newPaymentStatus.toOrderStatus()
                 .orElseThrow(() -> new IllegalStateException(
                         "PaymentStatus sem mapeamento: " + newPaymentStatus));
 
         payment.updateStatus(newPaymentStatus, snapshot.statusDetail());
-        purchase.moveToStatus(newPurchaseStatus);
+        order.moveToStatus(newOrderStatus);
 
         paymentRepositoryJpa.save(payment);
 
-        log.info("Compra {} atualizada: paymentStatus={} purchaseStatus={}",
-                purchaseId, newPaymentStatus, newPurchaseStatus);
+        log.info("Pedido {} atualizada: paymentStatus={} orderStatus={}",
+                orderId, newPaymentStatus, newOrderStatus);
     }
 
 }

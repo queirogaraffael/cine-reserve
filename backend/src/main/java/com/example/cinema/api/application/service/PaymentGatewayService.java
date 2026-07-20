@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
@@ -8,6 +8,6 @@ import com.example.cinema.api.application.dto.payment.response.gateway.card.Card
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
 
 public interface PaymentGatewayService {
-    PixGatewayResult createPixPayment(PaymentPurchaseContext purchase, PaymentUserContext user, PixPaymentRequestDTO request);
-    CardGatewayResult createCardPayment(PaymentPurchaseContext purchase, PaymentUserContext user, CardPaymentRequestDTO request);
+    PixGatewayResult createPixPayment(PaymentOrderContext purchase, PaymentUserContext user, PixPaymentRequestDTO request);
+    CardGatewayResult createCardPayment(PaymentOrderContext purchase, PaymentUserContext user, CardPaymentRequestDTO request);
 }

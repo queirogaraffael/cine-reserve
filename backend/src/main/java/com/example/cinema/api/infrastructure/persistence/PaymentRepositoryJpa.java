@@ -1,7 +1,7 @@
 package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.payment.Payment;
-import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
-    Optional<Payment> findByPurchaseId(Long purchaseId);
+    Optional<Payment> findByOrderId(Long orderId);
 
     @Query("""
         SELECT p.paymentStatus
@@ -31,14 +31,14 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
             p.paymentMethod,
             p.paymentStatus,
             p.statusDetail,
-            p.purchase.id
+            p.order.id
         )
         FROM Payment p
         WHERE p.id = :id
     """)
     Optional<PaymentGetResponseDTO> findPaymentById(@Param("id") Long id);
 
-    boolean existsByPurchase(Purchase purchase);
+    boolean existsByOrder(Order order);
 
     @Query("""
     SELECT new com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO(
@@ -48,13 +48,13 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
         p.paymentMethod,
         p.paymentStatus,
         p.statusDetail,
-        p.purchase.id
+        p.order.id
     )
     FROM Payment p
-    WHERE p.purchase.id = :purchaseId
-      AND p.purchase.user.id = :userId
+    WHERE p.order.id = :orderId
+      AND p.order.user.id = :userId
     """)
-    Optional<PaymentGetResponseDTO> findPaymentDtoByPurchaseIdAndUserId(
-            @Param("purchaseId") Long purchaseId, @Param("userId") UUID userId);
+    Optional<PaymentGetResponseDTO> findPaymentDtoByOrderIdAndUserId(
+            @Param("orderId") Long orderId, @Param("userId") UUID userId);
 
 }

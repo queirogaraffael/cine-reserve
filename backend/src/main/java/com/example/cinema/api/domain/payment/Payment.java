@@ -4,8 +4,7 @@ import com.example.cinema.api.domain.payment.exception.InvalidPaymentStatusExcep
 import com.example.cinema.api.domain.payment.exception.InvalidTransactionIdException;
 import com.example.cinema.api.domain.payment.exception.TransactionAlreadyRegisteredException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
-import com.example.cinema.api.domain.payment.exception.PurchaseRequiredException;
-import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.order.Order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -41,26 +40,24 @@ public class Payment {
     private String statusDetail;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_id", nullable = false, unique = true)
+    @JoinColumn(name = "order_id", nullable = false, unique = true)
     @ToString.Exclude
-    private Purchase purchase;
+    private Order order;
 
-    public Payment(Purchase purchase, PaymentType paymentMethod) {
+    public Payment(Order order, PaymentType paymentMethod) {
 
-        if (purchase == null) {
-            throw new PurchaseRequiredException("A compra é obrigatória para criar um pagamento.");
+        if (order == null) {
+            throw new IllegalArgumentException("O pedido é obrigatório para criar um pagamento.");
         }
 
         if (paymentMethod == null) {
             throw new PaymentMethodRequiredException("O método de pagamento é obrigatório.");
         }
 
-        this.purchase = purchase;
+        this.order = order;
         this.paymentMethod = paymentMethod;
         this.paymentDate = LocalDateTime.now();
         this.paymentStatus = PaymentStatus.PENDING;
-
-        purchase.attachPayment(this);
     }
 
     private void moveToStatus(PaymentStatus newStatus) {

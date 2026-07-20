@@ -1,6 +1,6 @@
 package com.example.cinema.api.domain.payment;
 
-import com.example.cinema.api.domain.purchase.PurchaseStatus;
+import com.example.cinema.api.domain.order.OrderStatus;
 import lombok.Getter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,23 +69,23 @@ public enum PaymentStatus {
         return UNKNOWN;
     }
 
-    private static final Map<PaymentStatus, PurchaseStatus> PURCHASE_STATUS_MAP =
+    private static final Map<PaymentStatus, OrderStatus> ORDER_STATUS_MAP =
             Map.ofEntries(
-                    Map.entry(PENDING, PurchaseStatus.WAITING_PAYMENT),
-                    Map.entry(IN_PROCESS, PurchaseStatus.WAITING_PAYMENT),
-                    Map.entry(AUTHORIZED, PurchaseStatus.WAITING_PAYMENT),
-                    Map.entry(APPROVED, PurchaseStatus.CONFIRMED),
-                    Map.entry(REJECTED, PurchaseStatus.CANCELLED),
-                    Map.entry(CANCELLED, PurchaseStatus.CANCELLED),
-                    Map.entry(EXPIRED, PurchaseStatus.CANCELLED),
-                    Map.entry(FAILED, PurchaseStatus.CANCELLED),
-                    Map.entry(PARTIALLY_REFUNDED, PurchaseStatus.CANCELLED),
-                    Map.entry(REFUNDED, PurchaseStatus.CANCELLED),
-                    Map.entry(CHARGED_BACK, PurchaseStatus.CANCELLED)
+                    Map.entry(PENDING, OrderStatus.WAITING_PAYMENT),
+                    Map.entry(IN_PROCESS, OrderStatus.WAITING_PAYMENT),
+                    Map.entry(AUTHORIZED, OrderStatus.WAITING_PAYMENT),
+                    Map.entry(APPROVED, OrderStatus.CONFIRMED),
+                    Map.entry(REJECTED, OrderStatus.CANCELLED),
+                    Map.entry(CANCELLED, OrderStatus.CANCELLED),
+                    Map.entry(EXPIRED, OrderStatus.CANCELLED),
+                    Map.entry(FAILED, OrderStatus.CANCELLED),
+                    Map.entry(PARTIALLY_REFUNDED, OrderStatus.CANCELLED),
+                    Map.entry(REFUNDED, OrderStatus.CANCELLED),
+                    Map.entry(CHARGED_BACK, OrderStatus.CANCELLED)
             );
 
-    public Optional<PurchaseStatus> toPurchaseStatus() {
-        return Optional.ofNullable(PURCHASE_STATUS_MAP.get(this));
+    public Optional<OrderStatus> toOrderStatus() {
+        return Optional.ofNullable(ORDER_STATUS_MAP.get(this));
     }
 }
 

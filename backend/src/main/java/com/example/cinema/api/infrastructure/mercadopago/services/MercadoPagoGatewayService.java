@@ -5,10 +5,10 @@ import com.example.cinema.api.application.dto.payment.requests.CardPaymentReques
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
-import com.example.cinema.api.domain.purchase.exception.InvalidPaymentAmountException;
+import com.example.cinema.api.domain.order.exception.InvalidPaymentAmountException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.example.cinema.api.application.dto.payment.PaymentAddressDTO;
-import com.example.cinema.api.application.dto.payment.PaymentPurchaseContext;
+import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
@@ -46,7 +46,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public PixGatewayResult createPixPayment(PaymentPurchaseContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
+    public PixGatewayResult createPixPayment(PaymentOrderContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
         try {
@@ -107,7 +107,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public CardGatewayResult createCardPayment(PaymentPurchaseContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
+    public CardGatewayResult createCardPayment(PaymentOrderContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
         try {
@@ -155,7 +155,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
         }
     }
 
-    private void validateTotalPrice(PaymentPurchaseContext purchase) {
+    private void validateTotalPrice(PaymentOrderContext purchase) {
         if (purchase.totalPrice() == null || purchase.totalPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidPaymentAmountException("Valor total da compra deve ser maior que zero. purchaseId=" + purchase.id());
         }
