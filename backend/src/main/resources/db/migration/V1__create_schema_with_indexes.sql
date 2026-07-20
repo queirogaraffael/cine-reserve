@@ -35,15 +35,23 @@ INSERT INTO cinema (id, name, city, state)
 VALUES (1, 'CineReserve Matriz', 'São Paulo', 'SP');
 
 
-CREATE TABLE room (
+CREATE TABLE rooms (
     id        BIGSERIAL    PRIMARY KEY,
     name      VARCHAR(255) NOT NULL,
-    capacity  INTEGER      NOT NULL CHECK (capacity > 0),
     cinema_id BIGINT       NOT NULL REFERENCES cinema(id)
 );
 
-CREATE UNIQUE INDEX idx_room_name_cinema ON room(name, cinema_id);
+CREATE UNIQUE INDEX idx_room_name_cinema ON rooms(name, cinema_id);
 
+CREATE TABLE seats (
+    id          BIGSERIAL   PRIMARY KEY,
+    seat_number INTEGER     NOT NULL,
+    status      VARCHAR(50) NOT NULL,
+    room_id     BIGINT      NOT NULL REFERENCES rooms(id),
+    CONSTRAINT uq_seat_room UNIQUE (room_id, seat_number)
+);
+
+CREATE INDEX idx_seat_room ON seats(room_id);
 
 
 CREATE TABLE movie_exhibition (
@@ -61,7 +69,6 @@ CREATE INDEX idx_movie_exhibition_movie_id ON movie_exhibition(movie_id);
 CREATE INDEX idx_movie_exhibition_cinema_id ON movie_exhibition(cinema_id);
 
 
-
 CREATE TABLE movie_session (
     id            BIGSERIAL      PRIMARY KEY,
     show_date     DATE           NOT NULL,
@@ -69,20 +76,18 @@ CREATE TABLE movie_session (
     end_time      TIME           NOT NULL,
     base_price    NUMERIC(10, 2) NOT NULL CHECK (base_price >= 0),
     canceled      BOOLEAN        NOT NULL DEFAULT FALSE,
-    room_id       BIGINT         NOT NULL REFERENCES room(id),
+    room_id       BIGINT         NOT NULL REFERENCES rooms(id),
     exhibition_id BIGINT         NOT NULL REFERENCES movie_exhibition(id),
+    available_seats INTEGER      NOT NULL DEFAULT 0,
 
     CONSTRAINT chk_session_time CHECK (start_time < end_time)
 );
 
 CREATE INDEX idx_movie_session_exhibition_id ON movie_session(exhibition_id);
-
 CREATE INDEX idx_movie_session_room_id ON movie_session(room_id);
-
 CREATE INDEX idx_movie_session_show_date ON movie_session(show_date);
+CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled) WHERE canceled = FALSE;
 
-CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled)
-    WHERE canceled = FALSE;
 
 CREATE TABLE users (
     id               UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -111,7 +116,6 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
 
-CREATE INDEX idx_users_ativo ON users(ativo) WHERE ativo = FALSE;
 
 CREATE TABLE registration_confirmations (
     id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -121,64 +125,85 @@ CREATE TABLE registration_confirmations (
     used       BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_registration_confirmations_user_id ON registration_confirmations(user_id);
+CREATE INDEX idx_registration_user_id ON registration_confirmations(user_id);
 
 
-CREATE TABLE purchase (
-                          id               BIGSERIAL      PRIMARY KEY,
-                          purchase_date    TIMESTAMP      NOT NULL,
-                          total_price      NUMERIC(10, 2) NOT NULL DEFAULT 0,
-                          idempotency_key  CHAR(36)       NOT NULL UNIQUE,
-                          purchase_status  VARCHAR(50)    NOT NULL,
-                          version          BIGINT         NOT NULL DEFAULT 0,
-                          user_id          UUID           NOT NULL REFERENCES users(id)
+CREATE TABLE orders (
+    id                     BIGSERIAL      PRIMARY KEY,
+    order_date             TIMESTAMP      NOT NULL,
+    total_amount           NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    discount_amount        NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    final_amount           NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    status                 VARCHAR(50)    NOT NULL,
+    idempotency_key        CHAR(36)       NOT NULL UNIQUE,
+    reservation_expires_at TIMESTAMP,
+    version                BIGINT         NOT NULL DEFAULT 0,
+    user_id                UUID           NOT NULL REFERENCES users(id)
 );
 
-CREATE INDEX idx_purchase_user_id ON purchase(user_id);
-CREATE INDEX idx_purchase_status ON purchase(purchase_status);
-CREATE INDEX idx_purchase_user_status ON purchase(user_id, purchase_status);
+CREATE INDEX idx_order_user_id ON orders(user_id);
+CREATE INDEX idx_order_status ON orders(status);
+
 
 CREATE TABLE payment (
-                         id              BIGSERIAL      PRIMARY KEY,
-                         payment_date    TIMESTAMP,
-                         transaction_id  BIGINT,
-                         version         BIGINT         NOT NULL DEFAULT 0,
-                         payment_method  VARCHAR(50)    NOT NULL,
-                         payment_status  VARCHAR(50)    NOT NULL,
-                         status_detail   VARCHAR(255),
-                         purchase_id     BIGINT         NOT NULL UNIQUE REFERENCES purchase(id)
+    id              BIGSERIAL      PRIMARY KEY,
+    payment_date    TIMESTAMP,
+    transaction_id  BIGINT,
+    version         BIGINT         NOT NULL DEFAULT 0,
+    payment_method  VARCHAR(50)    NOT NULL,
+    payment_status  VARCHAR(50)    NOT NULL,
+    status_detail   VARCHAR(255),
+    order_id        BIGINT         NOT NULL UNIQUE REFERENCES orders(id)
 );
-CREATE INDEX idx_payment_transaction_id ON payment(transaction_id);
 
+CREATE INDEX idx_payment_transaction_id ON payment(transaction_id);
 CREATE INDEX idx_payment_status ON payment(payment_status);
 
-CREATE TABLE tickets (
-    id           BIGSERIAL      PRIMARY KEY,
-    seat_number  INTEGER        NOT NULL,
-    category     VARCHAR(50)    NOT NULL,
-    price        NUMERIC(10, 2) NOT NULL CHECK (price > 0),
-    session_id   BIGINT         NOT NULL REFERENCES movie_session(id),
-    purchase_id  BIGINT         NOT NULL REFERENCES purchase(id),
 
-    CONSTRAINT uq_ticket_session_seat UNIQUE (session_id, seat_number)
+CREATE TABLE ticket_types (
+    id             BIGSERIAL      PRIMARY KEY,
+    name           VARCHAR(255)   NOT NULL UNIQUE,
+    description    VARCHAR(255)   NOT NULL,
+    price_modifier NUMERIC(10, 2) NOT NULL,
+    is_active      BOOLEAN        NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX idx_ticket_purchase_id ON tickets(purchase_id);
 
-CREATE INDEX idx_ticket_session_id ON tickets(session_id);
+CREATE TABLE promotions (
+    id                  BIGSERIAL      PRIMARY KEY,
+    name                VARCHAR(255)   NOT NULL UNIQUE,
+    description         VARCHAR(255)   NOT NULL,
+    discount_percentage NUMERIC(5, 2)  NOT NULL,
+    start_date          TIMESTAMP      NOT NULL,
+    end_date            TIMESTAMP      NOT NULL,
+    is_active           BOOLEAN        NOT NULL DEFAULT TRUE
+);
+
+
+CREATE TABLE order_items (
+    id             BIGSERIAL      PRIMARY KEY,
+    order_id       BIGINT         NOT NULL REFERENCES orders(id),
+    ticket_type_id BIGINT         NOT NULL REFERENCES ticket_types(id),
+    quantity       INTEGER        NOT NULL CHECK (quantity > 0),
+    unit_price     NUMERIC(10, 2) NOT NULL CHECK (unit_price >= 0),
+    subtotal       NUMERIC(10, 2) NOT NULL CHECK (subtotal >= 0)
+);
+
+CREATE INDEX idx_order_item_order_id ON order_items(order_id);
+CREATE INDEX idx_order_item_ticket_type_id ON order_items(ticket_type_id);
+
 
 CREATE TABLE seat_reservations (
     id           BIGSERIAL   PRIMARY KEY,
-    seat_number  INTEGER     NOT NULL,
+    order_id     BIGINT      NOT NULL REFERENCES orders(id),
+    session_id   BIGINT      NOT NULL REFERENCES movie_session(id),
+    seat_id      BIGINT      NOT NULL REFERENCES seats(id),
     status       VARCHAR(50) NOT NULL,
     expires_at   TIMESTAMP   NOT NULL,
-    session_id   BIGINT      NOT NULL REFERENCES movie_session(id),
-    user_id      UUID        NOT NULL REFERENCES users(id)
+    CONSTRAINT uq_seat_reservation UNIQUE (session_id, seat_id)
 );
 
 CREATE INDEX idx_seat_reservation_session_id ON seat_reservations(session_id);
-
-CREATE INDEX idx_seat_reservation_user_id ON seat_reservations(user_id);
-
-CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_number, expires_at)
+CREATE INDEX idx_seat_reservation_order_id ON seat_reservations(order_id);
+CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_id, expires_at)
     WHERE status = 'RESERVED';
