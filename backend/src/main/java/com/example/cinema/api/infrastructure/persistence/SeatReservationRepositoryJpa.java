@@ -22,7 +22,6 @@ public interface SeatReservationRepositoryJpa extends JpaRepository<SeatReservat
     """)
     void expireOldReservations(LocalDateTime now);
 
-    Optional<SeatReservation> findByIdAndUserId(Long reservationId, UUID userId);
 
     @Query("""
     SELECT r FROM SeatReservation r
