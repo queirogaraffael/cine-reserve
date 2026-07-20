@@ -30,7 +30,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private final ConfirmacaoCadastroService confirmacaoCadastroService;
+    private final RegistrationConfirmationService registrationConfirmationService;
     private final TokenService tokenService;
     private final UserSessionService userSessionService;
 
@@ -38,14 +38,14 @@ public class UserService implements UserDetailsService {
                        PasswordEncoder passwordEncoder,
                        UserMapper userMapper,
                        ApplicationEventPublisher eventPublisher,
-                       ConfirmacaoCadastroService confirmacaoCadastroService,
+                       RegistrationConfirmationService registrationConfirmationService,
                        TokenService tokenService,
                        UserSessionService userSessionService) {
         this.userRepositoryJpa = userRepositoryJpa;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.eventPublisher = eventPublisher;
-        this.confirmacaoCadastroService = confirmacaoCadastroService;
+        this.registrationConfirmationService = registrationConfirmationService;
         this.tokenService = tokenService;
         this.userSessionService = userSessionService;
     }
@@ -70,9 +70,9 @@ public class UserService implements UserDetailsService {
 
         User user = userRepositoryJpa.save(newUser);
 
-        String codigoVerificacao = confirmacaoCadastroService.gerarCodigo(user.getId());
+        String verificationCode = registrationConfirmationService.generateCode(user.getId());
 
-        eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), user.getName(), user.getEmail(), codigoVerificacao));
+        eventPublisher.publishEvent(new UserCreatedEvent(user.getId(), user.getName(), user.getEmail(), verificationCode));
 
         String jwt = tokenService.generateToken(user);
         String refreshToken = userSessionService.createUserSession(user.getId(), deviceId, userAgent, ip);

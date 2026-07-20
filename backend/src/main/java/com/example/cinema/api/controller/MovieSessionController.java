@@ -30,10 +30,10 @@ public class MovieSessionController {
         this.movieSessionService = movieSessionService;
     }
 
-    @Operation(summary = "Criar nova sessão de filme", description = "Cria uma nova sessão de filme")
-    @ApiResponse(responseCode = "201", description = "Sessão criada com sucesso")
-    @ApiResponse(responseCode = "400", description = "Erro de validação")
-    @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro em alguma validação de negócio")
+    @Operation(summary = "Criar nova sessÃ£o de filme", description = "Cria uma nova sessÃ£o de filme")
+    @ApiResponse(responseCode = "201", description = "SessÃ£o criada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Erro de validaÃ§Ã£o")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro em alguma validaÃ§Ã£o de negÃ³cio")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
@@ -46,9 +46,9 @@ public class MovieSessionController {
         return ResponseEntity.created(uri).body(movieSessionResponseDTO);
     }
 
-    @Operation(summary = "Buscar sessão por ID", description = "Retorna os detalhes de uma sessão específica pelo seu ID")
-    @ApiResponse(responseCode = "200", description = "Sessão encontrada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @Operation(summary = "Buscar sessÃ£o por ID", description = "Retorna os detalhes de uma sessÃ£o especÃ­fica pelo seu ID")
+    @ApiResponse(responseCode = "200", description = "SessÃ£o encontrada com sucesso")
+    @ApiResponse(responseCode = "404", description = "SessÃ£o nÃ£o encontrada")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{sessionId}")
@@ -58,45 +58,37 @@ public class MovieSessionController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Listar assentos disponíveis da sessão", description = "Retorna os números dos assentos disponíveis para uma sessão específica")
-    @ApiResponse(responseCode = "200", description = "Lista de assentos disponíveis retornada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @Operation(summary = "Listar assentos da sessÃ£o", description = "Retorna o mapa de assentos para uma sessÃ£o especÃ­fica")
+    @ApiResponse(responseCode = "200", description = "Lista de assentos retornada com sucesso")
+    @ApiResponse(responseCode = "404", description = "SessÃ£o nÃ£o encontrada")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{sessionId}/available-seats")
-    public ResponseEntity<List<Integer>> getAvailableSeats(@PathVariable Long sessionId) {
+    @GetMapping("/{sessionId}/seats")
+    public ResponseEntity<List<com.example.cinema.api.application.dto.seat.SeatDTO>> getAvailableSeats(@PathVariable Long sessionId) {
 
-        List<Integer> availableSeats = movieSessionService.getAvailableSeats(sessionId);
+        List<com.example.cinema.api.application.dto.seat.SeatDTO> availableSeats = movieSessionService.getAvailableSeats(sessionId);
 
         return ResponseEntity.ok(availableSeats);
     }
 
-    @Operation(
-            summary = "Buscar sessão pelo ID do ticket",
-            description = "Retorna a sessão de filme associada a um ticket que pertence ao usuário autenticado")
-    @ApiResponse(responseCode = "200", description = "Sessão encontrada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Ticket ou sessão não encontrados")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/by-ticket/{ticketId}")
-    public ResponseEntity<MovieSessionResponseDTO> findMovieSessionByTicketId(
-            @PathVariable Long ticketId,
-            @AuthenticationPrincipal AuthenticatedUser principal) {
 
-        MovieSessionResponseDTO response = movieSessionService.getMovieSessionByTicketId(ticketId, principal.getId());
 
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "Listar sessões de uma exibição",
-            description = "Retorna hoje + próximos 6 dias de sessões agrupadas por data e sala com status de disponibilidade")
-    @ApiResponse(responseCode = "200", description = "Sessões retornadas com sucesso")
-    @ApiResponse(responseCode = "404", description = "Exibição não encontrada")
+    @Operation(summary = "Listar sessÃµes de uma exibiÃ§Ã£o",
+            description = "Retorna hoje + prÃ³ximos 6 dias de sessÃµes agrupadas por data e sala com status de disponibilidade")
+    @ApiResponse(responseCode = "200", description = "SessÃµes retornadas com sucesso")
+    @ApiResponse(responseCode = "404", description = "ExibiÃ§Ã£o nÃ£o encontrada")
     @GetMapping
     public ResponseEntity<ExhibitionSessionsResponseDTO> getSessionsByExhibition(
             @RequestParam Long exhibitionId
     ) {
         return ResponseEntity.ok(movieSessionService.getSessionsByExhibition(exhibitionId));
     }
-
+    
+    @Operation(summary = "Listar tipos de ingresso da sessão", description = "Retorna os tipos de ingresso disponíveis com os preços já calculados considerando promoções")
+    @ApiResponse(responseCode = "200", description = "Lista de ingressos retornada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
+    @GetMapping("/{sessionId}/ticket-types")
+    public ResponseEntity<List<com.example.cinema.api.application.dto.ticket.TicketTypeDTO>> getTicketTypes(@PathVariable Long sessionId) {
+        return ResponseEntity.ok(movieSessionService.getTicketTypesWithPromotions(sessionId));
+    }
 }

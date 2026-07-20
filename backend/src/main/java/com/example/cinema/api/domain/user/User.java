@@ -3,7 +3,7 @@ package com.example.cinema.api.domain.user;
 import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
 import com.example.cinema.api.domain.user.exception.PasswordReuseException;
 import com.example.cinema.api.domain.user.exception.UserUnderageException;
-import com.example.cinema.api.domain.purchase.Purchase;
+import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -70,7 +70,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private List<Purchase> purchases = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude

@@ -2,6 +2,7 @@ package com.example.cinema.api.domain.cinema;
 
 import com.example.cinema.api.domain.cinema.exception.CinemaLocationRequiredException;
 import com.example.cinema.api.domain.cinema.exception.CinemaNameRequiredException;
+import com.example.cinema.api.domain.movie.MovieExhibition;
 import com.example.cinema.api.domain.room.Room;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,7 +38,7 @@ public class Cinema {
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<com.example.cinema.api.domain.movie.MovieExhibition> exhibitions = new ArrayList<>();
+    private List<MovieExhibition> exhibitions = new ArrayList<>();
 
     public Cinema(String name, String city, String state, String logoUrl) {
         if (name == null || name.isBlank()) {
@@ -58,7 +59,7 @@ public class Cinema {
         }
     }
 
-    public void addExhibition(com.example.cinema.api.domain.movie.MovieExhibition exhibition) {
+    public void addExhibition(MovieExhibition exhibition) {
         if (!exhibitions.contains(exhibition)) {
             exhibitions.add(exhibition);
         }

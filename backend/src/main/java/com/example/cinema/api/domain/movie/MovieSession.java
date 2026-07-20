@@ -7,7 +7,7 @@ import com.example.cinema.api.domain.room.exception.RoomRequiredException;
 import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.room.Room;
-import com.example.cinema.api.domain.ticket.Ticket;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,10 +45,6 @@ public class MovieSession {
     @ToString.Exclude
     private MovieExhibition movieExhibition;
 
-    @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Setter(AccessLevel.NONE)
-    @ToString.Exclude
-    private List<Ticket> tickets = new ArrayList<>();
 
     @OneToMany(mappedBy = "movieSession", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
@@ -80,12 +76,6 @@ public class MovieSession {
         movieExhibition.addSession(this);
     }
 
-    public void addTicket(Ticket ticket) {
-        if (!tickets.contains(ticket)) {
-            tickets.add(ticket);
-            ticket.setMovieSession(this);
-        }
-    }
 
     public void addSeatReservation(SeatReservation reservation) {
         if (!seatReservations.contains(reservation)) {
