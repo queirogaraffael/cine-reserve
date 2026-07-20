@@ -72,9 +72,7 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<SeatReservation> seatReservations = new ArrayList<>();
+
 
     public User(String name, String email, String password, String celular, LocalDate dataJoined, UserRole role) {
         this.name = name;
