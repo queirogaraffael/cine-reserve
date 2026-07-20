@@ -5,11 +5,11 @@ import com.example.cinema.api.application.dto.user.UserAddressUpdateDTO;
 import com.example.cinema.api.application.dto.user.UserProfileUpdateDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
 import com.example.cinema.api.application.service.UserService;
-import com.example.cinema.api.domain.confirmacao.ConfirmacaoCadastro;
+import com.example.cinema.api.domain.registration.RegistrationConfirmation;
 import com.example.cinema.api.domain.user.Sexo;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
-import com.example.cinema.api.infrastructure.persistence.ConfirmacaoCadastroRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.RegistrationConfirmationRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ class UserControllerIT {
     private UserRepositoryJpa userRepositoryJpa;
 
     @Autowired
-    private ConfirmacaoCadastroRepositoryJpa confirmacaoRepositoryJpa;
+    private RegistrationConfirmationRepositoryJpa confirmacaoRepositoryJpa;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -144,9 +144,9 @@ class UserControllerIT {
     @Test
     void testConfirmarEmailSuccess() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        ConfirmacaoCadastro confirmacao = confirmacaoRepositoryJpa.findByUsuarioIdAndUtilizadoFalse(created.getId()).orElseThrow();
+        RegistrationConfirmation confirmacao = confirmacaoRepositoryJpa.findByUserIdAndUsedFalse(created.getId()).orElseThrow();
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCodigo());
+        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
 
         mockMvc.perform(post("/api/users/me/confirmar-email")
                         .header("Authorization", "Bearer " + created.getAccessToken())
@@ -161,8 +161,8 @@ class UserControllerIT {
     @Test
     void testConfirmarEmailExpired() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        confirmacaoRepositoryJpa.deleteByUsuarioId(created.getId());
-        confirmacaoRepositoryJpa.save(new ConfirmacaoCadastro(created.getId(), "123456", LocalDateTime.now().minusMinutes(20)));
+        confirmacaoRepositoryJpa.deleteByUserId(created.getId());
+        confirmacaoRepositoryJpa.save(new RegistrationConfirmation(created.getId(), "123456", LocalDateTime.now().minusMinutes(20)));
 
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO("123456");
 
@@ -176,11 +176,11 @@ class UserControllerIT {
     @Test
     void testConfirmarEmailAlreadyUsed() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        ConfirmacaoCadastro confirmacao = confirmacaoRepositoryJpa.findByUsuarioIdAndUtilizadoFalse(created.getId()).orElseThrow();
-        confirmacao.marcarComoUtilizado();
+        RegistrationConfirmation confirmacao = confirmacaoRepositoryJpa.findByUserIdAndUsedFalse(created.getId()).orElseThrow();
+        confirmacao.markAsUsed();
         confirmacaoRepositoryJpa.save(confirmacao);
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCodigo());
+        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
 
         mockMvc.perform(post("/api/users/me/confirmar-email")
                         .header("Authorization", "Bearer " + created.getAccessToken())

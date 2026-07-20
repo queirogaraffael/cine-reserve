@@ -82,7 +82,7 @@ class MovieSessionExhibitionControllerIT {
                 "Inception", "A dream within a dream.", LocalDate.of(2010, 7, 16),
                 148, "https://poster.url/inception.jpg", genre, MovieRating.A14, false));
 
-        Room room = roomRepositoryJpa.save(new Room("SALA 1", 100, cinema));
+        Room room = roomRepositoryJpa.save(new Room("SALA 1", cinema));
         roomId = room.getId();
 
         MovieExhibition exhibition = movieExhibitionRepositoryJpa.save(
