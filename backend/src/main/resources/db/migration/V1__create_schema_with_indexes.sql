@@ -44,11 +44,14 @@ CREATE TABLE rooms (
 CREATE UNIQUE INDEX idx_room_name_cinema ON rooms(name, cinema_id);
 
 CREATE TABLE seats (
-    id          BIGSERIAL   PRIMARY KEY,
-    seat_number INTEGER     NOT NULL,
-    status      VARCHAR(50) NOT NULL,
-    room_id     BIGINT      NOT NULL REFERENCES rooms(id),
-    CONSTRAINT uq_seat_room UNIQUE (room_id, seat_number)
+    id            BIGSERIAL   PRIMARY KEY,
+    room_id       BIGINT      NOT NULL REFERENCES rooms(id),
+    row_letter    VARCHAR(1)  NOT NULL,
+    column_number INTEGER     NOT NULL,
+    code          VARCHAR(10) NOT NULL,
+    type          VARCHAR(50) NOT NULL,
+    active        BOOLEAN     NOT NULL DEFAULT TRUE,
+    CONSTRAINT uq_seat_room UNIQUE (room_id, row_letter, column_number)
 );
 
 CREATE INDEX idx_seat_room ON seats(room_id);
@@ -130,18 +133,19 @@ CREATE INDEX idx_registration_user_id ON registration_confirmations(user_id);
 
 CREATE TABLE orders (
     id                     BIGSERIAL      PRIMARY KEY,
-    order_date             TIMESTAMP      NOT NULL,
-    total_amount           NUMERIC(10, 2) NOT NULL DEFAULT 0,
-    discount_amount        NUMERIC(10, 2) NOT NULL DEFAULT 0,
-    final_amount           NUMERIC(10, 2) NOT NULL DEFAULT 0,
-    status                 VARCHAR(50)    NOT NULL,
-    idempotency_key        CHAR(36)       NOT NULL UNIQUE,
-    reservation_expires_at TIMESTAMP,
     version                BIGINT         NOT NULL DEFAULT 0,
-    user_id                UUID           NOT NULL REFERENCES users(id)
+    created_at             TIMESTAMP      NOT NULL,
+    total_price            NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    service_fee            NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    total_tickets_count    INTEGER        NOT NULL DEFAULT 0,
+    reservation_expires_at TIMESTAMP,
+    user_id                UUID           NOT NULL REFERENCES users(id),
+    session_id             BIGINT         NOT NULL REFERENCES movie_session(id),
+    status                 VARCHAR(50)    NOT NULL
 );
 
 CREATE INDEX idx_order_user_id ON orders(user_id);
+CREATE INDEX idx_order_session_id ON orders(session_id);
 CREATE INDEX idx_order_status ON orders(status);
 
 
@@ -161,11 +165,13 @@ CREATE INDEX idx_payment_status ON payment(payment_status);
 
 
 CREATE TABLE ticket_types (
-    id             BIGSERIAL      PRIMARY KEY,
-    name           VARCHAR(255)   NOT NULL UNIQUE,
-    description    VARCHAR(255)   NOT NULL,
-    price_modifier NUMERIC(10, 2) NOT NULL,
-    is_active      BOOLEAN        NOT NULL DEFAULT TRUE
+    id                     BIGSERIAL      PRIMARY KEY,
+    name                   VARCHAR(255)   NOT NULL UNIQUE,
+    price                  NUMERIC(10, 2) NOT NULL,
+    category               VARCHAR(50)    NOT NULL,
+    description            VARCHAR(255),
+    active                 BOOLEAN        NOT NULL DEFAULT TRUE,
+    max_quantity_per_order INTEGER
 );
 
 
