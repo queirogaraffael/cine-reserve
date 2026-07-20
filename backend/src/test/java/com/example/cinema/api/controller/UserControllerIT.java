@@ -22,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,6 +58,9 @@ class UserControllerIT {
 
     @Autowired
     private UserService userService;
+
+    @MockBean
+    private JavaMailSender javaMailSender;
 
     @BeforeEach
     void setup() {
@@ -148,7 +153,7 @@ class UserControllerIT {
 
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
 
-        mockMvc.perform(post("/api/users/me/confirmar-email")
+        mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -166,7 +171,7 @@ class UserControllerIT {
 
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO("123456");
 
-        mockMvc.perform(post("/api/users/me/confirmar-email")
+        mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -182,7 +187,7 @@ class UserControllerIT {
 
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
 
-        mockMvc.perform(post("/api/users/me/confirmar-email")
+        mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -195,7 +200,7 @@ class UserControllerIT {
 
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO("000000");
 
-        mockMvc.perform(post("/api/users/me/confirmar-email")
+        mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -206,7 +211,7 @@ class UserControllerIT {
     void testConfirmarEmailWithoutToken() throws Exception {
         ConfirmarEmailDTO dto = new ConfirmarEmailDTO("123456");
 
-        mockMvc.perform(post("/api/users/me/confirmar-email")
+        mockMvc.perform(post("/api/users/me/email-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
