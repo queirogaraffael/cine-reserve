@@ -42,6 +42,7 @@ class MigrationSchemaIT {
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        registry.add("spring.jpa.database-platform", () -> "org.hibernate.dialect.PostgreSQLDialect");
 
         registry.add("spring.flyway.enabled", () -> "true");
 
@@ -62,19 +63,23 @@ class MigrationSchemaIT {
             "movie",
             "cinema",
             "movie_exhibition",
-            "room",
+            "rooms",
+            "seats",
             "movie_session",
             "users",
-            "confirmacoes_cadastro",
-            "purchase",
+            "registration_confirmations",
+            "orders",
+            "order_items",
             "payment",
-            "tickets",
+            "ticket_types",
+            "promotions",
             "seat_reservations");
 
     private static final List<String> EXPECTED_INDEXES = List.of(
             "idx_movie_genre_id",
             "idx_movie_release_date",
             "idx_room_name_cinema",
+            "idx_seat_room",
             "idx_movie_exhibition_movie_id",
             "idx_movie_exhibition_cinema_id",
             "idx_movie_session_exhibition_id",
@@ -82,16 +87,15 @@ class MigrationSchemaIT {
             "idx_movie_session_show_date",
             "idx_movie_session_available",
             "idx_users_is_locked",
-            "idx_confirmacao_usuario_id",
-            "idx_purchase_user_id",
-            "idx_purchase_status",
-            "idx_purchase_user_status",
+            "idx_registration_user_id",
+            "idx_order_user_id",
+            "idx_order_status",
+            "idx_order_item_order_id",
+            "idx_order_item_ticket_type_id",
             "idx_payment_transaction_id",
             "idx_payment_status",
-            "idx_ticket_purchase_id",
-            "idx_ticket_session_id",
             "idx_seat_reservation_session_id",
-            "idx_seat_reservation_user_id",
+            "idx_seat_reservation_order_id",
             "idx_seat_reservation_active");
 
     @Test
