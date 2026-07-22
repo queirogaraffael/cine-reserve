@@ -174,12 +174,13 @@ CREATE TABLE ticket_types (
 
 CREATE TABLE promotions (
     id                  BIGSERIAL      PRIMARY KEY,
-    name                VARCHAR(255)   NOT NULL UNIQUE,
-    description         VARCHAR(255)   NOT NULL,
-    discount_percentage NUMERIC(5, 2)  NOT NULL,
-    start_date          TIMESTAMP      NOT NULL,
-    end_date            TIMESTAMP      NOT NULL,
-    is_active           BOOLEAN        NOT NULL DEFAULT TRUE
+    name                VARCHAR(255)   NOT NULL,
+    cinema_id           BIGINT         NOT NULL REFERENCES cinema(id),
+    day_of_week         VARCHAR(20),
+    target_session_id   BIGINT         REFERENCES movie_session(id),
+    discount_percentage NUMERIC(5, 2),
+    fixed_price         NUMERIC(10, 2),
+    active              BOOLEAN        NOT NULL DEFAULT TRUE
 );
 
 
