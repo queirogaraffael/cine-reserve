@@ -1,4 +1,4 @@
-package com.example.cinema.api.application.startup;
+package com.example.cinema.api.infrastructure.startup;
 
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;

@@ -1,4 +1,4 @@
-package com.example.cinema.api.infrastructure.config;
+package com.example.cinema.api.infrastructure.startup;
 
 import com.example.cinema.api.domain.cinema.Cinema;
 import com.example.cinema.api.domain.room.Room;
