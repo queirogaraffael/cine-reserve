@@ -26,5 +26,5 @@ public class UserRequestDTO {
     private String password;
 
     @NotBlank(message = "O celular é obrigatório.")
-    private String celular;
+    private String phone;
 }

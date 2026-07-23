@@ -1,6 +1,6 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.application.dto.user.ConfirmarEmailDTO;
+import com.example.cinema.api.application.dto.user.ConfirmEmailDTO;
 import com.example.cinema.api.application.service.RegistrationConfirmationService;
 import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +34,8 @@ public class RegistrationController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<Void> confirmEmail(@AuthenticationPrincipal AuthenticatedUser principal,
-                                             @RequestBody @Valid ConfirmarEmailDTO data) {
-        confirmationService.confirmEmail(principal.getId(), data.getCodigo());
+                                             @RequestBody @Valid ConfirmEmailDTO data) {
+        confirmationService.confirmEmail(principal.getId(), data.getToken());
         return ResponseEntity.ok().build();
     }
 

@@ -2,7 +2,7 @@ package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.application.dto.user.*;
 import com.example.cinema.api.application.mapper.UserMapper;
-import com.example.cinema.api.domain.user.Endereco;
+import com.example.cinema.api.domain.user.Address;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.event.UserCreatedEvent;
@@ -63,7 +63,7 @@ public class UserService implements UserDetailsService {
                 data.getName(),
                 normalizedEmail,
                 encryptedPassword,
-                data.getCelular(),
+                data.getPhone(),
                 LocalDate.now(),
                 UserRole.USER
         );
@@ -90,7 +90,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserContextDTO updateProfile(UUID userId, UserProfileUpdateDTO data) {
         User user = findById(userId);
-        user.completarPerfil(data.getSexo(), data.getBirthdate(), data.getCpf());
+        user.completeProfile(data.getGender(), data.getBirthdate(), data.getCpf());
         userRepositoryJpa.save(user);
         return getUserProfile(userId);
     }
@@ -98,16 +98,16 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserContextDTO updateAddress(UUID userId, UserAddressUpdateDTO data) {
         User user = findById(userId);
-        Endereco endereco = new Endereco(
-                data.getCep(),
-                data.getLogradouro(),
-                data.getNumero(),
-                data.getComplemento(),
-                data.getBairro(),
-                data.getCidade(),
-                data.getEstado()
+        Address address = new Address(
+                data.getZipCode(),
+                data.getStreet(),
+                data.getNumber(),
+                data.getComplement(),
+                data.getNeighborhood(),
+                data.getCity(),
+                data.getState()
         );
-        user.atualizarEndereco(endereco);
+        user.updateAddress(address);
         userRepositoryJpa.save(user);
         return getUserProfile(userId);
     }
@@ -132,11 +132,11 @@ public class UserService implements UserDetailsService {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getCelular(),
-                user.getSexo(),
-                user.isEmailConfirmado(),
-                user.isAtivo(),
-                user.getEndereco(),
+                user.getPhone(),
+                user.getGender(),
+                user.isEmailConfirmed(),
+                user.isActive(),
+                user.getAddress(),
                 user.getRole()
         );
     }

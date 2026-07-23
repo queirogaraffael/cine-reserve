@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConfirmarEmailDTO {
+public class ConfirmEmailDTO {
 
     @NotBlank(message = "O código é obrigatório.")
     @Size(min = 6, max = 6, message = "O código deve ter 6 dígitos.")
-    private String codigo;
+    private String token;
 }

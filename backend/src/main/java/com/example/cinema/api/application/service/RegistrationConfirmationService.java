@@ -66,7 +66,7 @@ public class RegistrationConfirmationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
 
-        user.marcarEmailComoConfirmado();
+        user.markEmailAsConfirmed();
         userRepository.save(user);
     }
 
@@ -75,7 +75,7 @@ public class RegistrationConfirmationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
 
-        if (user.isEmailConfirmado()) {
+        if (user.isEmailConfirmed()) {
             throw new EmailAlreadyConfirmedException("O e-mail deste usuário já foi confirmado.");
         }
 

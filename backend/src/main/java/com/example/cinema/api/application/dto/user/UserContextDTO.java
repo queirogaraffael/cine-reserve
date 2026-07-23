@@ -1,7 +1,7 @@
 package com.example.cinema.api.application.dto.user;
 
-import com.example.cinema.api.domain.user.Endereco;
-import com.example.cinema.api.domain.user.Sexo;
+import com.example.cinema.api.domain.user.Address;
+import com.example.cinema.api.domain.user.Gender;
 import com.example.cinema.api.domain.user.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,10 +16,10 @@ public class UserContextDTO {
     private UUID id;
     private String name;
     private String email;
-    private String celular;
-    private Sexo sexo;
-    private boolean emailConfirmado;
-    private boolean ativo;
-    private Endereco endereco;
+    private String phone;
+    private Gender gender;
+    private boolean emailConfirmed;
+    private boolean active;
+    private Address address;
     private UserRole role;
 }
