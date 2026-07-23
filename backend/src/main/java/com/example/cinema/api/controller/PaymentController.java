@@ -23,8 +23,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/payments")
+@Tag(name = "Payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -102,16 +105,6 @@ public class PaymentController {
         return ResponseEntity.created(uri).body(paymentResponse);
     }
 
-    @Operation(summary = "Consultar status do pagamento")
-    @PreAuthorize("hasRole('USER')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{id}/status")
-    public ResponseEntity<PaymentStatus> getPaymentStatus(@Parameter(description = "ID do pagamento", example = "42") @PathVariable("id") Long idPayment) {
-
-        return ResponseEntity.ok()
-                .cacheControl(noCache)
-                .body(paymentService.getPaymentStatus(idPayment));
-    }
 
     @Operation(summary = "Busca um pagamento pelo ID", description = "Retorna os detalhes de um pagamento específico")
     @ApiResponses(value = {
