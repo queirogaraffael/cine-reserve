@@ -41,19 +41,19 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String celular;
+    private String phone;
 
     @Enumerated(EnumType.STRING)
-    private Sexo sexo;
+    private Gender gender;
 
     @Embedded
-    private Endereco endereco;
+    private Address address;
 
-    @Column(name = "email_confirmado", nullable = false)
-    private boolean emailConfirmado = false;
+    @Column(name = "email_confirmed", nullable = false)
+    private boolean emailConfirmed = false;
 
-    @Column(name = "ativo", nullable = false)
-    private boolean ativo = true;
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
     private LocalDate dataJoined;
 
@@ -74,36 +74,36 @@ public class User implements UserDetails {
 
 
 
-    public User(String name, String email, String password, String celular, LocalDate dataJoined, UserRole role) {
+    public User(String name, String email, String password, String phone, LocalDate dataJoined, UserRole role) {
         this.name = name;
         this.email = email != null ? email.trim().toLowerCase() : null;
         this.password = password;
-        this.celular = celular;
+        this.phone = phone;
         this.dataJoined = dataJoined;
         this.role = role;
-        this.emailConfirmado = false;
-        this.ativo = true;
+        this.emailConfirmed = false;
+        this.active = true;
     }
 
-    public User(String cpf, String name, String email, String password, String celular, Sexo sexo, Endereco endereco, boolean emailConfirmado, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
+    public User(String cpf, String name, String email, String password, String phone, Gender gender, Address address, boolean emailConfirmed, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
         this.cpf = cpf;
         this.name = name;
         this.email = email != null ? email.trim().toLowerCase() : null;
         this.password = password;
-        this.celular = celular;
-        this.sexo = sexo;
-        this.endereco = endereco;
-        this.emailConfirmado = emailConfirmado;
+        this.phone = phone;
+        this.gender = gender;
+        this.address = address;
+        this.emailConfirmed = emailConfirmed;
         this.dataJoined = dataJoined;
         validateBirthdate(birthdate);
         this.birthdate = birthdate;
         this.role = role;
-        this.ativo = true;
+        this.active = true;
     }
 
-    public void completarPerfil(Sexo sexo, LocalDate birthdate, String cpf) {
-        if (sexo != null) {
-            this.sexo = sexo;
+    public void completeProfile(Gender gender, LocalDate birthdate, String cpf) {
+        if (gender != null) {
+            this.gender = gender;
         }
         if (birthdate != null) {
             validateBirthdate(birthdate);
@@ -123,24 +123,24 @@ public class User implements UserDetails {
         }
     }
 
-    public void ativar() {
-        this.ativo = true;
+    public void activate() {
+        this.active = true;
     }
 
-    public void desativar() {
-        this.ativo = false;
+    public void deactivate() {
+        this.active = false;
     }
 
-    public boolean isAtivo() {
-        return this.ativo;
+    public boolean isActive() {
+        return this.active;
     }
 
-    public void atualizarEndereco(Endereco endereco) {
-        this.endereco = endereco;
+    public void updateAddress(Address address) {
+        this.address = address;
     }
 
-    public void marcarEmailComoConfirmado() {
-        this.emailConfirmado = true;
+    public void markEmailAsConfirmed() {
+        this.emailConfirmed = true;
     }
 
     @Override
@@ -180,7 +180,7 @@ public class User implements UserDetails {
 
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return this.ativo; }
+    @Override public boolean isEnabled() { return this.active; }
 
     public void changePassword(String newPassword) {
         if (newPassword == null || newPassword.isBlank()) {
