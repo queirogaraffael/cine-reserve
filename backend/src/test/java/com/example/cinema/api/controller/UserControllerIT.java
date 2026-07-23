@@ -24,6 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.mockito.Mockito;
+import jakarta.mail.internet.MimeMessage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,6 +69,7 @@ class UserControllerIT {
     void setup() {
         confirmacaoRepositoryJpa.deleteAll();
         userRepositoryJpa.deleteAll();
+        Mockito.when(javaMailSender.createMimeMessage()).thenReturn(Mockito.mock(MimeMessage.class));
     }
 
     @Test
