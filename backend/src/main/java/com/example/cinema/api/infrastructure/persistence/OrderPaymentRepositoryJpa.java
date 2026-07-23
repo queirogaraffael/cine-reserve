@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.persistence;
 
-import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.payment.OrderPayment;
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
@@ -13,12 +13,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
-    Optional<Payment> findByOrderId(Long orderId);
+public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, Long> {
+    Optional<OrderPayment> findByOrderId(Long orderId);
 
     @Query("""
         SELECT p.paymentStatus
-        FROM Payment p
+        FROM OrderPayment p
         WHERE p.id = :id
     """)
     Optional<PaymentStatus> findStatusById(@Param("id") Long id);
@@ -33,7 +33,7 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
             p.statusDetail,
             p.order.id
         )
-        FROM Payment p
+        FROM OrderPayment p
         WHERE p.id = :id
     """)
     Optional<PaymentGetResponseDTO> findPaymentById(@Param("id") Long id);
@@ -50,7 +50,7 @@ public interface PaymentRepositoryJpa extends JpaRepository<Payment, Long> {
         p.statusDetail,
         p.order.id
     )
-    FROM Payment p
+    FROM OrderPayment p
     WHERE p.order.id = :orderId
       AND p.order.user.id = :userId
     """)

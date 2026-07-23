@@ -1,12 +1,12 @@
 package com.example.cinema.api.application.service;
 
 import com.example.cinema.api.application.exception.InvalidPaymentSnapshotException;
-import com.example.cinema.api.domain.payment.Payment;
+import com.example.cinema.api.domain.payment.OrderPayment;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.order.OrderStatus;
-import com.example.cinema.api.infrastructure.persistence.PaymentRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.OrderPaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PaymentUpdateService {
 
-    private final PaymentRepositoryJpa paymentRepositoryJpa;
+    private final OrderPaymentRepositoryJpa paymentRepositoryJpa;
 
-    public PaymentUpdateService(PaymentRepositoryJpa paymentRepositoryJpa) {
+    public PaymentUpdateService(OrderPaymentRepositoryJpa paymentRepositoryJpa) {
         this.paymentRepositoryJpa = paymentRepositoryJpa;
     }
 
@@ -31,7 +31,7 @@ public class PaymentUpdateService {
 
         Long orderId = snapshot.externalReference();
 
-        Payment payment = paymentRepositoryJpa.findByOrderId(orderId)
+        OrderPayment payment = paymentRepositoryJpa.findByOrderId(orderId)
                 .orElseThrow(() -> new PaymentNotFoundException(
                         "Pagamento nao encontrado para orderId: " + orderId));
 

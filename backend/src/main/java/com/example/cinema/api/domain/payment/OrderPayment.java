@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-public class Payment {
+@Table(name = "order_payment")
+public class OrderPayment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +45,7 @@ public class Payment {
     @ToString.Exclude
     private Order order;
 
-    public Payment(Order order, PaymentType paymentMethod) {
+    public OrderPayment(Order order, PaymentType paymentMethod) {
 
         if (order == null) {
             throw new IllegalArgumentException("O pedido é obrigatório para criar um pagamento.");
