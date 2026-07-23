@@ -70,7 +70,7 @@ class MigrationSchemaIT {
             "registration_confirmations",
             "orders",
             "order_items",
-            "payment",
+            "order_payment",
             "ticket_types",
             "promotions",
             "seat_reservations");
@@ -92,8 +92,8 @@ class MigrationSchemaIT {
             "idx_order_status",
             "idx_order_item_order_id",
             "idx_order_item_ticket_type_id",
-            "idx_payment_transaction_id",
-            "idx_payment_status",
+            "idx_order_payment_transaction_id",
+            "idx_order_payment_status",
             "idx_seat_reservation_session_id",
             "idx_seat_reservation_order_id",
             "idx_seat_reservation_active");
