@@ -1,12 +1,12 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.application.dto.user.ConfirmarEmailDTO;
+import com.example.cinema.api.application.dto.user.ConfirmEmailDTO;
 import com.example.cinema.api.application.dto.user.UserAddressUpdateDTO;
 import com.example.cinema.api.application.dto.user.UserProfileUpdateDTO;
 import com.example.cinema.api.application.dto.user.UserRequestDTO;
 import com.example.cinema.api.application.service.UserService;
 import com.example.cinema.api.domain.registration.RegistrationConfirmation;
-import com.example.cinema.api.domain.user.Sexo;
+import com.example.cinema.api.domain.user.Gender;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.RegistrationConfirmationRepositoryJpa;
@@ -128,7 +128,7 @@ class UserControllerIT {
     }
 
     @Test
-    void testRegisterWithoutCelular() throws Exception {
+    void testRegisterWithoutPhone() throws Exception {
         UserRequestDTO request = new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", null);
 
         mockMvc.perform(post("/api/users")
@@ -155,7 +155,7 @@ class UserControllerIT {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
         RegistrationConfirmation confirmacao = confirmacaoRepositoryJpa.findByUserIdAndUsedFalse(created.getId()).orElseThrow();
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
+        ConfirmEmailDTO dto = new ConfirmEmailDTO(confirmacao.getCode());
 
         mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
@@ -164,7 +164,7 @@ class UserControllerIT {
                 .andExpect(status().isOk());
 
         User user = userRepositoryJpa.findById(created.getId()).orElseThrow();
-        assertTrue(user.isEmailConfirmado());
+        assertTrue(user.isEmailConfirmed());
     }
 
     @Test
@@ -173,7 +173,7 @@ class UserControllerIT {
         confirmacaoRepositoryJpa.deleteByUserId(created.getId());
         confirmacaoRepositoryJpa.save(new RegistrationConfirmation(created.getId(), "123456", LocalDateTime.now().minusMinutes(20)));
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO("123456");
+        ConfirmEmailDTO dto = new ConfirmEmailDTO("123456");
 
         mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
@@ -189,7 +189,7 @@ class UserControllerIT {
         confirmacao.markAsUsed();
         confirmacaoRepositoryJpa.save(confirmacao);
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO(confirmacao.getCode());
+        ConfirmEmailDTO dto = new ConfirmEmailDTO(confirmacao.getCode());
 
         mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
@@ -202,7 +202,7 @@ class UserControllerIT {
     void testConfirmarEmailWrongCode() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
 
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO("000000");
+        ConfirmEmailDTO dto = new ConfirmEmailDTO("000000");
 
         mockMvc.perform(post("/api/users/me/email-verification")
                         .header("Authorization", "Bearer " + created.getAccessToken())
@@ -213,7 +213,7 @@ class UserControllerIT {
 
     @Test
     void testConfirmarEmailWithoutToken() throws Exception {
-        ConfirmarEmailDTO dto = new ConfirmarEmailDTO("123456");
+        ConfirmEmailDTO dto = new ConfirmEmailDTO("123456");
 
         mockMvc.perform(post("/api/users/me/email-verification")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -224,32 +224,32 @@ class UserControllerIT {
     @Test
     void testUpdateProfileSuccess() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.of(1995, 5, 10), "12345678909");
+        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Gender.MALE, LocalDate.of(1995, 5, 10), "12345678909");
 
         mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sexo").value("MASCULINO"));
+                .andExpect(jsonPath("$.gender").value("MALE"));
     }
 
     @Test
     void testUpdateProfileSubset() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.FEMININO, null, null);
+        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Gender.FEMALE, null, null);
 
         mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sexo").value("FEMININO"));
+                .andExpect(jsonPath("$.gender").value("FEMALE"));
     }
 
     @Test
     void testUpdateProfileWithoutToken() throws Exception {
-        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.of(1995, 5, 10), "12345678909");
+        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Gender.MALE, LocalDate.of(1995, 5, 10), "12345678909");
 
         mockMvc.perform(patch("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -267,8 +267,8 @@ class UserControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.endereco.cidade").value("São Paulo"))
-                .andExpect(jsonPath("$.endereco.estado").value("SP"));
+                .andExpect(jsonPath("$.address.city").value("São Paulo"))
+                .andExpect(jsonPath("$.address.state").value("SP"));
     }
 
     @Test
@@ -290,7 +290,8 @@ class UserControllerIT {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").value(created.getId().toString()))
                         .andExpect(jsonPath("$.email").value("raffael@example.com"))
-                        .andExpect(jsonPath("$.emailConfirmado").value(false))
+                        .andExpect(jsonPath("$.emailConfirmed").value(false))
+                        .andExpect(jsonPath("$.active").value(true))
                         .andExpect(jsonPath("$.username").doesNotExist());
     }
 
@@ -314,7 +315,7 @@ class UserControllerIT {
     @Test
     void testUpdateProfileUnderageUser() throws Exception {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
-        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.now().minusYears(16), "12345678909");
+        UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Gender.MALE, LocalDate.now().minusYears(16), "12345678909");
 
         mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())

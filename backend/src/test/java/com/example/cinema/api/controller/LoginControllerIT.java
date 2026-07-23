@@ -143,7 +143,7 @@ class LoginControllerIT {
     @Test
     void testLoginDisabledUser() throws Exception {
         User user = new User("123.456.789-00", "Raffael Queiroga", "raffael@example.com", passwordEncoder.encode("senha123456"), "11999999999", null, null, true, LocalDate.now(), LocalDate.of(1998, 1, 1), UserRole.USER);
-        user.desativar();
+        user.deactivate();
         userRepositoryJpa.save(user);
 
         UserLoginDTO loginDTO = new UserLoginDTO("raffael@example.com", "senha123456");
