@@ -54,7 +54,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<UserContextDTO> updateProfile(@AuthenticationPrincipal AuthenticatedUser principal,
                                                         @RequestBody @Valid UserProfileUpdateDTO data) {
         return ResponseEntity.ok(userService.updateProfile(principal.getId(), data));
@@ -67,7 +67,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PutMapping("/me/endereco")
+    @PatchMapping("/me/address")
     public ResponseEntity<UserContextDTO> updateAddress(@AuthenticationPrincipal AuthenticatedUser principal,
                                                         @RequestBody @Valid UserAddressUpdateDTO data) {
         return ResponseEntity.ok(userService.updateAddress(principal.getId(), data));
@@ -91,7 +91,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping("/change-password")
+    @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal AuthenticatedUser principal,
                                                @RequestBody @Valid ChangePasswordData data) {
         userService.changePassword(principal.getId(), data);

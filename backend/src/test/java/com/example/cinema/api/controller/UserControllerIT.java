@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -222,7 +223,7 @@ class UserControllerIT {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
         UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.of(1995, 5, 10), "12345678909");
 
-        mockMvc.perform(put("/api/users/me")
+        mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -235,7 +236,7 @@ class UserControllerIT {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
         UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.FEMININO, null, null);
 
-        mockMvc.perform(put("/api/users/me")
+        mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -247,7 +248,7 @@ class UserControllerIT {
     void testUpdateProfileWithoutToken() throws Exception {
         UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.of(1995, 5, 10), "12345678909");
 
-        mockMvc.perform(put("/api/users/me")
+        mockMvc.perform(patch("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
@@ -258,7 +259,7 @@ class UserControllerIT {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
         UserAddressUpdateDTO dto = new UserAddressUpdateDTO("01001-000", "Praça da Sé", "100", "Apto 10", "Sé", "São Paulo", "SP");
 
-        mockMvc.perform(put("/api/users/me/endereco")
+        mockMvc.perform(patch("/api/users/me/address")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -271,7 +272,7 @@ class UserControllerIT {
     void testUpdateAddressWithoutToken() throws Exception {
         UserAddressUpdateDTO dto = new UserAddressUpdateDTO("01001-000", "Praça da Sé", "100", "Apto 10", "Sé", "São Paulo", "SP");
 
-        mockMvc.perform(put("/api/users/me/endereco")
+        mockMvc.perform(patch("/api/users/me/address")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
@@ -312,7 +313,7 @@ class UserControllerIT {
         var created = userService.createUser(new UserRequestDTO("Raffael Queiroga", "raffael@example.com", "senha123456", "11999999999"), "dev-1", "agent-1", "127.0.0.1");
         UserProfileUpdateDTO dto = new UserProfileUpdateDTO(Sexo.MASCULINO, LocalDate.now().minusYears(16), "12345678909");
 
-        mockMvc.perform(put("/api/users/me")
+        mockMvc.perform(patch("/api/users/me")
                         .header("Authorization", "Bearer " + created.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
