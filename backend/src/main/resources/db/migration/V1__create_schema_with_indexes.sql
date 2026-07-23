@@ -146,7 +146,7 @@ CREATE INDEX idx_order_session_id ON orders(session_id);
 CREATE INDEX idx_order_status ON orders(status);
 
 
-CREATE TABLE payment (
+CREATE TABLE order_payment (
     id              BIGSERIAL      PRIMARY KEY,
     payment_date    TIMESTAMP,
     transaction_id  BIGINT,
@@ -157,8 +157,8 @@ CREATE TABLE payment (
     order_id        BIGINT         NOT NULL UNIQUE REFERENCES orders(id)
 );
 
-CREATE INDEX idx_payment_transaction_id ON payment(transaction_id);
-CREATE INDEX idx_payment_status ON payment(payment_status);
+CREATE INDEX idx_order_payment_transaction_id ON order_payment(transaction_id);
+CREATE INDEX idx_order_payment_status ON order_payment(payment_status);
 
 
 CREATE TABLE ticket_types (
