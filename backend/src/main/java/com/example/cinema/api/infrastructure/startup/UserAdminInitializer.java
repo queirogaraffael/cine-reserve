@@ -5,12 +5,14 @@ import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
 @Component
+@Profile("dev")
 public class UserAdminInitializer implements CommandLineRunner {
 
     @Value("${app.admin.password}")
