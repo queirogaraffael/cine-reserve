@@ -33,8 +33,8 @@ public class MovieService {
 
     @Transactional
     @CachePut(value = "movies", key = "#result.id")
-    public MovieResponseDTO createMovie(Long genreId, MovieRequestDTO dto) {
-        Genre genre = genreRepository.findById(genreId).orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
+    public MovieResponseDTO createMovie(MovieRequestDTO dto) {
+        Genre genre = genreRepository.findById(dto.getGenreId()).orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         Movie movie = new Movie(dto.getTitle(), dto.getDescription(), dto.getReleaseDate(), dto.getDuration(), dto.getImageUrl(), genre, dto.getRating(), dto.isPreRelease());
 

@@ -23,7 +23,7 @@ public class MovieExhibitionController {
         this.movieExhibitionService = movieExhibitionService;
     }
 
-    @GetMapping({"/api/cinemas/{cinemaId}/exibicoes", "/api/cinemas/{cinemaId}/exhibitions"})
+    @GetMapping("/api/cinemas/{cinemaId}/exhibitions")
     public ResponseEntity<List<MovieExhibitionCardDTO>> listExhibitions(
             @PathVariable Long cinemaId,
             MovieListingFilterDTO filter
@@ -32,25 +32,25 @@ public class MovieExhibitionController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping({"/api/exibicoes", "/api/exhibitions"})
+    @PostMapping("/api/exhibitions")
     public ResponseEntity<MovieExhibitionCardDTO> createExhibition(@Valid @RequestBody MovieExhibitionRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(movieExhibitionService.createExhibition(dto));
     }
 
-    @GetMapping({"/api/exibicoes/{id}", "/api/exhibitions/{id}"})
+    @GetMapping("/api/exhibitions/{id}")
     public ResponseEntity<MovieExhibitionCardDTO> getExhibitionById(@PathVariable Long id) {
         return ResponseEntity.ok(movieExhibitionService.getExhibitionById(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping({"/api/exibicoes/{id}/activate", "/api/exhibitions/{id}/activate"})
+    @PatchMapping("/api/exhibitions/{id}/activate")
     public ResponseEntity<Void> activateExhibition(@PathVariable Long id) {
         movieExhibitionService.activateExhibition(id);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping({"/api/exibicoes/{id}/deactivate", "/api/exhibitions/{id}/deactivate"})
+    @PatchMapping("/api/exhibitions/{id}/deactivate")
     public ResponseEntity<Void> deactivateExhibition(@PathVariable Long id) {
         movieExhibitionService.deactivateExhibition(id);
         return ResponseEntity.noContent().build();

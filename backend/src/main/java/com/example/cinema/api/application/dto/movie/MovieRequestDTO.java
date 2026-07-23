@@ -19,5 +19,6 @@ public class MovieRequestDTO {
     private String imageUrl;
     private MovieRating rating;
     private boolean preRelease;
+    private Long genreId;
 
 }

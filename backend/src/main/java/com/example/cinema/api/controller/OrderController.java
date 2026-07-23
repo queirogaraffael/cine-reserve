@@ -22,7 +22,7 @@ import java.net.URI;
 
 @Tag(name = "Orders")
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;

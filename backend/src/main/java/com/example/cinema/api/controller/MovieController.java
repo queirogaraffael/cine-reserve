@@ -38,9 +38,9 @@ public class MovieController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping("/{genreId}")
-    public ResponseEntity<MovieResponseDTO> createMovie(@RequestBody @Valid MovieRequestDTO dto, @PathVariable Long genreId) {
-        MovieResponseDTO movieResponseDTO = movieService.createMovie(genreId, dto);
+    @PostMapping()
+    public ResponseEntity<MovieResponseDTO> createMovie(@RequestBody @Valid MovieRequestDTO dto) {
+        MovieResponseDTO movieResponseDTO = movieService.createMovie(dto);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(movieResponseDTO.getId()).toUri();

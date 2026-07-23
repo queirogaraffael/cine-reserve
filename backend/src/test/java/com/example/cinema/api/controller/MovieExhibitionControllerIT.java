@@ -60,7 +60,7 @@ class MovieExhibitionControllerIT {
         movieExhibitionRepositoryJpa.save(ex1);
         movieExhibitionRepositoryJpa.save(ex2);
 
-        mockMvc.perform(get("/api/cinemas/" + cinema.getId() + "/exibicoes"))
+        mockMvc.perform(get("/api/cinemas/" + cinema.getId() + "/exhibitions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].duration").value(150))
@@ -78,7 +78,7 @@ class MovieExhibitionControllerIT {
         movieExhibitionRepositoryJpa.save(ex1);
         movieExhibitionRepositoryJpa.save(ex2);
 
-        mockMvc.perform(get("/api/cinemas/" + cinema.getId() + "/exibicoes")
+        mockMvc.perform(get("/api/cinemas/" + cinema.getId() + "/exhibitions")
                         .param("format", "F2D"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
