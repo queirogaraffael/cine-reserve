@@ -24,11 +24,11 @@ public class MercadoPagoPaymentService implements ExternalPaymentProvider {
     public ExternalPaymentSnapshot getPayment(Long paymentId) {
 
         try {
-            Payment payment = paymentClient.get(paymentId);
+            Payment mpPayment = paymentClient.get(paymentId);
 
-            return new ExternalPaymentSnapshot(payment.getExternalReference() != null ? Long.valueOf(payment.getExternalReference()) : null,
-                    payment.getStatus(),
-                    payment.getStatusDetail()
+            return new ExternalPaymentSnapshot(mpPayment.getExternalReference() != null ? Long.valueOf(mpPayment.getExternalReference()) : null,
+                    mpPayment.getStatus(),
+                    mpPayment.getStatusDetail()
             );
 
         } catch (MPApiException e) {

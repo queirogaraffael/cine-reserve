@@ -68,27 +68,27 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
 
             log.info("Iniciando criação de pagamento PIX. purchaseId={}", purchase.id());
 
-            Payment payment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
+            Payment mpPayment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
 
             log.info("Pagamento PIX criado. purchaseId={} transactionId={} status={}",
-                    purchase.id(), payment.getId(), payment.getStatus());
+                    purchase.id(), mpPayment.getId(), mpPayment.getStatus());
             log.info("AUDIT: Dados pessoais transmitidos ao Mercado Pago. purchaseId={} dataTypes=[cpf,email]",
                     purchase.id());
 
-            if (payment.getPointOfInteraction() == null || payment.getPointOfInteraction().getTransactionData() == null) {
-                throw new ApiPagamentoException("Resposta do PIX sem dados de transação. transactionId=" + payment.getId(), null);
+            if (mpPayment.getPointOfInteraction() == null || mpPayment.getPointOfInteraction().getTransactionData() == null) {
+                throw new ApiPagamentoException("Resposta do PIX sem dados de transação. transactionId=" + mpPayment.getId(), null);
             }
 
-            var data = payment.getPointOfInteraction().getTransactionData();
+            var data = mpPayment.getPointOfInteraction().getTransactionData();
 
-            ZonedDateTime confirmedExpiration = (payment.getDateOfExpiration() != null)
-                    ? payment.getDateOfExpiration().toZonedDateTime()
+            ZonedDateTime confirmedExpiration = (mpPayment.getDateOfExpiration() != null)
+                    ? mpPayment.getDateOfExpiration().toZonedDateTime()
                     : expirationDate;
 
             return new PixGatewayResult(
-                    payment.getId(),
-                    payment.getStatus(),
-                    payment.getStatusDetail(),
+                    mpPayment.getId(),
+                    mpPayment.getStatus(),
+                    mpPayment.getStatusDetail(),
                     data.getQrCode(),
                     data.getQrCodeBase64(),
                     data.getTicketUrl(),
@@ -126,24 +126,24 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
 
             log.info("Iniciando criação de pagamento com cartão. purchaseId={}", purchase.id());
 
-            Payment payment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
+            Payment mpPayment = paymentClientMercadoPago.create(paymentCreateRequest, requestOptions);
 
             log.info("Pagamento com cartão criado. purchaseId={} transactionId={} status={}",
-                    purchase.id(), payment.getId(), payment.getStatus());
+                    purchase.id(), mpPayment.getId(), mpPayment.getStatus());
             log.info("AUDIT: Dados pessoais transmitidos ao Mercado Pago. purchaseId={} dataTypes=[cpf,email,address]",
                     purchase.id());
 
-            String lastFourDigits = (payment.getCard() != null)
-                    ? payment.getCard().getLastFourDigits()
+            String lastFourDigits = (mpPayment.getCard() != null)
+                    ? mpPayment.getCard().getLastFourDigits()
                     : null;
 
             return new CardGatewayResult(
-                    payment.getId(),
-                    payment.getStatus(),
-                    payment.getStatusDetail(),
+                    mpPayment.getId(),
+                    mpPayment.getStatus(),
+                    mpPayment.getStatusDetail(),
                     lastFourDigits,
-                    payment.getInstallments(),
-                    payment.getPaymentMethodId()
+                    mpPayment.getInstallments(),
+                    mpPayment.getPaymentMethodId()
             );
 
         } catch (MPException | MPApiException e) {
