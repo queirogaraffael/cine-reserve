@@ -1,24 +1,36 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.shared.TestUtils;
+import org.springframework.security.test.context.support.WithMockUser;
+import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.movie.MovieRating;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
-import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
+import com.example.cinema.api.application.dto.movie.MovieRequestDTO;
+import com.example.cinema.api.application.dto.movie.MovieUpdateDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Disabled
 class MovieControllerIT {
 
     @Autowired
@@ -33,28 +45,18 @@ class MovieControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private TestUtils testUtils;
-
-    @Autowired
-    private UserRepositoryJpa userRepositoryJpa;
-
     @BeforeEach
     void setup() throws Exception {
         movieRepositoryJpa.deleteAll();
         genreRepository.deleteAll();
-        userRepositoryJpa.deleteAll();
     }
 
-/*
+
     @Test
+    @WithMockUser(roles = "ADMIN")
     void createMovie_ReturnsCreated() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        Genre genero = new Genre();
-        genero.setName("Action");
-        Genre genre = genreRepository.save(genero);
+        Genre genre = genreRepository.save(new Genre("Action"));
 
         MovieRequestDTO dto = new MovieRequestDTO(
                 "Inception",
@@ -63,11 +65,11 @@ class MovieControllerIT {
                 148,
                 "http://image.url/inception.jpg",
                 MovieRating.LIVRE,
-                false
+                false,
+                genre.getId()
         );
 
-        mockMvc.perform(post("/api/movies/" + genre.getId())
-                        .header("Authorization", "Bearer " + token)
+        mockMvc.perform(post("/api/movies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -77,9 +79,7 @@ class MovieControllerIT {
 
     @Test
     void findById_ReturnsOk_WhenMovieExists() throws Exception {
-        Genre genero = new Genre();
-        genero.setName("Drama");
-        Genre genre = genreRepository.save(genero);
+        Genre genre = genreRepository.save(new Genre("Drama"));
 
         Movie saved = movieRepositoryJpa.save(new Movie(
                 "The Shawshank Redemption",
@@ -100,9 +100,7 @@ class MovieControllerIT {
 
     @Test
     void findAllPageable_ReturnsPagedResults() throws Exception {
-        Genre genero = new Genre();
-        genero.setName("Sci-Fi");
-        Genre genre = genreRepository.save(genero);
+        Genre genre = genreRepository.save(new Genre("Sci-Fi"));
 
         for (int i = 1; i <= 3; i++) {
             movieRepositoryJpa.save(new Movie(
@@ -125,9 +123,7 @@ class MovieControllerIT {
 
     @Test
     void findByTitleContainingIgnoreCase_ReturnsMatching() throws Exception {
-        Genre genero = new Genre();
-        genero.setName("Adventure");
-        Genre genre = genreRepository.save(genero);
+        Genre genre = genreRepository.save(new Genre("Adventure"));
 
         movieRepositoryJpa.save(new Movie("Jurassic World", "Dinosaurs in the modern world", LocalDate.of(2015, 6, 12), 124, "http://image.url/jurassicworld.jpg", genre, MovieRating.LIVRE, false));
         movieRepositoryJpa.save(new Movie("Jumanji", "A game that brings the jungle to life", LocalDate.of(2017, 12, 20), 119, "http://image.url/jumanji.jpg", genre, MovieRating.LIVRE, false));
@@ -139,8 +135,8 @@ class MovieControllerIT {
 
     @Test
     void findByGenreId_ReturnsGenreMovies() throws Exception {
-        Genre g1 = genreRepository.save(new Genre(null, "Comedy", null));
-        Genre g2 = genreRepository.save(new Genre(null, "Horror", null));
+        Genre g1 = genreRepository.save(new Genre("Comedy"));
+        Genre g2 = genreRepository.save(new Genre("Horror"));
 
         movieRepositoryJpa.save(new Movie("Funny Movie", "A hilarious comedy", LocalDate.now(), 90, "http://image.url/funny.jpg", g1, MovieRating.LIVRE, false));
         movieRepositoryJpa.save(new Movie("Scary Movie", "A terrifying horror film", LocalDate.now(), 95, "http://image.url/scary.jpg", g2, MovieRating.A16, false));
@@ -153,7 +149,7 @@ class MovieControllerIT {
 
     @Test
     void findByTitleAndGenreId_ReturnsFiltered() throws Exception {
-        Genre genre = genreRepository.save(new Genre(null, "Action", null));
+        Genre genre = genreRepository.save(new Genre("Action"));
         movieRepositoryJpa.save(new Movie("Avengers", "Heroes assemble", LocalDate.now(), 143, "", genre, MovieRating.A12, false));
         movieRepositoryJpa.save(new Movie("Avatar", "Another world", LocalDate.now(), 162, "", genre, MovieRating.A10, false));
 
@@ -163,12 +159,11 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void updateMovie_ReturnsOk_WhenSuccessful() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        Genre oldGenre = genreRepository.save(new Genre(null, "Thriller", null));
-        Genre newGenre = genreRepository.save(new Genre(null, "Mystery", null));
+        Genre oldGenre = genreRepository.save(new Genre("Thriller"));
+        Genre newGenre = genreRepository.save(new Genre("Mystery"));
         Movie movie = movieRepositoryJpa.save(new Movie(
                 "Old Title",
                 "Old Desc",
@@ -193,7 +188,6 @@ class MovieControllerIT {
         );
 
         mockMvc.perform(put("/api/movies/" + movie.getId())
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -208,35 +202,64 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void updateMovie_ReturnsNotFound_WhenMovieMissing() throws Exception {
-
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
 
         MovieUpdateDTO dto = new MovieUpdateDTO("Title", "Desc", LocalDate.now(), 100, "", 1L, MovieRating.LIVRE, null, null);
 
         mockMvc.perform(put("/api/movies/12345")
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void updateMovie_ReturnsNotFound_WhenGenreMissing() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        Genre genre = genreRepository.save(new Genre(null, "Original", null));
+        Genre genre = genreRepository.save(new Genre("Original"));
         Movie movie = movieRepositoryJpa.save(new Movie("Title", "Desc", LocalDate.now(), 100, "", genre, MovieRating.LIVRE, false));
 
         MovieUpdateDTO dto = new MovieUpdateDTO("Title", "Desc", LocalDate.now(), 100, "", 9999L, MovieRating.LIVRE, null, null);
 
         mockMvc.perform(put("/api/movies/" + movie.getId())
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
     }
 
- */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testDeleteMovie() throws Exception {
+
+        Genre genre = genreRepository.save(new Genre("Delete Genre"));
+        Movie movie = movieRepositoryJpa.save(new Movie("Title", "Desc", LocalDate.now(), 100, "", genre, MovieRating.LIVRE, false));
+
+        mockMvc.perform(delete("/api/movies/{id}", movie.getId()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/movies/{id}", movie.getId()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void createMovie_ReturnsForbidden_WhenUserIsNotAdmin() throws Exception {
+        MovieRequestDTO dto = new MovieRequestDTO(
+                "Inception", "A mind-bending thriller", LocalDate.of(2010, 7, 16),
+                148, "http://image.url/inception.jpg", MovieRating.LIVRE, false, 1L
+        );
+
+        mockMvc.perform(post("/api/movies")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteMovie_ReturnsUnauthorized_WhenAnonymous() throws Exception {
+        mockMvc.perform(delete("/api/movies/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }

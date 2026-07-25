@@ -1,10 +1,8 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.shared.TestUtils;
+import org.springframework.security.test.context.support.WithMockUser;
 import com.example.cinema.api.domain.movie.Movie;
 import com.example.cinema.api.domain.room.Room;
-import com.example.cinema.api.domain.ticket.TicketCategory;
-import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.application.service.MovieSessionService;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
@@ -49,22 +47,14 @@ class MovieSessionControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private TestUtils testUtils;
-
-    @Autowired
-    private UserRepositoryJpa userRepositoryJpa;
-
     @BeforeEach
     void setup() throws Exception {
-        userRepositoryJpa.deleteAll();
         movieRepositoryJpa.deleteAll();
         roomRepositoryJpa.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
-        userRepositoryJpa.deleteAll();
         movieRepositoryJpa.deleteAll();
         roomRepositoryJpa.deleteAll();
     }

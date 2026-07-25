@@ -1,16 +1,12 @@
 package com.example.cinema.api.controller;
 
-import com.example.cinema.api.shared.TestUtils;
+import org.springframework.security.test.context.support.WithMockUser;
 import com.example.cinema.api.domain.genre.Genre;
-import com.example.cinema.api.domain.ticket.TicketCategory;
-import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.infrastructure.persistence.GenreRepositoryJpa;
-import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.genre.GenreRequestDTO;
 import com.example.cinema.api.application.dto.genre.GenreUpdateDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Disabled
 class GenreControllerIT {
 
     @Autowired
@@ -40,28 +35,18 @@ class GenreControllerIT {
     @Autowired
     private GenreRepositoryJpa genreRepository;
 
-    @Autowired
-    private UserRepositoryJpa userRepositoryJpa;
-
-    @Autowired
-    private TestUtils testUtils;
-
-
     @BeforeEach
     void setup() throws Exception {
-        userRepositoryJpa.deleteAll();
         genreRepository.deleteAll();
     }
-/*
-    @Test
-    void testCreateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testCreateGenre() throws Exception {
 
         GenreRequestDTO genreRequestDTO = new GenreRequestDTO("Action");
 
         mockMvc.perform(post("/api/genres")
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreRequestDTO)))
                 .andExpect(status().isCreated())
@@ -72,10 +57,7 @@ class GenreControllerIT {
     @Test
     void testFindById() throws Exception {
 
-        Genre novoGenero = new Genre();
-        novoGenero.setName("Action");
-
-        Genre genre = genreRepository.save(novoGenero);
+        Genre genre = genreRepository.save(new Genre("Action"));
 
         mockMvc.perform(get("/api/genres/{id}", genre.getId()))
                 .andExpect(status().isOk())
@@ -86,13 +68,8 @@ class GenreControllerIT {
     @Test
     void testFindAllPageable() throws Exception {
 
-        Genre generoUm = new Genre();
-        generoUm.setName("Ação");
-        genreRepository.save(generoUm);
-
-        Genre generoDois = new Genre();
-        generoDois.setName("Drama");
-        genreRepository.save(generoDois);
+        genreRepository.save(new Genre("Ação"));
+        genreRepository.save(new Genre("Drama"));
 
         mockMvc.perform(get("/api/genres")
                         .param("page", "0")
@@ -104,13 +81,8 @@ class GenreControllerIT {
     @Test
     void testFindByNameContainingIgnoreCase() throws Exception {
 
-        Genre generoUm = new Genre();
-        generoUm.setName("Action");
-        genreRepository.save(generoUm);
-
-        Genre generoDois = new Genre();
-        generoDois.setName("Adventure");
-        genreRepository.save(generoDois);
+        genreRepository.save(new Genre("Action"));
+        genreRepository.save(new Genre("Adventure"));
 
         mockMvc.perform(get("/api/genres/search")
                         .param("name", "act")
@@ -123,18 +95,14 @@ class GenreControllerIT {
 
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testUpdateGenre() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        Genre genero = new Genre();
-        genero.setName("Action");
-        Genre generoSalvo = genreRepository.save(genero);
+        Genre generoSalvo = genreRepository.save(new Genre("Action"));
 
         GenreUpdateDTO genreUpdateDTO = new GenreUpdateDTO("Action Adventure");
 
         mockMvc.perform(put("/api/genres/{id}", generoSalvo.getId())
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreUpdateDTO)))
                 .andExpect(status().isOk())
@@ -142,26 +110,48 @@ class GenreControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testUpdateGenreConflict() throws Exception {
 
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        Genre generoUm = new Genre();
-        generoUm.setName("Action");
-        Genre generoUmSalvo = genreRepository.save(generoUm);
-
-        Genre generoDois = new Genre();
-        generoDois.setName("Adventure");
-        genreRepository.save(generoDois);
+        Genre generoUmSalvo = genreRepository.save(new Genre("Action"));
+        genreRepository.save(new Genre("Adventure"));
 
         GenreUpdateDTO genreUpdateDTO = new GenreUpdateDTO("Adventure");
 
         mockMvc.perform(put("/api/genres/{id}", generoUmSalvo.getId())
-                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(genreUpdateDTO)))
                 .andExpect(status().isConflict());
     }
+    
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testDeleteGenre() throws Exception {
 
- */
+        Genre saved = genreRepository.save(new Genre("To Delete"));
+
+        mockMvc.perform(delete("/api/genres/{id}", saved.getId()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/genres/{id}", saved.getId()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testCreateGenre_ReturnsForbidden_WhenUserIsNotAdmin() throws Exception {
+        GenreRequestDTO genreRequestDTO = new GenreRequestDTO("Action");
+
+        mockMvc.perform(post("/api/genres")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(genreRequestDTO)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testDeleteGenre_ReturnsUnauthorized_WhenAnonymous() throws Exception {
+        mockMvc.perform(delete("/api/genres/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }
