@@ -129,7 +129,14 @@ class MovieSessionExhibitionControllerIT {
 
     @Test
     void shouldReturnUnavailableStatusForSessionWithinCutoffWindow() throws Exception {
-        createSession(LocalDate.now(), LocalTime.now().plusMinutes(30), LocalTime.now().plusMinutes(150));
+        LocalTime start = LocalTime.now().plusMinutes(30);
+        LocalTime end = start.plusMinutes(120);
+        
+        if (end.isBefore(start)) {
+            end = LocalTime.MAX;
+        }
+
+        createSession(LocalDate.now(), start, end);
 
         mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
                 .andExpect(status().isOk())
