@@ -111,4 +111,16 @@ public class MovieController {
         return ResponseEntity.ok(movieResponseDTO);
     }
 
+    @Operation(summary = "Deletar filme", description = "Inativa (soft delete) um filme existente")
+    @ApiResponse(responseCode = "204", description = "Filme inativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Filme não encontrado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        movieService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

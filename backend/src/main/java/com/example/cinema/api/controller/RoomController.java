@@ -92,4 +92,16 @@ public class RoomController {
         return ResponseEntity.ok(updatedRoom);
     }
 
+    @Operation(summary = "Deletar sala", description = "Inativa (soft delete) uma sala existente")
+    @ApiResponse(responseCode = "204", description = "Sala inativada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Sala não encontrada")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
+        roomService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

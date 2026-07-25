@@ -1,6 +1,7 @@
 CREATE TABLE genre (
     id      BIGSERIAL    PRIMARY KEY,
-    name    VARCHAR(100) NOT NULL UNIQUE
+    name    VARCHAR(100) NOT NULL UNIQUE,
+    active  BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
 
@@ -14,6 +15,7 @@ CREATE TABLE movie (
     rating       VARCHAR(10)  NOT NULL,
     in_theaters  BOOLEAN      NOT NULL DEFAULT TRUE,
     pre_release  BOOLEAN      NOT NULL DEFAULT FALSE,
+    active       BOOLEAN      NOT NULL DEFAULT TRUE,
     genre_id     BIGINT       NOT NULL REFERENCES genre(id)
 );
 
@@ -35,6 +37,7 @@ CREATE TABLE cinema (
 CREATE TABLE rooms (
     id        BIGSERIAL    PRIMARY KEY,
     name      VARCHAR(255) NOT NULL,
+    active    BOOLEAN      NOT NULL DEFAULT TRUE,
     cinema_id BIGINT       NOT NULL REFERENCES cinema(id)
 );
 

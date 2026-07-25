@@ -10,6 +10,7 @@ import com.example.cinema.api.application.dto.room.RoomRequestDTO;
 import com.example.cinema.api.application.dto.room.RoomResponseDTO;
 import com.example.cinema.api.application.mapper.RoomMapper;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +49,7 @@ public class RoomService {
     @Transactional(readOnly = true)
     @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
-        Room room = roomRepositoryJpa.findById(id)
+        Room room = roomRepositoryJpa.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada"));
         return roomMapper.toDTO(room);
     }
@@ -62,7 +63,7 @@ public class RoomService {
     @Transactional
     @CachePut(value = "rooms", key = "#id")
     public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
-        Room room = roomRepositoryJpa.findById(id)
+        Room room = roomRepositoryJpa.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada para modificação"));
 
         if (roomRepositoryJpa.existsByNameAndCinemaId(roomRequestDTO.getName(), room.getCinema().getId())
@@ -74,6 +75,15 @@ public class RoomService {
 
 
         return roomMapper.toDTO(roomRepositoryJpa.save(room));
+    }
+
+    @Transactional
+    @CacheEvict(value = "rooms", key = "#id")
+    public void delete(Long id) {
+        if (!roomRepositoryJpa.existsByIdAndActiveTrue(id)) {
+            throw new RoomNotFoundException("Sala não encontrada");
+        }
+        roomRepositoryJpa.softDelete(id);
     }
 
 }

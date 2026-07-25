@@ -23,6 +23,8 @@ public class Genre {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private boolean active = true;
+
     @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Setter(AccessLevel.NONE)

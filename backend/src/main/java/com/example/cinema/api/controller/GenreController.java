@@ -98,4 +98,16 @@ public class GenreController {
         return ResponseEntity.ok(genreService.update(id, dto));
     }
 
+    @Operation(summary = "Deletar gênero", description = "Inativa (soft delete) um gênero existente")
+    @ApiResponse(responseCode = "204", description = "Gênero inativado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Gênero não encontrado")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        genreService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
