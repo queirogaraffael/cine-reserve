@@ -1,39 +1,49 @@
 package com.example.cinema.api.controller;
 
-import org.springframework.security.test.context.support.WithMockUser;
-import com.example.cinema.api.domain.movie.Movie;
-import com.example.cinema.api.domain.room.Room;
-import com.example.cinema.api.application.service.MovieSessionService;
-import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
-import com.example.cinema.api.infrastructure.persistence.RoomRepositoryJpa;
-import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
+import com.example.cinema.api.domain.cinema.Cinema;
+import com.example.cinema.api.domain.genre.Genre;
+import com.example.cinema.api.domain.movie.AudioType;
+import com.example.cinema.api.domain.movie.Movie;
+import com.example.cinema.api.domain.movie.MovieExhibition;
+import com.example.cinema.api.domain.movie.MovieFormat;
+import com.example.cinema.api.domain.movie.MovieRating;
+import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.domain.room.Room;
+import com.example.cinema.api.infrastructure.persistence.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Disabled
 class MovieSessionControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MovieRepositoryJpa movieRepositoryJpa;
@@ -42,138 +52,167 @@ class MovieSessionControllerIT {
     private RoomRepositoryJpa roomRepositoryJpa;
 
     @Autowired
-    private MovieSessionService movieSessionService;
+    private CinemaRepositoryJpa cinemaRepositoryJpa;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private GenreRepositoryJpa genreRepositoryJpa;
+
+    @Autowired
+    private MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa;
+
+    @Autowired
+    private MovieSessionRepositoryJpa movieSessionRepositoryJpa;
+
+    private Cinema cinema;
+    private Room room;
+    private Genre genre;
+    private Movie movie;
+    private MovieExhibition exhibition;
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
+        movieSessionRepositoryJpa.deleteAll();
+        movieExhibitionRepositoryJpa.deleteAll();
         movieRepositoryJpa.deleteAll();
+        genreRepositoryJpa.deleteAll();
         roomRepositoryJpa.deleteAll();
+        cinemaRepositoryJpa.deleteAll();
+
+        cinema = cinemaRepositoryJpa.save(new Cinema("Cinema Itaquera", "São Paulo", "SP", null));
+        room = roomRepositoryJpa.save(new Room("Sala 1", cinema));
+        genre = genreRepositoryJpa.save(new Genre("Ação"));
+        movie = movieRepositoryJpa
+                .save(new Movie("Matrix", "Ficção", LocalDate.now(), 130, "url", genre, MovieRating.A14, false));
+        exhibition = movieExhibitionRepositoryJpa
+                .save(new MovieExhibition(movie, cinema, MovieFormat.F2D, AudioType.LEGENDADO));
     }
 
     @AfterEach
     void tearDown() {
+        movieSessionRepositoryJpa.deleteAll();
+        movieExhibitionRepositoryJpa.deleteAll();
         movieRepositoryJpa.deleteAll();
+        genreRepositoryJpa.deleteAll();
         roomRepositoryJpa.deleteAll();
+        cinemaRepositoryJpa.deleteAll();
     }
 
-/*
     @Test
-    void testCreateMovieSessionSuccessfully() throws Exception {
-
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Action", null);
-        genreRepository.save(genre);
-
-        Movie movie = new Movie("Inception", "Desc", LocalDate.now(), 148, "", genre, com.example.cinema.api.domain.movie.MovieRating.LIVRE, false);
-        movieRepositoryJpa.save(movie);
-
-        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema Matriz", "São Paulo", "SP", null);
-        cinemaRepositoryJpa.save(cinema);
-
-        Room room = new Room("Sala 1", 100, cinema);
-        roomRepositoryJpa.save(room);
-
-        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F2D, AudioType.LEGENDADO);
-        movieExhibitionRepositoryJpa.save(exhibition);
-
+    @WithMockUser(roles = "ADMIN")
+    void testCreateMovieSession_Success() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
-        dto.setShowDate(LocalDate.now().plusDays(1));
-        dto.setStartTime(LocalTime.of(19, 0));
-        dto.setEndTime(LocalTime.of(21, 30));
-        dto.setBasePrice(new BigDecimal("25.50"));
+        dto.setShowDate(LocalDate.now().plusDays(2));
+        dto.setStartTime(LocalTime.of(14, 0));
+        dto.setEndTime(LocalTime.of(16, 0));
+        dto.setBasePrice(new BigDecimal("25.00"));
         dto.setRoomId(room.getId());
         dto.setExhibitionId(exhibition.getId());
 
         mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.showDate").value(dto.getShowDate().toString()))
-                .andExpect(jsonPath("$.startTime").value(dto.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"))))
-                .andExpect(jsonPath("$.endTime").value(dto.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"))))
-                .andExpect(jsonPath("$.basePrice").value(dto.getBasePrice().doubleValue()))
-                .andExpect(jsonPath("$.status").value("SCHEDULED"))
-                .andExpect(jsonPath("$.roomId").value(room.getId()))
-                .andExpect(jsonPath("$.exhibitionId").value(exhibition.getId()));
+                .andExpect(jsonPath("$.basePrice").value(25.0));
     }
 
-
     @Test
-    void testCreateMovieSessionWithPastDateShouldFail() throws Exception {
-
-        String token = testUtils.authenticateAs(UserRole.ADMIN, TicketCategory.REGULAR).get("token");
-
-        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Sci-Fi", null);
-        genreRepository.save(genre);
-
-        Movie movie = new Movie("Matrix", "Desc", LocalDate.now(), 136, "", genre, com.example.cinema.api.domain.movie.MovieRating.A14, false);
-        movieRepositoryJpa.save(movie);
-
-        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema 2", "Rio de Janeiro", "RJ", null);
-        cinemaRepositoryJpa.save(cinema);
-
-        Room room = new Room("Sala 2", 50, cinema);
-        roomRepositoryJpa.save(room);
-
-        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F2D, AudioType.DUBLADO);
-        movieExhibitionRepositoryJpa.save(exhibition);
-
+    @WithMockUser(roles = "USER")
+    void testCreateMovieSession_Forbidden() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
-        dto.setShowDate(LocalDate.now().minusDays(1)); // data inválida
-        dto.setStartTime(LocalTime.of(18, 0));
-        dto.setEndTime(LocalTime.of(20, 0));
-        dto.setBasePrice(new BigDecimal("30.00"));
-        dto.setRoomId(room.getId());
-        dto.setExhibitionId(exhibition.getId());
-
-        mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("A data da sessão não pode estar no passado")));
-    }
-
-
-    @Test
-    void testCreateMovieSessionUnauthorizedAsRegularUser() throws Exception {
-
-        String token = testUtils.authenticateAs(UserRole.USER, TicketCategory.REGULAR).get("token");
-
-        com.example.cinema.api.domain.genre.Genre genre = new com.example.cinema.api.domain.genre.Genre(null, "Adventure", null);
-        genreRepository.save(genre);
-
-        Movie movie = new Movie("Avatar", "Desc", LocalDate.now(), 155, "", genre, com.example.cinema.api.domain.movie.MovieRating.LIVRE, false);
-        movieRepositoryJpa.save(movie);
-
-        com.example.cinema.api.domain.cinema.Cinema cinema = new com.example.cinema.api.domain.cinema.Cinema("Cinema 3", "Curitiba", "PR", null);
-        cinemaRepositoryJpa.save(cinema);
-
-        Room room = new Room("Sala 3", 80, cinema);
-        roomRepositoryJpa.save(room);
-
-        MovieExhibition exhibition = new MovieExhibition(movie, cinema, MovieFormat.F3D, AudioType.DUBLADO);
-        movieExhibitionRepositoryJpa.save(exhibition);
-
-        MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
-        dto.setShowDate(LocalDate.now().plusDays(1));
+        dto.setShowDate(LocalDate.now().plusDays(2));
         dto.setStartTime(LocalTime.of(14, 0));
-        dto.setEndTime(LocalTime.of(16, 30));
-        dto.setBasePrice(new BigDecimal("35.00"));
+        dto.setEndTime(LocalTime.of(16, 0));
+        dto.setBasePrice(new BigDecimal("25.00"));
         dto.setRoomId(room.getId());
         dto.setExhibitionId(exhibition.getId());
 
         mockMvc.perform(post("/api/sessions")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isForbidden());
     }
-*/
+
+    @Test
+    void testCreateMovieSession_Unauthorized() throws Exception {
+        MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
+
+        mockMvc.perform(post("/api/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testCreateMovieSession_BadRequest_PastDate() throws Exception {
+        MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
+        dto.setShowDate(LocalDate.now().minusDays(1)); // Passado
+        dto.setStartTime(LocalTime.of(14, 0));
+        dto.setEndTime(LocalTime.of(16, 0));
+        dto.setBasePrice(new BigDecimal("25.00"));
+        dto.setRoomId(room.getId());
+        dto.setExhibitionId(exhibition.getId());
+
+        mockMvc.perform(post("/api/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testCreateMovieSession_BadRequest_NullField() throws Exception {
+        MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
+
+        mockMvc.perform(post("/api/sessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetMovieSessionById_Success() throws Exception {
+        MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
+                LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));
+
+        mockMvc.perform(get("/api/sessions/{id}", session.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(session.getId()));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetMovieSessionById_NotFound() throws Exception {
+        mockMvc.perform(get("/api/sessions/{id}", 99999L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetAvailableSeats_Success() throws Exception {
+        MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
+                LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));
+
+        mockMvc.perform(get("/api/sessions/{id}/seats", session.getId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetSessionsByExhibition_Success() throws Exception {
+        mockMvc.perform(get("/api/sessions")
+                .param("exhibitionId", exhibition.getId().toString()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetTicketTypes_Success() throws Exception {
+        MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
+                LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));
+
+        mockMvc.perform(get("/api/sessions/{id}/ticket-types", session.getId()))
+                .andExpect(status().isOk());
+    }
 }
