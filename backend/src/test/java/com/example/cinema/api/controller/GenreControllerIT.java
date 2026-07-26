@@ -55,6 +55,7 @@ class GenreControllerIT {
 
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testFindById() throws Exception {
 
         Genre genre = genreRepository.save(new Genre("Action"));
@@ -66,6 +67,7 @@ class GenreControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testFindAllPageable() throws Exception {
 
         genreRepository.save(new Genre("Ação"));
@@ -79,6 +81,7 @@ class GenreControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void testFindByNameContainingIgnoreCase() throws Exception {
 
         genreRepository.save(new Genre("Action"));
@@ -152,6 +155,13 @@ class GenreControllerIT {
     void testDeleteGenre_ReturnsUnauthorized_WhenAnonymous() throws Exception {
         mockMvc.perform(delete("/api/genres/1"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetGenres_ReturnsForbidden_WhenUserIsNotAdmin() throws Exception {
+        mockMvc.perform(get("/api/genres"))
+                .andExpect(status().isForbidden());
     }
 
 }

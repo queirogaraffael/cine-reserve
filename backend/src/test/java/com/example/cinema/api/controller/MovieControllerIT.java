@@ -51,7 +51,6 @@ class MovieControllerIT {
         genreRepository.deleteAll();
     }
 
-
     @Test
     @WithMockUser(roles = "ADMIN")
     void createMovie_ReturnsCreated() throws Exception {
@@ -78,6 +77,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findById_ReturnsOk_WhenMovieExists() throws Exception {
         Genre genre = genreRepository.save(new Genre("Drama"));
 
@@ -99,6 +99,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findAllPageable_ReturnsPagedResults() throws Exception {
         Genre genre = genreRepository.save(new Genre("Sci-Fi"));
 
@@ -122,6 +123,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findByTitleContainingIgnoreCase_ReturnsMatching() throws Exception {
         Genre genre = genreRepository.save(new Genre("Adventure"));
 
@@ -134,6 +136,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findByGenreId_ReturnsGenreMovies() throws Exception {
         Genre g1 = genreRepository.save(new Genre("Comedy"));
         Genre g2 = genreRepository.save(new Genre("Horror"));
@@ -148,6 +151,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findByTitleAndGenreId_ReturnsFiltered() throws Exception {
         Genre genre = genreRepository.save(new Genre("Action"));
         movieRepositoryJpa.save(new Movie("Avengers", "Heroes assemble", LocalDate.now(), 143, "", genre, MovieRating.A12, false));
@@ -196,6 +200,7 @@ class MovieControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     void findById_ReturnsNotFound_WhenMissing() throws Exception {
         mockMvc.perform(get("/api/movies/9999"))
                 .andExpect(status().isNotFound());
@@ -260,6 +265,13 @@ class MovieControllerIT {
     void deleteMovie_ReturnsUnauthorized_WhenAnonymous() throws Exception {
         mockMvc.perform(delete("/api/movies/1"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void getMovies_ReturnsForbidden_WhenUserIsNotAdmin() throws Exception {
+        mockMvc.perform(get("/api/movies"))
+                .andExpect(status().isForbidden());
     }
 
 }
