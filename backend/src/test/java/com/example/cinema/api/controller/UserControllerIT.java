@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.mockito.Mockito;
 import jakarta.mail.internet.MimeMessage;
@@ -60,6 +61,7 @@ class UserControllerIT {
     @Autowired
     private UserService userService;
 
+    @MockBean
     private JavaMailSender javaMailSender;
 
     @BeforeEach
