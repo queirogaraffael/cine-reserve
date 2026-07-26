@@ -68,7 +68,7 @@ class UserControllerIT {
     void setup() {
         confirmacaoRepositoryJpa.deleteAll();
         userRepositoryJpa.deleteAll();
-        Mockito.when(javaMailSender.createMimeMessage()).thenReturn(Mockito.mock(MimeMessage.class));
+        Mockito.doReturn(Mockito.mock(MimeMessage.class)).when(javaMailSender).createMimeMessage();
     }
 
     @Test
