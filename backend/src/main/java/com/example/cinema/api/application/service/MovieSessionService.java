@@ -116,7 +116,7 @@ public class MovieSessionService {
         public List<SeatDTO> getAvailableSeats(Long sessionId) {
 
                 MovieSession movieSession = movieSessionRepositoryJpa.findById(sessionId)
-                                .orElseThrow(() -> new MovieSessionNotFoundException("SessÃ£o " + sessionId + " nÃ£o encontrada."));
+                                .orElseThrow(() -> new MovieSessionNotFoundException("Sessão " + sessionId + " nÃo encontrada."));
 
                 Room room = movieSession.getCinemaRoom();
 

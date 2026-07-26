@@ -3,8 +3,8 @@ package com.example.cinema.api.controller;
 import com.example.cinema.api.application.dto.movieSession.ExhibitionSessionsResponseDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
 import com.example.cinema.api.application.dto.movieSession.MovieSessionResponseDTO;
+import com.example.cinema.api.application.dto.seat.SeatDTO;
 import com.example.cinema.api.application.service.MovieSessionService;
-import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -64,9 +63,9 @@ public class MovieSessionController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{sessionId}/seats")
-    public ResponseEntity<List<com.example.cinema.api.application.dto.seat.SeatDTO>> getAvailableSeats(@PathVariable Long sessionId) {
+    public ResponseEntity<List<SeatDTO>> getAvailableSeats(@PathVariable Long sessionId) {
 
-        List<com.example.cinema.api.application.dto.seat.SeatDTO> availableSeats = movieSessionService.getAvailableSeats(sessionId);
+        List<SeatDTO> availableSeats = movieSessionService.getAvailableSeats(sessionId);
 
         return ResponseEntity.ok(availableSeats);
     }
