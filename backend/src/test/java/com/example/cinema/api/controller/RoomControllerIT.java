@@ -56,7 +56,7 @@ class RoomControllerIT {
 
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void createRoom_ReturnsCreated() throws Exception {
 
         RoomRequestDTO dto = new RoomRequestDTO("Sala 1", defaultCinema.getId());
@@ -70,7 +70,7 @@ class RoomControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void shouldNotCreateRoomWithDuplicateNameInSameCinema() throws Exception {
 
         roomRepositoryJpa.save(new Room("Sala 1", defaultCinema));
@@ -85,7 +85,7 @@ class RoomControllerIT {
 
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void getRoomById_ReturnsOk_WhenRoomExists() throws Exception {
 
         Room saved = roomRepositoryJpa.save(new Room("Sala 2", defaultCinema));
@@ -97,7 +97,7 @@ class RoomControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void getRoomById_ReturnsNotFound_WhenMissing() throws Exception {
 
         mockMvc.perform(get("/api/rooms/9999"))
@@ -106,8 +106,8 @@ class RoomControllerIT {
 
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void getAllRooms_ReturnsPagedResults() throws Exception {
+    @WithMockUser(roles = "SUPER_ADMIN")
+    void getAllRooms_SuperAdmin_ReturnsAllRooms() throws Exception {
 
         IntStream.rangeClosed(1, 3)
                 .forEach(i -> roomRepositoryJpa.save(new Room("Sala " + i, defaultCinema)));
@@ -119,7 +119,20 @@ class RoomControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "CINEMA_ADMIN")
+    void getAllRooms_CinemaAdmin_ReturnsOnlyOwnCinemaRooms() throws Exception {
+        Cinema otherCinema = cinemaRepositoryJpa.save(new Cinema("Outro Cinema", "Rio de Janeiro", "RJ", null));
+
+        IntStream.rangeClosed(1, 2)
+                .forEach(i -> roomRepositoryJpa.save(new Room("Sala " + i, defaultCinema)));
+        roomRepositoryJpa.save(new Room("Sala Outra", otherCinema));
+
+        mockMvc.perform(get("/api/rooms?page=0&size=10"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateRoom_ReturnsOk_WhenSuccessful() throws Exception {
 
         Room original = roomRepositoryJpa.save(new Room("Sala 4", defaultCinema));
@@ -133,7 +146,7 @@ class RoomControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateRoom_ReturnsNotFound_WhenRoomMissing() throws Exception {
 
         RoomRequestDTO dto = new RoomRequestDTO("Sala X", defaultCinema.getId());
@@ -145,7 +158,7 @@ class RoomControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateRoom_ReturnsConflict_WhenDuplicateName() throws Exception {
 
         roomRepositoryJpa.save(new Room("Sala VIP", defaultCinema));
@@ -160,7 +173,7 @@ class RoomControllerIT {
     }
     
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void testDeleteRoom() throws Exception {
 
         Room room = roomRepositoryJpa.save(new Room("Room to Delete", defaultCinema));
@@ -180,6 +193,13 @@ class RoomControllerIT {
         mockMvc.perform(post("/api/rooms")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void getAllRooms_ReturnsForbidden_WhenUserRole() throws Exception {
+        mockMvc.perform(get("/api/rooms"))
                 .andExpect(status().isForbidden());
     }
 

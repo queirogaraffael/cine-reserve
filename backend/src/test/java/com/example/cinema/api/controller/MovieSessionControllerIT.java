@@ -201,8 +201,7 @@ class MovieSessionControllerIT {
 
     @Test
     void testGetSessionsByExhibition_Success() throws Exception {
-        mockMvc.perform(get("/api/sessions")
-                .param("exhibitionId", exhibition.getId().toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibition.getId()))
                 .andExpect(status().isOk());
     }
 

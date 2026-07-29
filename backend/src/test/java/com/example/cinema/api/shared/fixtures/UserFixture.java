@@ -38,7 +38,7 @@ public class UserFixture {
                 true,
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(1990, 1, 1),
-                UserRole.ADMIN
+                UserRole.SUPER_ADMIN
         );
     }
 

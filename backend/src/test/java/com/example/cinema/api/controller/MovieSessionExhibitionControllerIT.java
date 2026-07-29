@@ -1,6 +1,10 @@
 package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.dto.movieSession.MovieSessionRequestDTO;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.List;
+import java.util.UUID;
 import com.example.cinema.api.application.service.MovieSessionService;
 import com.example.cinema.api.domain.cinema.Cinema;
 import com.example.cinema.api.domain.genre.Genre;
@@ -108,14 +112,15 @@ class MovieSessionExhibitionControllerIT {
         dto.setBasePrice(new BigDecimal("25.00"));
         dto.setRoomId(roomId);
         dto.setExhibitionId(exhibitionId);
-        movieSessionService.createSession(dto);
+        AuthenticatedUser mockUser = new AuthenticatedUser(UUID.randomUUID(), List.of(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN")), null);
+        movieSessionService.createSession(dto, mockUser);
     }
 
     @Test
     void shouldReturnSessionsGroupedByDayAndRoom() throws Exception {
         createSession(LocalDate.now().plusDays(1), LocalTime.of(18, 0), LocalTime.of(20, 30));
 
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.exhibitionId").value(exhibitionId))
                 .andExpect(jsonPath("$.format").value("F2D"))
@@ -138,7 +143,7 @@ class MovieSessionExhibitionControllerIT {
 
         createSession(LocalDate.now(), start, end);
 
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.days[0].rooms[0].sessions[0].status").value("UNAVAILABLE"));
     }
@@ -151,27 +156,27 @@ class MovieSessionExhibitionControllerIT {
             movieSessionRepositoryJpa.save(s);
         });
 
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.days").isEmpty());
     }
 
     @Test
     void shouldReturnEmptyDaysWhenNoSessionsExistForExhibition() throws Exception {
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.days").isEmpty());
     }
 
     @Test
     void shouldReturn404WhenExhibitionDoesNotExist() throws Exception {
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", "99999"))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", 99999L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void shouldBeAccessibleWithoutJwtToken() throws Exception {
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk());
     }
 
@@ -179,7 +184,7 @@ class MovieSessionExhibitionControllerIT {
     void shouldPopulateMovieDetailsCorrectly() throws Exception {
         createSession(LocalDate.now().plusDays(2), LocalTime.of(15, 0), LocalTime.of(17, 0));
 
-        mockMvc.perform(get("/api/sessions").param("exhibitionId", exhibitionId.toString()))
+        mockMvc.perform(get("/api/exhibitions/{exhibitionId}/sessions", exhibitionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.movieDetails.description").value("A dream within a dream."))
                 .andExpect(jsonPath("$.movieDetails.duration").value(148))
