@@ -12,7 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -20,7 +22,6 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Movie Sessions")
-@RequestMapping("/api/sessions")
 public class MovieSessionController {
 
     private final MovieSessionService movieSessionService;
@@ -33,11 +34,12 @@ public class MovieSessionController {
     @ApiResponse(responseCode = "201", description = "Sessão criada com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor | Erro em alguma validação de negócio")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping
-    public ResponseEntity<MovieSessionResponseDTO> createMovieSession(@RequestBody @Valid MovieSessionRequestDTO dto) {
-        MovieSessionResponseDTO movieSessionResponseDTO = movieSessionService.createSession(dto);
+    @PostMapping("/api/sessions")
+    public ResponseEntity<MovieSessionResponseDTO> createMovieSession(@RequestBody @Valid MovieSessionRequestDTO dto,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        MovieSessionResponseDTO movieSessionResponseDTO = movieSessionService.createSession(dto, user);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(movieSessionResponseDTO.getId()).toUri();
@@ -50,7 +52,7 @@ public class MovieSessionController {
     @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{sessionId}")
+    @GetMapping("/api/sessions/{sessionId}")
     public ResponseEntity<MovieSessionResponseDTO> getMovieSessionById(@PathVariable Long sessionId) {
         MovieSessionResponseDTO response = movieSessionService.getMovieSessionById(sessionId);
 
@@ -62,7 +64,7 @@ public class MovieSessionController {
     @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("/{sessionId}/seats")
+    @GetMapping("/api/sessions/{sessionId}/seats")
     public ResponseEntity<List<SeatDTO>> getAvailableSeats(@PathVariable Long sessionId) {
 
         List<SeatDTO> availableSeats = movieSessionService.getAvailableSeats(sessionId);
@@ -70,24 +72,21 @@ public class MovieSessionController {
         return ResponseEntity.ok(availableSeats);
     }
 
-
-
-    @Operation(summary = "Listar sessões de uma exibição",
-            description = "Retorna hoje + próximos 6 dias de sessões agrupadas por data e sala com status de disponibilidade")
+    @Operation(summary = "Listar sessões de uma exibição", description = "Retorna hoje + próximos 6 dias de sessões agrupadas por data e sala com status de disponibilidade")
     @ApiResponse(responseCode = "200", description = "Sessões retornadas com sucesso")
     @ApiResponse(responseCode = "404", description = "Exibição não encontrada")
-    @GetMapping
+    @GetMapping("/api/exhibitions/{exhibitionId}/sessions")
     public ResponseEntity<ExhibitionSessionsResponseDTO> getSessionsByExhibition(
-            @RequestParam Long exhibitionId
-    ) {
+            @PathVariable Long exhibitionId) {
         return ResponseEntity.ok(movieSessionService.getSessionsByExhibition(exhibitionId));
     }
-    
+
     @Operation(summary = "Listar tipos de ingresso da sessão", description = "Retorna os tipos de ingresso disponíveis com os preços já calculados considerando promoções")
     @ApiResponse(responseCode = "200", description = "Lista de ingressos retornada com sucesso")
     @ApiResponse(responseCode = "404", description = "Sessão não encontrada")
-    @GetMapping("/{sessionId}/ticket-types")
-    public ResponseEntity<List<com.example.cinema.api.application.dto.ticket.TicketTypeDTO>> getTicketTypes(@PathVariable Long sessionId) {
+    @GetMapping("/api/sessions/{sessionId}/ticket-types")
+    public ResponseEntity<List<com.example.cinema.api.application.dto.ticket.TicketTypeDTO>> getTicketTypes(
+            @PathVariable Long sessionId) {
         return ResponseEntity.ok(movieSessionService.getTicketTypesWithPromotions(sessionId));
     }
 }

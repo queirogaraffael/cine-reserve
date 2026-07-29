@@ -9,7 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 
 import java.util.List;
 
@@ -31,10 +33,10 @@ public class MovieExhibitionController {
         return ResponseEntity.ok(movieExhibitionService.listExhibitions(cinemaId, filter));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @PostMapping("/api/exhibitions")
-    public ResponseEntity<MovieExhibitionCardDTO> createExhibition(@Valid @RequestBody MovieExhibitionRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(movieExhibitionService.createExhibition(dto));
+    public ResponseEntity<MovieExhibitionCardDTO> createExhibition(@Valid @RequestBody MovieExhibitionRequestDTO dto, @AuthenticationPrincipal AuthenticatedUser user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(movieExhibitionService.createExhibition(dto, user));
     }
 
     @GetMapping("/api/exhibitions/{id}")
@@ -42,17 +44,17 @@ public class MovieExhibitionController {
         return ResponseEntity.ok(movieExhibitionService.getExhibitionById(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @PatchMapping("/api/exhibitions/{id}/activate")
-    public ResponseEntity<Void> activateExhibition(@PathVariable Long id) {
-        movieExhibitionService.activateExhibition(id);
+    public ResponseEntity<Void> activateExhibition(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser user) {
+        movieExhibitionService.activateExhibition(id, user);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @PatchMapping("/api/exhibitions/{id}/deactivate")
-    public ResponseEntity<Void> deactivateExhibition(@PathVariable Long id) {
-        movieExhibitionService.deactivateExhibition(id);
+    public ResponseEntity<Void> deactivateExhibition(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser user) {
+        movieExhibitionService.deactivateExhibition(id, user);
         return ResponseEntity.noContent().build();
     }
 }

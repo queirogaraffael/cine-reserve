@@ -32,7 +32,7 @@ public class MovieController {
     @ApiResponse(responseCode = "201", description = "Filme criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping()
     public ResponseEntity<MovieResponseDTO> createMovie(@RequestBody @Valid MovieRequestDTO dto) {
@@ -44,7 +44,7 @@ public class MovieController {
         return ResponseEntity.created(uri).body(movieResponseDTO);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Buscar filme por ID", description = "Busca um filme pelo ID")
     @ApiResponse(responseCode = "200", description = "Filme encontrado")
@@ -55,7 +55,7 @@ public class MovieController {
                 .body(movieService.findById(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Buscar todos os filmes paginados", description = "Busca todos os filmes com paginação")
     @ApiResponse(responseCode = "200", description = "Lista de filmes encontrada")
@@ -66,7 +66,16 @@ public class MovieController {
                 .body(movieService.findAllPageable(page, size));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Buscar filmes disponíveis", description = "Busca filmes disponíveis (em cartaz) com paginação")
+    @ApiResponse(responseCode = "200", description = "Lista de filmes disponível encontrada")
+    @GetMapping("/available")
+    public ResponseEntity<Page<MovieResponseDTO>> getAvailableMovies(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(movieService.getAvailableMovies(page, size));
+    }
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Busca paginada de filmes por título", description = "Busca filmes pelo título")
     @ApiResponse(responseCode = "200", description = "Lista de filmes encontrada")
@@ -79,7 +88,7 @@ public class MovieController {
                 .body(movieService.findByTitleContainingIgnoreCase(title, page, size));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Busca paginada de filmes por gênero", description = "Busca filmes pelo gênero")
     @ApiResponse(responseCode = "200", description = "Lista de filmes encontrada")
@@ -92,7 +101,7 @@ public class MovieController {
                 .body(movieService.findByGenreId(genreId, page, size));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Busca paginada de filmes por título e gênero", description = "Busca filmes pelo título e gênero")
     @ApiResponse(responseCode = "200", description = "Lista de filmes encontrada")
@@ -109,7 +118,7 @@ public class MovieController {
     @ApiResponse(responseCode = "200", description = "Filme atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     public ResponseEntity<MovieResponseDTO> updateMovie(@PathVariable Long id, @RequestBody @Valid MovieUpdateDTO dto) {
@@ -121,7 +130,7 @@ public class MovieController {
     @ApiResponse(responseCode = "204", description = "Filme inativado com sucesso")
     @ApiResponse(responseCode = "404", description = "Filme não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {

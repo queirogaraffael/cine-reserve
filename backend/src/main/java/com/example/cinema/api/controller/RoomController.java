@@ -13,7 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -40,11 +42,11 @@ public class RoomController {
     @ApiResponse(responseCode = "201", description = "Sala criado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping()
-    public ResponseEntity<RoomResponseDTO> createRoom(@RequestBody @Valid RoomRequestDTO dto) {
-        RoomResponseDTO createdRoom = roomService.createRoom(dto);
+    public ResponseEntity<RoomResponseDTO> createRoom(@RequestBody @Valid RoomRequestDTO dto, @AuthenticationPrincipal AuthenticatedUser user) {
+        RoomResponseDTO createdRoom = roomService.createRoom(dto, user);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(createdRoom.getId()).toUri();
@@ -72,8 +74,11 @@ public class RoomController {
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping()
-    public ResponseEntity<Page<RoomResponseDTO>> getAllRooms(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<RoomResponseDTO> rooms = roomService.getAllRooms(page, size);
+    public ResponseEntity<Page<RoomResponseDTO>> getAllRooms(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        Page<RoomResponseDTO> rooms = roomService.getAllRooms(page, size, user);
 
         return ResponseEntity.ok().cacheControl(noCachePrivate)
                 .body(rooms);
@@ -84,11 +89,11 @@ public class RoomController {
     @ApiResponse(responseCode = "404", description = "Sala não encontrada")
     @ApiResponse(responseCode = "400", description = "Erro de validação")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
-    public ResponseEntity<RoomResponseDTO> updateRoom(@PathVariable Long id, @RequestBody RoomRequestDTO roomRequestDTO) {
-        RoomResponseDTO updatedRoom = roomService.updateRoom(id, roomRequestDTO);
+    public ResponseEntity<RoomResponseDTO> updateRoom(@PathVariable Long id, @RequestBody RoomRequestDTO roomRequestDTO, @AuthenticationPrincipal AuthenticatedUser user) {
+        RoomResponseDTO updatedRoom = roomService.updateRoom(id, roomRequestDTO, user);
         return ResponseEntity.ok(updatedRoom);
     }
 
@@ -96,11 +101,11 @@ public class RoomController {
     @ApiResponse(responseCode = "204", description = "Sala inativada com sucesso")
     @ApiResponse(responseCode = "404", description = "Sala não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
-        roomService.delete(id);
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long id, @AuthenticationPrincipal AuthenticatedUser user) {
+        roomService.delete(id, user);
         return ResponseEntity.noContent().build();
     }
 
