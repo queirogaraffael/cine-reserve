@@ -35,21 +35,11 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
-                        // Endpoints públicos do GenreController
-                        .requestMatchers(HttpMethod.GET, "/api/genres").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/genres/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/genres/search").permitAll()
-
-                        // Endpoints públicos do MovieController
-                        .requestMatchers(HttpMethod.GET, "/api/movies").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/movies/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/movies/search").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/movies/genre/{genreId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/movies/search/genre/{genreId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/cinemas/*/exibicoes", "/api/cinemas/*/exhibitions", "/api/exibicoes/*", "/api/exhibitions/*").permitAll()
 
                         // Endpoint público do MovieSessionController
                         .requestMatchers(HttpMethod.GET, "/api/sessions").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/sessions/{id}/ticket-types").permitAll()
 
                         // Endpoints públicos do UserController
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()

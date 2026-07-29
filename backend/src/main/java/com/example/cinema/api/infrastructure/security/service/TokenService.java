@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.cinema.api.domain.user.User;
+import com.example.cinema.api.domain.user.UserRole;
 import com.example.cinema.api.domain.user.exception.UserNotFoundException;
 import com.example.cinema.api.infrastructure.persistence.UserRepositoryJpa;
 import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
@@ -47,13 +48,18 @@ public class TokenService {
                     .map(GrantedAuthority::getAuthority)
                     .toList();
 
-            return JWT.create()
+            var builder = JWT.create()
                     .withIssuer(issuer)
                     .withSubject(user.getId().toString())
                     .withClaim("roles", authorities)
                     .withIssuedAt(new Date())
-                    .withExpiresAt(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))
-                    .sign(algorithm);
+                    .withExpiresAt(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)));
+
+            if (user.getRole() == UserRole.CINEMA_ADMIN && user.getCinema() != null) {
+                builder.withClaim("cinemaId", user.getCinema().getId());
+            }
+
+            return builder.sign(algorithm);
         } catch (JWTCreationException e) {
             throw new TokenCreationException("Erro ao gerar o token JWT", e);
         }
@@ -73,7 +79,12 @@ public class TokenService {
                     .map(SimpleGrantedAuthority::new)
                     .toList();
 
-            return new AuthenticatedUser(userId, authorities);
+            Long cinemaId = null;
+            if (!decoded.getClaim("cinemaId").isNull()) {
+                cinemaId = decoded.getClaim("cinemaId").asLong();
+            }
+
+            return new AuthenticatedUser(userId, authorities, cinemaId);
         } catch (JWTVerificationException e) {
             throw new TokenValidationException("Token inválido ou expirado", e);
         }
