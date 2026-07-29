@@ -1,7 +1,8 @@
 package com.example.cinema.api.domain.user;
 
 public enum UserRole {
-    ADMIN("admin"),
+    SUPER_ADMIN("super_admin"),
+    CINEMA_ADMIN("cinema_admin"),
     USER("user");
 
     private String role;

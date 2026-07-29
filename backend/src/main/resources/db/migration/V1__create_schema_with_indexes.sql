@@ -114,7 +114,8 @@ CREATE TABLE users (
     failed_attempt   INTEGER      NOT NULL DEFAULT 0,
     lock_time        TIMESTAMP,
     is_locked        BOOLEAN      NOT NULL DEFAULT FALSE,
-    role             VARCHAR(50)  NOT NULL
+    role             VARCHAR(50)  NOT NULL,
+    cinema_id        BIGINT       REFERENCES cinema(id)
 );
 
 CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
