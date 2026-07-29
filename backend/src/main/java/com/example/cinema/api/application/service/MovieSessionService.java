@@ -27,6 +27,7 @@ import com.example.cinema.api.application.dto.seat.SeatDTO;
 import com.example.cinema.api.application.dto.ticket.TicketTypeDTO;
 import com.example.cinema.api.domain.room.Seat;
 import com.example.cinema.api.application.mapper.SessionMapper;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class MovieSessionService {
@@ -56,13 +55,15 @@ public class MovieSessionService {
         private final PromotionRepositoryJpa promotionRepository;
 
         private final SessionMapper sessionMapper;
+        private final CinemaAdminService cinemaAdminService;
 
         public MovieSessionService(MovieSessionRepositoryJpa movieSessionRepositoryJpa,
                         MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa, RoomRepositoryJpa roomRepositoryJpa,
                         SeatRepositoryJpa seatRepositoryJpa,
                         TicketTypeRepositoryJpa ticketTypeRepository,
                         PromotionRepositoryJpa promotionRepository,
-                        SessionMapper sessionMapper) {
+                        SessionMapper sessionMapper,
+                        CinemaAdminService cinemaAdminService) {
                 this.movieSessionRepositoryJpa = movieSessionRepositoryJpa;
                 this.movieExhibitionRepositoryJpa = movieExhibitionRepositoryJpa;
                 this.roomRepositoryJpa = roomRepositoryJpa;
@@ -70,29 +71,32 @@ public class MovieSessionService {
                 this.ticketTypeRepository = ticketTypeRepository;
                 this.promotionRepository = promotionRepository;
                 this.sessionMapper = sessionMapper;
+                this.cinemaAdminService = cinemaAdminService;
         }
 
         @Transactional
-        public MovieSessionResponseDTO createSession(MovieSessionRequestDTO dto) {
+        public MovieSessionResponseDTO createSession(MovieSessionRequestDTO dto, AuthenticatedUser user) {
 
                 if (!dto.getStartTime().isBefore(dto.getEndTime())) {
                         throw new InvalidMovieSessionTimeRangeException(
-                                        "A hora de inÃ­cio deve ser antes da hora de tÃ©rmino.");
+                                        "A hora de início deve ser antes da hora de término.");
                 }
 
                 boolean conflict = movieSessionRepositoryJpa.existsSessionConflict(dto.getRoomId(), dto.getShowDate(),
                                 dto.getStartTime(), dto.getEndTime());
 
                 if (conflict) {
-                        throw new RoomScheduleConflictException("A sala jÃ¡ estÃ¡ reservada para esse horÃ¡rio.");
+                        throw new RoomScheduleConflictException("A sala já está reservada para esse horário.");
                 }
 
                 MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(dto.getExhibitionId())
                                 .orElseThrow(() -> new MovieExhibitionNotFoundException(
-                                                "ExibiÃ§Ã£o: " + dto.getExhibitionId() + " nÃ£o encontrada"));
+                                                "Exibição: " + dto.getExhibitionId() + " não encontrada."));
+
+                cinemaAdminService.validateCinemaOwnership(user, exhibition.getCinema().getId());
 
                 Room room = roomRepositoryJpa.findById(dto.getRoomId()).orElseThrow(
-                                () -> new RoomNotFoundException("Sala: " + dto.getRoomId() + "nÃ£o encontrada"));
+                                () -> new RoomNotFoundException("Sala: " + dto.getRoomId() + " não encontrada."));
 
                 MovieSession movieSession = new MovieSession(dto.getShowDate(), dto.getStartTime(), dto.getEndTime(),
                                 dto.getBasePrice(), room, exhibition);
@@ -107,7 +111,7 @@ public class MovieSessionService {
 
                 MovieSession movieSession = movieSessionRepositoryJpa.findById(movieSessionId)
                                 .orElseThrow(() -> new MovieSessionNotFoundException(
-                                                "MovieSession: " + movieSessionId + " nÃ£o encontrada."));
+                                                "Sessão " + movieSessionId + " não encontrada."));
 
                 return sessionMapper.toResponseDTO(movieSession);
         }
@@ -116,7 +120,8 @@ public class MovieSessionService {
         public List<SeatDTO> getAvailableSeats(Long sessionId) {
 
                 MovieSession movieSession = movieSessionRepositoryJpa.findById(sessionId)
-                                .orElseThrow(() -> new MovieSessionNotFoundException("Sessão " + sessionId + " nÃo encontrada."));
+                                .orElseThrow(() -> new MovieSessionNotFoundException(
+                                                "Sessão " + sessionId + " não encontrada."));
 
                 Room room = movieSession.getCinemaRoom();
 
@@ -131,18 +136,15 @@ public class MovieSessionService {
                                                 seat.getRowLetter(),
                                                 seat.getColumnNumber(),
                                                 seat.getType().name(),
-                                                !unavailableSet.contains(seat.getId())
-                                ))
+                                                !unavailableSet.contains(seat.getId())))
                                 .toList();
         }
-
-
 
         @Transactional(readOnly = true)
         public ExhibitionSessionsResponseDTO getSessionsByExhibition(Long exhibitionId) {
                 MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(exhibitionId)
                                 .orElseThrow(() -> new MovieExhibitionNotFoundException(
-                                                "ExibiÃ§Ã£o: " + exhibitionId + " nÃ£o encontrada."));
+                                                "Exibição: " + exhibitionId + " não encontrada."));
 
                 LocalDate startDate = LocalDate.now();
                 LocalDate endDate = startDate.plusDays(6);
@@ -207,30 +209,33 @@ public class MovieSessionService {
 
         @Transactional(readOnly = true)
         public List<TicketTypeDTO> getTicketTypesWithPromotions(Long sessionId) {
-            MovieSession session = movieSessionRepositoryJpa.findById(sessionId)
-                    .orElseThrow(() -> new MovieSessionNotFoundException("Sessão não encontrada."));
+                MovieSession session = movieSessionRepositoryJpa.findById(sessionId)
+                                .orElseThrow(() -> new MovieSessionNotFoundException("Sessão não encontrada."));
 
-            List<TicketType> tickets = ticketTypeRepository.findAll();
-            List<Promotion> activePromotions = promotionRepository.findByCinemaIdAndActiveTrue(session.getCinemaRoom().getCinema().getId());
-            Promotion appliedPromotion = activePromotions.stream().filter(p -> p.appliesTo(session)).findFirst().orElse(null);
+                List<TicketType> tickets = ticketTypeRepository.findAll();
+                List<Promotion> activePromotions = promotionRepository
+                                .findByCinemaIdAndActiveTrue(session.getCinemaRoom().getCinema().getId());
+                Promotion appliedPromotion = activePromotions.stream().filter(p -> p.appliesTo(session)).findFirst()
+                                .orElse(null);
 
-            return tickets.stream().map(ticket -> {
-                java.math.BigDecimal finalPrice = ticket.getPrice();
-                if (appliedPromotion != null) {
-                    if (appliedPromotion.getFixedPrice() != null) {
-                        finalPrice = appliedPromotion.getFixedPrice();
-                    } else if (appliedPromotion.getDiscountPercentage() != null) {
-                        finalPrice = finalPrice.multiply(java.math.BigDecimal.ONE.subtract(appliedPromotion.getDiscountPercentage().divide(java.math.BigDecimal.valueOf(100))));
-                    }
-                }
-                return new TicketTypeDTO(
-                        ticket.getId(),
-                        ticket.getName(),
-                        ticket.getDescription(),
-                        ticket.getCategory().name(),
-                        finalPrice,
-                        ticket.getPrice()
-                );
-            }).toList();
+                return tickets.stream().map(ticket -> {
+                        java.math.BigDecimal finalPrice = ticket.getPrice();
+                        if (appliedPromotion != null) {
+                                if (appliedPromotion.getFixedPrice() != null) {
+                                        finalPrice = appliedPromotion.getFixedPrice();
+                                } else if (appliedPromotion.getDiscountPercentage() != null) {
+                                        finalPrice = finalPrice.multiply(java.math.BigDecimal.ONE
+                                                        .subtract(appliedPromotion.getDiscountPercentage()
+                                                                        .divide(java.math.BigDecimal.valueOf(100))));
+                                }
+                        }
+                        return new TicketTypeDTO(
+                                        ticket.getId(),
+                                        ticket.getName(),
+                                        ticket.getDescription(),
+                                        ticket.getCategory().name(),
+                                        finalPrice,
+                                        ticket.getPrice());
+                }).toList();
         }
 }

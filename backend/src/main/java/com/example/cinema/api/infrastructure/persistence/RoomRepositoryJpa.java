@@ -22,6 +22,12 @@ public interface RoomRepositoryJpa extends JpaRepository<Room, Long> {
     )
     Page<RoomResponseDTO> findAllPaginado(Pageable pageable);
 
+    @Query(
+            value = "SELECT new com.example.cinema.api.application.dto.room.RoomResponseDTO(r.id, r.name, r.cinema.id) FROM Room r WHERE r.active = true AND r.cinema.id = :cinemaId",
+            countQuery = "SELECT count(r) FROM Room r WHERE r.active = true AND r.cinema.id = :cinemaId"
+    )
+    Page<RoomResponseDTO> findAllByCinemaIdPaginado(@Param("cinemaId") Long cinemaId, Pageable pageable);
+
     boolean existsByNameAndCinemaIdAndActiveTrue(String name, Long cinemaId);
 
     boolean existsByNameAndCinemaId(String name, Long cinemaId);

@@ -23,6 +23,11 @@ public interface MovieRepositoryJpa extends JpaRepository<Movie, Long> {
     Page<MovieResponseDTO> findAllPaginado(Pageable pageable);
 
 
+    @Query(
+            value = "SELECT new com.example.cinema.api.application.dto.movie.MovieResponseDTO(m.id, m.title, m.description, m.releaseDate, m.duration, m.imageUrl) FROM Movie m WHERE m.active = true AND m.inTheaters = true",
+            countQuery = "SELECT count(m) FROM Movie m WHERE m.active = true AND m.inTheaters = true")
+    Page<MovieResponseDTO> findAvailableMovies(Pageable pageable);
+
     Page<MovieResponseDTOProjection> findByTitleContainingIgnoreCaseAndActiveTrue(String title, Pageable pageable);
 
 

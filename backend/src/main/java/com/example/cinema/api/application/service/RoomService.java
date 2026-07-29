@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 
 @Service
 public class RoomService {
@@ -23,18 +24,24 @@ public class RoomService {
     private final RoomRepositoryJpa roomRepositoryJpa;
     private final CinemaRepositoryJpa cinemaRepositoryJpa;
     private final RoomMapper roomMapper;
+    private final CinemaAdminService cinemaAdminService;
 
-    public RoomService(RoomRepositoryJpa roomRepositoryJpa, CinemaRepositoryJpa cinemaRepositoryJpa, RoomMapper roomMapper) {
+    public RoomService(RoomRepositoryJpa roomRepositoryJpa, CinemaRepositoryJpa cinemaRepositoryJpa,
+            RoomMapper roomMapper, CinemaAdminService cinemaAdminService) {
         this.roomRepositoryJpa = roomRepositoryJpa;
         this.cinemaRepositoryJpa = cinemaRepositoryJpa;
         this.roomMapper = roomMapper;
+        this.cinemaAdminService = cinemaAdminService;
     }
 
     @Transactional
     @CachePut(value = "rooms", key = "#result.id")
-    public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
+    public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO, AuthenticatedUser user) {
+        cinemaAdminService.validateCinemaOwnership(user, roomRequestDTO.getCinemaId());
+
         Cinema cinema = cinemaRepositoryJpa.findById(roomRequestDTO.getCinemaId())
-                .orElseThrow(() -> new com.example.cinema.api.domain.cinema.exception.CinemaRequiredException("Cinema não encontrado com id: " + roomRequestDTO.getCinemaId()));
+                .orElseThrow(() -> new com.example.cinema.api.domain.cinema.exception.CinemaRequiredException(
+                        "Cinema não encontrado com id: " + roomRequestDTO.getCinemaId()));
 
         if (roomRepositoryJpa.existsByNameAndCinemaId(roomRequestDTO.getName(), roomRequestDTO.getCinemaId())) {
             throw new RoomNameAlreadyExistsInCinemaException("Nome de sala já cadastrado neste cinema.");
@@ -55,16 +62,24 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RoomResponseDTO> getAllRooms(int page, int size) {
+    public Page<RoomResponseDTO> getAllRooms(int page, int size, AuthenticatedUser user) {
         Pageable pageable = PageRequest.of(page, size);
+
+        if (user.getCinemaId() != null) {
+            return roomRepositoryJpa.findAllByCinemaIdPaginado(user.getCinemaId(), pageable);
+        }
+
         return roomRepositoryJpa.findAllPaginado(pageable);
     }
 
     @Transactional
     @CachePut(value = "rooms", key = "#id")
-    public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
+    public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO, AuthenticatedUser user) {
         Room room = roomRepositoryJpa.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada para modificação"));
+
+        cinemaAdminService.validateCinemaOwnership(user, room.getCinema().getId());
+        cinemaAdminService.validateCinemaOwnership(user, roomRequestDTO.getCinemaId());
 
         if (roomRepositoryJpa.existsByNameAndCinemaId(roomRequestDTO.getName(), room.getCinema().getId())
                 && !room.getName().equals(roomRequestDTO.getName())) {
@@ -73,16 +88,17 @@ public class RoomService {
 
         room.changeName(roomRequestDTO.getName());
 
-
         return roomMapper.toDTO(roomRepositoryJpa.save(room));
     }
 
     @Transactional
     @CacheEvict(value = "rooms", key = "#id")
-    public void delete(Long id) {
-        if (!roomRepositoryJpa.existsByIdAndActiveTrue(id)) {
-            throw new RoomNotFoundException("Sala não encontrada");
-        }
+    public void delete(Long id, AuthenticatedUser user) {
+        Room room = roomRepositoryJpa.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new RoomNotFoundException("Sala não encontrada"));
+
+        cinemaAdminService.validateCinemaOwnership(user, room.getCinema().getId());
+
         roomRepositoryJpa.softDelete(id);
     }
 

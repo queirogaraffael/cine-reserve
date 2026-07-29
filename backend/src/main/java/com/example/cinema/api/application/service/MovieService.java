@@ -58,6 +58,12 @@ public class MovieService {
     }
 
     @Transactional(readOnly = true)
+    public Page<MovieResponseDTO> getAvailableMovies(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return movieRepositoryJpa.findAvailableMovies(pageable);
+    }
+
+    @Transactional(readOnly = true)
     public Page<MovieResponseDTO> findByGenreId(Long genreId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return movieRepositoryJpa.findByGenreId(genreId, pageable);
