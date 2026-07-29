@@ -40,6 +40,7 @@ public class SecurityConfigurations {
                         // Endpoint público do MovieSessionController
                         .requestMatchers(HttpMethod.GET, "/api/sessions").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sessions/{id}/ticket-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/exhibitions/*/sessions").permitAll()
 
                         // Endpoints públicos do UserController
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()

@@ -58,7 +58,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Sala encontrada")
     @ApiResponse(responseCode = "404", description = "Sala não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<RoomResponseDTO> getRoomById(@PathVariable Long id) {
@@ -71,7 +71,7 @@ public class RoomController {
     @ApiResponse(responseCode = "200", description = "Lista de salas encontrada")
     @ApiResponse(responseCode = "404", description = "Nenhuma sala encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CINEMA_ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping()
     public ResponseEntity<Page<RoomResponseDTO>> getAllRooms(

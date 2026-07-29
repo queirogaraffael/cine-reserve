@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import com.example.cinema.api.shared.fixtures.WithMockAuthenticatedUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -98,7 +98,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockAuthenticatedUser(roles = "SUPER_ADMIN")
     void testCreateMovieSession_Success() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(2));
@@ -117,7 +117,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockAuthenticatedUser(roles = "USER")
     void testCreateMovieSession_Forbidden() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().plusDays(2));
@@ -144,7 +144,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockAuthenticatedUser(roles = "SUPER_ADMIN")
     void testCreateMovieSession_BadRequest_PastDate() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
         dto.setShowDate(LocalDate.now().minusDays(1)); // Passado
@@ -161,7 +161,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockAuthenticatedUser(roles = "SUPER_ADMIN")
     void testCreateMovieSession_BadRequest_NullField() throws Exception {
         MovieSessionRequestDTO dto = new MovieSessionRequestDTO();
 
@@ -172,7 +172,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockAuthenticatedUser(roles = "USER")
     void testGetMovieSessionById_Success() throws Exception {
         MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));
@@ -183,14 +183,14 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockAuthenticatedUser(roles = "USER")
     void testGetMovieSessionById_NotFound() throws Exception {
         mockMvc.perform(get("/api/sessions/{id}", 99999L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockAuthenticatedUser(roles = "USER")
     void testGetAvailableSeats_Success() throws Exception {
         MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));
@@ -206,7 +206,7 @@ class MovieSessionControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockAuthenticatedUser(roles = "USER")
     void testGetTicketTypes_Success() throws Exception {
         MovieSession session = movieSessionRepositoryJpa.save(new MovieSession(LocalDate.now().plusDays(1),
                 LocalTime.of(10, 0), LocalTime.of(12, 0), new BigDecimal("20"), room, exhibition));

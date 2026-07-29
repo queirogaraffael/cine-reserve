@@ -52,7 +52,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void createMovie_ReturnsCreated() throws Exception {
 
         Genre genre = genreRepository.save(new Genre("Action"));
@@ -77,7 +77,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findById_ReturnsOk_WhenMovieExists() throws Exception {
         Genre genre = genreRepository.save(new Genre("Drama"));
 
@@ -99,7 +99,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findAllPageable_ReturnsPagedResults() throws Exception {
         Genre genre = genreRepository.save(new Genre("Sci-Fi"));
 
@@ -123,7 +123,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findByTitleContainingIgnoreCase_ReturnsMatching() throws Exception {
         Genre genre = genreRepository.save(new Genre("Adventure"));
 
@@ -136,7 +136,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findByGenreId_ReturnsGenreMovies() throws Exception {
         Genre g1 = genreRepository.save(new Genre("Comedy"));
         Genre g2 = genreRepository.save(new Genre("Horror"));
@@ -151,7 +151,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findByTitleAndGenreId_ReturnsFiltered() throws Exception {
         Genre genre = genreRepository.save(new Genre("Action"));
         movieRepositoryJpa.save(new Movie("Avengers", "Heroes assemble", LocalDate.now(), 143, "", genre, MovieRating.A12, false));
@@ -163,7 +163,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateMovie_ReturnsOk_WhenSuccessful() throws Exception {
 
         Genre oldGenre = genreRepository.save(new Genre("Thriller"));
@@ -200,14 +200,14 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void findById_ReturnsNotFound_WhenMissing() throws Exception {
         mockMvc.perform(get("/api/movies/9999"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateMovie_ReturnsNotFound_WhenMovieMissing() throws Exception {
 
         MovieUpdateDTO dto = new MovieUpdateDTO("Title", "Desc", LocalDate.now(), 100, "", 1L, MovieRating.LIVRE, null, null);
@@ -219,7 +219,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void updateMovie_ReturnsNotFound_WhenGenreMissing() throws Exception {
 
         Genre genre = genreRepository.save(new Genre("Original"));
@@ -234,7 +234,7 @@ class MovieControllerIT {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "SUPER_ADMIN")
     void testDeleteMovie() throws Exception {
 
         Genre genre = genreRepository.save(new Genre("Delete Genre"));
