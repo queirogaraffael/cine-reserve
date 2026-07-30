@@ -89,7 +89,7 @@ CREATE TABLE movie_session (
 CREATE INDEX idx_movie_session_exhibition_id ON movie_session(exhibition_id);
 CREATE INDEX idx_movie_session_room_id ON movie_session(room_id);
 CREATE INDEX idx_movie_session_show_date ON movie_session(show_date);
-CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled) WHERE canceled = FALSE;
+CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled);
 
 
 CREATE TABLE users (
@@ -213,5 +213,22 @@ CREATE TABLE seat_reservations (
 
 CREATE INDEX idx_seat_reservation_session_id ON seat_reservations(session_id);
 CREATE INDEX idx_seat_reservation_order_id ON seat_reservations(order_id);
-CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_id, expires_at)
-    WHERE status = 'RESERVED';
+CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_id, expires_at);
+
+CREATE TABLE coupons (
+    id              BIGSERIAL      PRIMARY KEY,
+    code            VARCHAR(255)   NOT NULL UNIQUE,
+    description     VARCHAR(255)   NOT NULL,
+    discount_type   VARCHAR(50)    NOT NULL,
+    discount_value  NUMERIC(10, 2) NOT NULL,
+    expiration_date TIMESTAMP,
+    user_id         UUID           REFERENCES users(id),
+    cinema_id       BIGINT         REFERENCES cinema(id),
+    status          VARCHAR(50)    NOT NULL DEFAULT 'AVAILABLE',
+    active          BOOLEAN        NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX idx_coupon_user_id ON coupons(user_id);
+CREATE INDEX idx_coupon_code ON coupons(code);
+CREATE INDEX idx_coupon_status ON coupons(status);
+CREATE INDEX idx_coupon_cinema_id ON coupons(cinema_id);
