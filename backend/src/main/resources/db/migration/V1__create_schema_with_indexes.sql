@@ -93,7 +93,7 @@ CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled);
 
 
 CREATE TABLE users (
-    id               UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    id               UUID         PRIMARY KEY,
     name             VARCHAR(255),
     cpf              VARCHAR(14)  UNIQUE,
     email            VARCHAR(255) NOT NULL UNIQUE,
@@ -118,11 +118,11 @@ CREATE TABLE users (
     cinema_id        BIGINT       REFERENCES cinema(id)
 );
 
-CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
+CREATE INDEX idx_users_is_locked ON users(is_locked);
 
 
 CREATE TABLE registration_confirmations (
-    id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    id         UUID         PRIMARY KEY,
     user_id    UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     code       VARCHAR(6)   NOT NULL,
     expires_at TIMESTAMP    NOT NULL,
