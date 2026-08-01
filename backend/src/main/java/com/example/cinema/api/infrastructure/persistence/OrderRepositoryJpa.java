@@ -2,6 +2,9 @@ package com.example.cinema.api.infrastructure.persistence;
 
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.order.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,8 +17,10 @@ import java.util.UUID;
 
 @Repository
 public interface OrderRepositoryJpa extends JpaRepository<Order, Long> {
-
     Optional<Order> findByIdAndUserId(Long orderId, UUID userId);
+
+    @EntityGraph(attributePaths = {"movieSession.movieExhibition.movie"})
+    Page<Order> findAllByUserIdAndStatusNotOrderByCreatedAtDesc(UUID userId, OrderStatus status, Pageable pageable);
 
     @Modifying
     @Query("""

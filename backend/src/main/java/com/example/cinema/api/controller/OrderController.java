@@ -1,6 +1,7 @@
 package com.example.cinema.api.controller;
 
 import com.example.cinema.api.application.dto.order.CreateOrderRequestDTO;
+import com.example.cinema.api.application.dto.order.OrderHistoryResponseDTO;
 import com.example.cinema.api.application.dto.order.OrderResponseDTO;
 import com.example.cinema.api.application.dto.order.OrderSeatSelectionRequestDTO;
 import com.example.cinema.api.application.service.OrderService;
@@ -12,6 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -79,6 +83,27 @@ public class OrderController {
             @AuthenticationPrincipal AuthenticatedUser principal) {
 
         OrderResponseDTO response = orderService.selectSeats(id, dto, principal.getId());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Listar meus pedidos (Histórico de Ingressos)",
+            description = "Lista o histórico de compras de ingresso do usuário autenticado de forma paginada. Ignora compras que ficaram presas na primeira etapa (carrinhos abandonados)."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Histórico listado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+    })
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/me")
+    public ResponseEntity<Page<OrderHistoryResponseDTO>> getMyOrders(
+            @ParameterObject Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+
+        Page<OrderHistoryResponseDTO> response =
+                orderService.getUserOrderHistory(principal.getId(), pageable);
 
         return ResponseEntity.ok(response);
     }

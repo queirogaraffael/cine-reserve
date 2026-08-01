@@ -9,12 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, Long> {
     Optional<OrderPayment> findByOrderId(Long orderId);
+
+    List<OrderPayment> findAllByOrderIdIn(List<Long> orderIds);
 
     @Query("""
         SELECT p.paymentStatus

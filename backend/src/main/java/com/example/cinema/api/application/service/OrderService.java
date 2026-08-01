@@ -1,9 +1,6 @@
 package com.example.cinema.api.application.service;
 
-import com.example.cinema.api.application.dto.order.CreateOrderRequestDTO;
-import com.example.cinema.api.application.dto.order.OrderItemRequestDTO;
-import com.example.cinema.api.application.dto.order.OrderResponseDTO;
-import com.example.cinema.api.application.dto.order.OrderSeatSelectionRequestDTO;
+import com.example.cinema.api.application.dto.order.*;
 import com.example.cinema.api.application.mapper.OrderMapper;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
@@ -15,12 +12,14 @@ import com.example.cinema.api.domain.order.event.OrderCreatedEvent;
 import com.example.cinema.api.domain.order.exception.InvalidSeatSelectionException;
 import com.example.cinema.api.domain.order.exception.OrderNotFoundException;
 import com.example.cinema.api.domain.order.exception.SeatAlreadyReservedException;
+import com.example.cinema.api.domain.payment.OrderPayment;
 import com.example.cinema.api.domain.room.Seat;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.ticket.TicketType;
 import com.example.cinema.api.domain.ticket.exception.TicketTypeNotFoundException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.infrastructure.persistence.MovieSessionRepositoryJpa;
+import com.example.cinema.api.infrastructure.persistence.OrderPaymentRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.OrderRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
@@ -28,6 +27,8 @@ import com.example.cinema.api.infrastructure.persistence.TicketTypeRepositoryJpa
 import com.example.cinema.api.infrastructure.persistence.PromotionRepositoryJpa;
 import com.example.cinema.api.domain.promotion.Promotion;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +57,8 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final OrderPaymentRepositoryJpa orderPaymentRepository;
+
     public OrderService(OrderRepositoryJpa orderRepository,
                         MovieSessionRepositoryJpa movieSessionRepository,
                         TicketTypeRepositoryJpa ticketTypeRepository,
@@ -64,7 +67,8 @@ public class OrderService {
                         PromotionRepositoryJpa promotionRepository,
                         UserService userService,
                         OrderMapper orderMapper,
-                        ApplicationEventPublisher eventPublisher) {
+                        ApplicationEventPublisher eventPublisher,
+                        OrderPaymentRepositoryJpa orderPaymentRepository) {
         this.orderRepository = orderRepository;
         this.movieSessionRepository = movieSessionRepository;
         this.ticketTypeRepository = ticketTypeRepository;
@@ -74,6 +78,52 @@ public class OrderService {
         this.userService = userService;
         this.orderMapper = orderMapper;
         this.eventPublisher = eventPublisher;
+        this.orderPaymentRepository = orderPaymentRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderHistoryResponseDTO> getUserOrderHistory(UUID userId, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllByUserIdAndStatusNotOrderByCreatedAtDesc(userId, OrderStatus.CREATED, pageable);
+
+        if (orders.isEmpty()) {
+            return orders.map(order -> new OrderHistoryResponseDTO());
+        }
+
+        List<Long> orderIds = orders.getContent().stream().map(Order::getId).collect(Collectors.toList());
+
+        List<SeatReservation> allSeats = seatReservationRepository.findAllByOrderIdIn(orderIds);
+        Map<Long, List<SeatReservation>> seatsByOrderId = allSeats.stream()
+                .collect(Collectors.groupingBy(res -> res.getOrder().getId()));
+
+        List<OrderPayment> allPayments = orderPaymentRepository.findAllByOrderIdIn(orderIds);
+        Map<Long, OrderPayment> paymentByOrderId = allPayments.stream()
+                .collect(Collectors.toMap(p -> p.getOrder().getId(), p -> p));
+
+        return orders.map(order -> {
+            List<SeatReservation> orderSeats = seatsByOrderId.getOrDefault(order.getId(), java.util.Collections.emptyList());
+            String seatsStr = orderSeats.stream().map(res -> res.getSeat().getCode()).collect(Collectors.joining(", "));
+
+            OrderPayment payment = paymentByOrderId.get(order.getId());
+            String paymentStatus = (payment != null && payment.getPaymentStatus() != null) ? payment.getPaymentStatus().name() : null;
+
+            boolean isCancelled = order.getStatus() == OrderStatus.CANCELLED;
+            
+            boolean paymentFailedOrPending = paymentStatus == null || !paymentStatus.equals("APPROVED");
+            boolean canRetryPayment = order.getStatus() == OrderStatus.WAITING_PAYMENT && paymentFailedOrPending;
+
+            return com.example.cinema.api.application.dto.order.OrderHistoryResponseDTO.builder()
+                    .orderId(order.getId())
+                    .exhibitionTitle(order.getMovieSession().getMovieExhibition().getTitle())
+                    .movieImageUrl(order.getMovieSession().getMovieExhibition().getMovie().getImageUrl())
+                    .sessionDate(java.time.LocalDateTime.of(order.getMovieSession().getShowDate(), order.getMovieSession().getStartTime()))
+                    .reservedAt(order.getCreatedAt())
+                    .seats(seatsStr)
+                    .total(order.getTotalPrice())
+                    .paymentStatus(paymentStatus)
+                    .isCancelled(isCancelled)
+                    .canRetryPayment(canRetryPayment)
+                    .build();
+        });
     }
 
     @Transactional
