@@ -3,6 +3,7 @@ package com.example.cinema.api.application.service;
 import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
+import com.example.cinema.api.domain.order.OrderStatus;
 import com.example.cinema.api.domain.payment.OrderPayment;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.order.Order;
@@ -75,6 +76,23 @@ public class PaymentService {
         }
 
         return gatewayResult.toResponseDTO(savedPayment.getId());
+    }
+
+    @Transactional
+    public PaymentResponseDTO retryPayment(Long orderId, PaymentRequestDTO requestDTO, UUID userId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado ou não pertence ao usuário"));
+
+        if (order.getStatus() != OrderStatus.WAITING_PAYMENT) {
+            throw new IllegalArgumentException("O pedido não está aguardando pagamento e não pode ser retentado.");
+        }
+
+        paymentRepositoryJpa.findByOrderId(orderId).ifPresent(payment -> {
+            paymentRepositoryJpa.delete(payment);
+            paymentRepositoryJpa.flush();
+        });
+
+        return processPayment(orderId, requestDTO, userId);
     }
 
     @Transactional(readOnly = true)

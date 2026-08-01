@@ -105,6 +105,27 @@ public class PaymentController {
         return ResponseEntity.created(uri).body(paymentResponse);
     }
 
+    @Operation(summary = "Tentar pagamento novamente", description = "Tenta realizar o pagamento de um pedido novamente. Remove o pagamento anterior caso exista e processa um novo se o pedido estiver aguardando pagamento.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pagamento retentado com sucesso", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Dados de pagamento inválidos ou pedido não permite retentativa", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Pedido não encontrado", content = @Content)})
+    @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/orders/{orderId}/retry")
+    public ResponseEntity<PaymentResponseDTO> retryPayment(
+            @Parameter(description = "ID do pedido que será pago novamente", example = "123") @PathVariable Long orderId,
+            @Valid @RequestBody PaymentMasterDTO paymentMasterDTO,
+            @AuthenticationPrincipal AuthenticatedUser principal) {
+
+        PaymentResponseDTO paymentResponse = paymentService.retryPayment(orderId, paymentMasterDTO.getPaymentDetails(), principal.getId());
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/payments/{id}").buildAndExpand(paymentResponse.getPaymentId()).toUri();
+
+        return ResponseEntity.created(uri).body(paymentResponse);
+    }
+
 
     @Operation(summary = "Busca um pagamento pelo ID", description = "Retorna os detalhes de um pagamento específico")
     @ApiResponses(value = {
