@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MovieExhibitionCardDTO {
     private Long id;
+    private String title;
     private Long movieId;
     private String movieTitle;
     private String posterUrl;
@@ -25,6 +26,7 @@ public class MovieExhibitionCardDTO {
 
     public MovieExhibitionCardDTO(MovieExhibition exhibition) {
         this.id = exhibition.getId();
+        this.title = exhibition.getTitle();
         this.movieId = exhibition.getMovie().getId();
         this.movieTitle = exhibition.getMovie().getTitle();
         this.posterUrl = exhibition.getMovie().getImageUrl();
