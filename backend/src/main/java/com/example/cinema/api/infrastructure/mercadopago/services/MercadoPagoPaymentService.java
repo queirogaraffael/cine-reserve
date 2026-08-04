@@ -21,10 +21,10 @@ public class MercadoPagoPaymentService implements ExternalPaymentProvider {
 
     // Separei em erros transitorios e erros definitivos para que o consumer saiba para qual fila enviar
     @Override
-    public ExternalPaymentSnapshot getPayment(Long paymentId) {
+    public ExternalPaymentSnapshot getPayment(String providerPaymentId) {
 
         try {
-            Payment mpPayment = paymentClient.get(paymentId);
+            Payment mpPayment = paymentClient.get(Long.valueOf(providerPaymentId));
 
             return new ExternalPaymentSnapshot(mpPayment.getExternalReference() != null ? Long.valueOf(mpPayment.getExternalReference()) : null,
                     mpPayment.getStatus(),
@@ -37,20 +37,20 @@ public class MercadoPagoPaymentService implements ExternalPaymentProvider {
 
             if (status == 404 || status == 408 || status == 429 || (status >= 500 && status <= 599)) {
                 throw new ExternalServiceTemporaryException(
-                        "Erro temporário ao consultar o pagamento no Mercado Pago. paymentId=" + paymentId + ", statusHTTP=" + status +
+                        "Erro temporário ao consultar o pagamento no Mercado Pago. paymentId=" + providerPaymentId + ", statusHTTP=" + status +
                                 ", mensagem=" + e.getMessage());
             }
 
             throw new ExternalServicePermanentException(
-                    "Erro permanente ao consultar o pagamento no Mercado Pago. paymentId=" + paymentId + ", statusHTTP=" + status +
+                    "Erro permanente ao consultar o pagamento no Mercado Pago. paymentId=" + providerPaymentId + ", statusHTTP=" + status +
                             ", mensagem=" + e.getMessage());
 
         } catch (MPException e) {
             throw new ExternalServiceTemporaryException(
-                    "Erro interno do SDK do Mercado Pago ao consultar o pagamento. paymentId=" + paymentId + ", mensagem=" + e.getMessage());
+                    "Erro interno do SDK do Mercado Pago ao consultar o pagamento. paymentId=" + providerPaymentId + ", mensagem=" + e.getMessage());
 
         } catch (Exception e) {
-            throw new ExternalServicePermanentException("Erro inesperado ao consultar pagamento externo. paymentId=" + paymentId +
+            throw new ExternalServicePermanentException("Erro inesperado ao consultar pagamento externo. paymentId=" + providerPaymentId +
                     ", mensagem=" + e.getMessage());
         }
     }

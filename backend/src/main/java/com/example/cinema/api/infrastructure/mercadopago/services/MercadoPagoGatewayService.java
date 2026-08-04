@@ -86,7 +86,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
                     : expirationDate;
 
             return new PixGatewayResult(
-                    mpPayment.getId(),
+                    String.valueOf(mpPayment.getId()),
                     mpPayment.getStatus(),
                     mpPayment.getStatusDetail(),
                     data.getQrCode(),
@@ -138,7 +138,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
                     : null;
 
             return new CardGatewayResult(
-                    mpPayment.getId(),
+                    String.valueOf(mpPayment.getId()),
                     mpPayment.getStatus(),
                     mpPayment.getStatusDetail(),
                     lastFourDigits,

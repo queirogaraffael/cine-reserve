@@ -47,7 +47,7 @@ public class WebhookMercadoPagoService implements WebhookService {
         }
 
         PaymentWebhookEvent event = new PaymentWebhookEvent();
-        event.setPaymentId(webhook.getData().getId());
+        event.setProviderPaymentId(String.valueOf(webhook.getData().getId()));
         event.setRawPayload(payload);
         event.setReceivedAt(OffsetDateTime.now());
 
@@ -57,10 +57,10 @@ public class WebhookMercadoPagoService implements WebhookService {
                     RabbitMQPaymentWebhookConfig.PAYMENT_WEBHOOK_QUEUE,
                     event
             );
-            log.info("Evento {} enviado para processamento", event.getPaymentId());
+            log.info("Evento {} enviado para processamento", event.getProviderPaymentId());
         } catch (AmqpException e) {
             log.error("Erro ao publicar evento no RabbitMQ. PaymentId={}",
-                    event.getPaymentId(), e);
+                    event.getProviderPaymentId(), e);
         }
     }
 
