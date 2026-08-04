@@ -84,7 +84,7 @@ class MercadoPagoGatewayServiceTest {
         PixGatewayResult result = service.createPixPayment(purchase, user, pixRequest);
 
         assertNotNull(result);
-        assertEquals(123L, result.transactionId());
+        assertEquals("123", result.providerPaymentId());
         assertEquals("pending", result.status());
         assertEquals("qr-code-string", result.pixCopiaECola());
         assertEquals("qr-code-base64", result.qrCodeBase64());
@@ -132,7 +132,7 @@ class MercadoPagoGatewayServiceTest {
         CardGatewayResult result = service.createCardPayment(purchase, user, cardRequest);
 
         assertNotNull(result);
-        assertEquals(456L, result.transactionId());
+        assertEquals("456", result.providerPaymentId());
         assertEquals("approved", result.status());
         assertEquals("accredited", result.statusDetail());
         assertEquals(1, result.installments());
