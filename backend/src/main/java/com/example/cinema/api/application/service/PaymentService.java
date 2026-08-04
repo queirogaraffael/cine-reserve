@@ -61,7 +61,7 @@ public class PaymentService {
         PaymentGatewayResult gatewayResult = paymentContext.execute(purchaseCtx, userCtx, paymentRequestDTO);
 
         OrderPayment payment = new OrderPayment(order, paymentRequestDTO.getPaymentType());
-        payment.registerTransaction(gatewayResult.transactionId());
+        payment.registerTransaction(gatewayResult.providerPaymentId());
         payment.updateStatus(PaymentStatus.fromValue(gatewayResult.status()), gatewayResult.statusDetail());
 
         OrderPayment savedPayment = paymentRepositoryJpa.save(payment);

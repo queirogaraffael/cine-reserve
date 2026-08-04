@@ -30,7 +30,7 @@ public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, L
         SELECT new com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO(
             p.id,
             p.paymentDate,
-            p.transactionId,
+            p.providerPaymentId,
             p.paymentMethod,
             p.paymentStatus,
             p.statusDetail,
@@ -47,7 +47,7 @@ public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, L
     SELECT new com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO(
         p.id,
         p.paymentDate,
-        p.transactionId,
+        p.providerPaymentId,
         p.paymentMethod,
         p.paymentStatus,
         p.statusDetail,
