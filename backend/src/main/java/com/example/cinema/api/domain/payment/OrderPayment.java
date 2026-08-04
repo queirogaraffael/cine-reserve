@@ -28,7 +28,7 @@ public class OrderPayment {
 
     private LocalDateTime paymentDate;
 
-    private Long transactionId;
+    private String providerPaymentId;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -65,16 +65,16 @@ public class OrderPayment {
         this.paymentStatus = this.paymentStatus.transitionTo(newStatus);
     }
 
-    public void registerTransaction(Long transactionId) {
+    public void registerTransaction(String providerPaymentId) {
 
-        if (transactionId == null || transactionId <= 0) {
-            throw new InvalidTransactionIdException("TransactionId inválido.");
+        if (providerPaymentId == null || providerPaymentId.isBlank()) {
+            throw new InvalidTransactionIdException("providerPaymentId inválido.");
         }
 
-        if (this.transactionId != null)
-            throw new TransactionAlreadyRegisteredException("TransactionId já registrado.");
+        if (this.providerPaymentId != null)
+            throw new TransactionAlreadyRegisteredException("providerPaymentId já registrado.");
 
-        this.transactionId = transactionId;
+        this.providerPaymentId = providerPaymentId;
     }
 
     public void updateStatus(PaymentStatus newStatus, String statusDetail) {

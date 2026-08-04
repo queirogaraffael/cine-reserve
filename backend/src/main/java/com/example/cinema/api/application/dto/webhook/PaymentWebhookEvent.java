@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @Setter
 public class PaymentWebhookEvent {
 
-    private Long paymentId;
+    private String providerPaymentId;
     private int version;
     private String rawPayload;
     private OffsetDateTime receivedAt;

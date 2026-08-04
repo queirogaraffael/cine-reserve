@@ -4,7 +4,7 @@ import com.example.cinema.api.application.dto.payment.response.PaymentResponseDT
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 
-public record CardGatewayResult(Long transactionId, String status,
+public record CardGatewayResult(String providerPaymentId, String status,
                                 String statusDetail,
                                 String lastFourDigits,
                                 Integer installments,
