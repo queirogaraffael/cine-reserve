@@ -71,9 +71,11 @@ class MigrationSchemaIT {
             "orders",
             "order_items",
             "order_payment",
+            "payment_transaction",
             "ticket_types",
             "promotions",
-            "seat_reservations");
+            "seat_reservations",
+            "coupons");
 
     private static final List<String> EXPECTED_INDEXES = List.of(
             "idx_movie_genre_id",
@@ -96,7 +98,11 @@ class MigrationSchemaIT {
             "idx_order_payment_status",
             "idx_seat_reservation_session_id",
             "idx_seat_reservation_order_id",
-            "idx_seat_reservation_active");
+            "idx_seat_reservation_active",
+            "idx_coupon_user_id",
+            "idx_coupon_code",
+            "idx_coupon_status",
+            "idx_coupon_cinema_id");
 
     @Test
     void migrationV1_deveExecutarSemErros() {

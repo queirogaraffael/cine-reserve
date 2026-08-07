@@ -158,12 +158,21 @@ CREATE TABLE order_payment (
     payment_method  VARCHAR(50)    NOT NULL,
     payment_status  VARCHAR(50)    NOT NULL,
     status_detail   VARCHAR(255),
-    order_id        BIGINT         NOT NULL UNIQUE REFERENCES orders(id)
+    order_id        BIGINT         NOT NULL REFERENCES orders(id)
 );
 
 CREATE INDEX idx_order_payment_provider_payment_id ON order_payment(provider_payment_id);
 CREATE INDEX idx_order_payment_status ON order_payment(payment_status);
 
+CREATE TABLE payment_transaction (
+    id                  BIGSERIAL       PRIMARY KEY,
+    order_payment_id    BIGINT          NOT NULL REFERENCES order_payment(id),
+    status              VARCHAR(50)     NOT NULL,
+    source              VARCHAR(100),
+    details             VARCHAR(255),
+    gateway_timestamp   TIMESTAMP,
+    created_at          TIMESTAMP       NOT NULL
+);
 
 CREATE TABLE ticket_types (
     id                     BIGSERIAL      PRIMARY KEY,

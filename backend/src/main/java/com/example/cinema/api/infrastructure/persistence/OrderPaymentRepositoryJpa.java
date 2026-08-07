@@ -5,6 +5,7 @@ import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.application.dto.payment.response.PaymentGetResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @Repository
 public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, Long> {
-    Optional<OrderPayment> findByOrderId(Long orderId);
+    Optional<OrderPayment> findFirstByOrderIdOrderByPaymentDateDesc(Long orderId);
 
     List<OrderPayment> findAllByOrderIdIn(List<Long> orderIds);
 
@@ -56,8 +57,18 @@ public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, L
     FROM OrderPayment p
     WHERE p.order.id = :orderId
       AND p.order.user.id = :userId
+    ORDER BY p.paymentDate DESC LIMIT 1
     """)
     Optional<PaymentGetResponseDTO> findPaymentDtoByOrderIdAndUserId(
             @Param("orderId") Long orderId, @Param("userId") UUID userId);
 
+    @Modifying
+    @Query(value = """
+        UPDATE order_payment
+        SET payment_status = 'EXPIRED'
+        WHERE payment_status = 'PENDING'
+          AND provider_payment_id IS NULL
+          AND payment_date < NOW() - INTERVAL '5 minutes'
+    """, nativeQuery = true)
+    int expirePendingPaymentsOlderThan5Minutes();
 }
