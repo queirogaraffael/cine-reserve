@@ -1,6 +1,5 @@
 package com.example.cinema.api.domain.payment;
 
-import com.example.cinema.api.domain.order.OrderStatus;
 import lombok.Getter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,23 +68,5 @@ public enum PaymentStatus {
         return UNKNOWN;
     }
 
-    private static final Map<PaymentStatus, OrderStatus> ORDER_STATUS_MAP =
-            Map.ofEntries(
-                    Map.entry(PENDING, OrderStatus.WAITING_PAYMENT),
-                    Map.entry(IN_PROCESS, OrderStatus.WAITING_PAYMENT),
-                    Map.entry(AUTHORIZED, OrderStatus.WAITING_PAYMENT),
-                    Map.entry(APPROVED, OrderStatus.CONFIRMED),
-                    Map.entry(REJECTED, OrderStatus.CANCELLED),
-                    Map.entry(CANCELLED, OrderStatus.CANCELLED),
-                    Map.entry(EXPIRED, OrderStatus.CANCELLED),
-                    Map.entry(FAILED, OrderStatus.CANCELLED),
-                    Map.entry(PARTIALLY_REFUNDED, OrderStatus.CANCELLED),
-                    Map.entry(REFUNDED, OrderStatus.CANCELLED),
-                    Map.entry(CHARGED_BACK, OrderStatus.CANCELLED)
-            );
-
-    public Optional<OrderStatus> toOrderStatus() {
-        return Optional.ofNullable(ORDER_STATUS_MAP.get(this));
-    }
 }
 

@@ -1,6 +1,7 @@
 package com.example.cinema.api.domain.order;
 
 import com.example.cinema.api.domain.movie.MovieSession;
+import com.example.cinema.api.domain.movie.exception.MovieSessionRequiredException;
 import com.example.cinema.api.domain.order.exception.OrderModificationNotAllowedException;
 import com.example.cinema.api.domain.user.User;
 import com.example.cinema.api.domain.user.exception.UserRequiredException;
@@ -11,7 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.math.BigDecimal;
+import com.example.cinema.api.domain.common.Money;
+import com.example.cinema.api.domain.payment.OrderPayment;
+import com.example.cinema.api.domain.payment.PaymentStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +36,17 @@ public class Order {
 
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalPrice = BigDecimal.ZERO;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "amount", column = @Column(name = "total_price", nullable = false, precision = 10, scale = 2))
+    })
+    private Money totalPrice = Money.zero();
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal serviceFee = BigDecimal.ZERO;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "amount", column = @Column(name = "service_fee", nullable = false, precision = 10, scale = 2))
+    })
+    private Money serviceFee = Money.zero();
 
     @Column(nullable = false)
     private Integer totalTicketsCount = 0;
@@ -58,6 +67,10 @@ public class Order {
     @ToString.Exclude
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<OrderPayment> payments = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private OrderStatus status;
@@ -67,7 +80,7 @@ public class Order {
             throw new UserRequiredException("Usuário é obrigatório.");
         }
         if (movieSession == null) {
-            throw new IllegalArgumentException("Sessão é obrigatória.");
+            throw new MovieSessionRequiredException("Sessão é obrigatória.");
         }
         this.user = user;
         this.movieSession = movieSession;
@@ -80,11 +93,11 @@ public class Order {
             throw new OrderModificationNotAllowedException("Pedido não pode ser modificado.");
         }
         orderItems.add(item);
-        this.totalPrice = this.totalPrice.add(item.getSubtotal());
+        this.totalPrice = this.totalPrice.add(Money.of(item.getSubtotal()));
         this.totalTicketsCount += item.getQuantity();
     }
 
-    public void applyServiceFee(BigDecimal fee) {
+    public void applyServiceFee(Money fee) {
         this.serviceFee = fee;
         this.totalPrice = this.totalPrice.add(fee);
     }
@@ -95,5 +108,10 @@ public class Order {
 
     public void markReservationExpiry(LocalDateTime expiresAt) {
         this.reservationExpiresAt = expiresAt;
+    }
+
+    public boolean isPaid() {
+        return payments.stream()
+                .anyMatch(p -> p.getPaymentStatus() == PaymentStatus.APPROVED);
     }
 }
