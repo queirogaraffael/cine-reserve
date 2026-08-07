@@ -10,6 +10,7 @@ import com.example.cinema.api.domain.order.OrderItem;
 import com.example.cinema.api.domain.order.OrderStatus;
 import com.example.cinema.api.domain.order.event.OrderCreatedEvent;
 import com.example.cinema.api.domain.order.exception.InvalidSeatSelectionException;
+import com.example.cinema.api.domain.common.Money;
 import com.example.cinema.api.domain.order.exception.OrderNotFoundException;
 import com.example.cinema.api.domain.order.exception.SeatAlreadyReservedException;
 import com.example.cinema.api.domain.payment.OrderPayment;
@@ -118,7 +119,7 @@ public class OrderService {
                     .sessionDate(java.time.LocalDateTime.of(order.getMovieSession().getShowDate(), order.getMovieSession().getStartTime()))
                     .reservedAt(order.getCreatedAt())
                     .seats(seatsStr)
-                    .total(order.getTotalPrice())
+                    .total(order.getTotalPrice() != null ? order.getTotalPrice().getAmount() : BigDecimal.ZERO)
                     .paymentStatus(paymentStatus)
                     .isCancelled(isCancelled)
                     .canRetryPayment(canRetryPayment)
@@ -168,11 +169,11 @@ public class OrderService {
         }
 
         BigDecimal serviceFee = SERVICE_FEE_PER_TICKET.multiply(BigDecimal.valueOf(order.getTotalTicketsCount()));
-        order.applyServiceFee(serviceFee);
+        order.applyServiceFee(Money.of(serviceFee));
 
         Order saved = orderRepository.save(order);
 
-        eventPublisher.publishEvent(new OrderCreatedEvent(saved.getId(), user.getId(), saved.getTotalPrice(), saved.getCreatedAt()));
+        eventPublisher.publishEvent(new OrderCreatedEvent(saved.getId(), user.getId(), saved.getTotalPrice().getAmount(), saved.getCreatedAt()));
 
         return orderMapper.toResponseDTO(saved);
     }
