@@ -1,6 +1,6 @@
 package com.example.cinema.api.application.payment.strategy;
 
-import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
+import com.example.cinema.api.application.dto.payment.OrderPaymentContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.PaymentType;
@@ -28,7 +28,7 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
     }
 
     @Override
-    public PaymentGatewayResult process(PaymentOrderContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
+    public PaymentGatewayResult process(OrderPaymentContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
         return paymentGatewayService.createPixPayment(purchase, user, request);
     }
 }

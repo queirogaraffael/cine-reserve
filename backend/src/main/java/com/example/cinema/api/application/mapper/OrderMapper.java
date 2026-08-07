@@ -2,8 +2,10 @@ package com.example.cinema.api.application.mapper;
 
 import com.example.cinema.api.application.dto.order.OrderItemResponseDTO;
 import com.example.cinema.api.application.dto.order.OrderResponseDTO;
+import com.example.cinema.api.domain.common.Money;
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.order.OrderItem;
+import java.math.BigDecimal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -19,4 +21,8 @@ public interface OrderMapper {
     @Mapping(target = "ticketTypeName", source = "ticketType.name")
     @Mapping(target = "category", expression = "java(item.getTicketType().getCategory().name())")
     OrderItemResponseDTO toItemResponseDTO(OrderItem item);
+
+    default BigDecimal map(Money money) {
+        return money != null ? money.getAmount() : BigDecimal.ZERO;
+    }
 }
