@@ -28,7 +28,8 @@ public class MercadoPagoPaymentService implements ExternalPaymentProvider {
 
             return new ExternalPaymentSnapshot(mpPayment.getExternalReference() != null ? Long.valueOf(mpPayment.getExternalReference()) : null,
                     mpPayment.getStatus(),
-                    mpPayment.getStatusDetail()
+                    mpPayment.getStatusDetail(),
+                    "MERCADO_PAGO_WEBHOOK"
             );
 
         } catch (MPApiException e) {

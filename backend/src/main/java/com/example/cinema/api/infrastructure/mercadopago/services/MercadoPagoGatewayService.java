@@ -8,7 +8,7 @@ import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGa
 import com.example.cinema.api.domain.order.exception.InvalidPaymentAmountException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.example.cinema.api.application.dto.payment.PaymentAddressDTO;
-import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
+import com.example.cinema.api.application.dto.payment.OrderPaymentContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.mercadopago.client.common.IdentificationRequest;
 import com.mercadopago.client.payment.PaymentClient;
@@ -46,7 +46,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public PixGatewayResult createPixPayment(PaymentOrderContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
+    public PixGatewayResult createPixPayment(OrderPaymentContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
         try {
@@ -107,7 +107,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
-    public CardGatewayResult createCardPayment(PaymentOrderContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
+    public CardGatewayResult createCardPayment(OrderPaymentContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
         try {
@@ -155,7 +155,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
         }
     }
 
-    private void validateTotalPrice(PaymentOrderContext purchase) {
+    private void validateTotalPrice(OrderPaymentContext purchase) {
         if (purchase.totalPrice() == null || purchase.totalPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidPaymentAmountException("Valor total da compra deve ser maior que zero. purchaseId=" + purchase.id());
         }

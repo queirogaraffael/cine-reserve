@@ -5,21 +5,26 @@ import com.example.cinema.api.domain.payment.OrderPayment;
 import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.order.Order;
-import com.example.cinema.api.domain.order.OrderStatus;
+import com.example.cinema.api.domain.payment.events.PaymentConfirmedEvent;
 import com.example.cinema.api.infrastructure.persistence.OrderPaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
 public class PaymentUpdateService {
 
     private final OrderPaymentRepositoryJpa paymentRepositoryJpa;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PaymentUpdateService(OrderPaymentRepositoryJpa paymentRepositoryJpa) {
+    public PaymentUpdateService(OrderPaymentRepositoryJpa paymentRepositoryJpa, ApplicationEventPublisher eventPublisher) {
         this.paymentRepositoryJpa = paymentRepositoryJpa;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -29,22 +34,22 @@ public class PaymentUpdateService {
             throw new InvalidPaymentSnapshotException("Pagamento sem external_reference");
         }
 
-        Long orderId = snapshot.externalReference();
+        Long orderPaymentId = snapshot.externalReference();
 
-        OrderPayment payment = paymentRepositoryJpa.findByOrderId(orderId)
+        OrderPayment payment = paymentRepositoryJpa.findById(orderPaymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(
-                        "Pagamento nao encontrado para orderId: " + orderId));
+                        "Pagamento nao encontrado para orderPaymentId: " + orderPaymentId));
 
         PaymentStatus newPaymentStatus = PaymentStatus.fromValue(snapshot.status());
 
         if (newPaymentStatus == PaymentStatus.UNKNOWN) {
-            log.warn("Status desconhecido '{}' recebido para orderId={}, ignorando",
-                    snapshot.status(), orderId);
+            log.warn("Status desconhecido '{}' recebido para orderPaymentId={}, ignorando",
+                    snapshot.status(), orderPaymentId);
             return;
         }
 
         if (payment.getPaymentStatus() == newPaymentStatus) {
-            log.info("Pagamento {} ja esta no status {}, ignorando", orderId, newPaymentStatus);
+            log.info("Pagamento {} ja esta no status {}, ignorando", orderPaymentId, newPaymentStatus);
             return;
         }
 
@@ -52,21 +57,19 @@ public class PaymentUpdateService {
 
         if (order.getStatus().isTerminal()) {
             log.warn("Webhook recebido para pedido {} ja em status terminal {}, ignorando",
-                    orderId, order.getStatus());
+                    order.getId(), order.getStatus());
             return;
         }
 
-        OrderStatus newOrderStatus = newPaymentStatus.toOrderStatus()
-                .orElseThrow(() -> new IllegalStateException(
-                        "PaymentStatus sem mapeamento: " + newPaymentStatus));
-
-        payment.updateStatus(newPaymentStatus, snapshot.statusDetail());
-        order.moveToStatus(newOrderStatus);
-
+        payment.registerTransaction(newPaymentStatus, snapshot.providerName(), snapshot.statusDetail(), LocalDateTime.now());
+        
         paymentRepositoryJpa.save(payment);
 
-        log.info("Pedido {} atualizada: paymentStatus={} orderStatus={}",
-                orderId, newPaymentStatus, newOrderStatus);
+        if (newPaymentStatus == PaymentStatus.APPROVED) {
+            eventPublisher.publishEvent(new PaymentConfirmedEvent(payment.getId(), order.getId()));
+        }
+
+        log.info("Pagamento {} atualizado: paymentStatus={}", orderPaymentId, newPaymentStatus);
     }
 
 }
