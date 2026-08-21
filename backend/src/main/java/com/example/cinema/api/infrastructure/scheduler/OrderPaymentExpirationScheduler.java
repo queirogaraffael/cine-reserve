@@ -19,7 +19,8 @@ public class OrderPaymentExpirationScheduler {
     @Scheduled(fixedDelay = 5 * 60 * 1000)
     @Transactional
     public void expirePendingPayments() {
-        int updated = paymentRepository.expirePendingPaymentsOlderThan5Minutes();
+        java.time.LocalDateTime cutoff = java.time.LocalDateTime.now().minusMinutes(5);
+        int updated = paymentRepository.expirePendingPaymentsOlderThan(cutoff);
         if (updated > 0) {
             log.info("Expirados {} pagamentos que ficaram travados em PENDING", updated);
         }

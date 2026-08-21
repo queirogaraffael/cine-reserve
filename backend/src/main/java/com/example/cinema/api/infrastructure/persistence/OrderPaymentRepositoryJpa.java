@@ -65,12 +65,12 @@ public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, L
             @Param("orderId") Long orderId, @Param("userId") UUID userId);
 
     @Modifying
-    @Query(value = """
-        UPDATE order_payment
-        SET payment_status = 'EXPIRED'
-        WHERE payment_status = 'PENDING'
-          AND provider_payment_id IS NULL
-          AND payment_date < NOW() - INTERVAL '5 minutes'
-    """, nativeQuery = true)
-    int expirePendingPaymentsOlderThan5Minutes();
+    @Query("""
+        UPDATE OrderPayment p
+        SET p.paymentStatus = 'EXPIRED'
+        WHERE p.paymentStatus = 'PENDING'
+          AND p.providerPaymentId IS NULL
+          AND p.paymentDate < :cutoffDate
+    """)
+    int expirePendingPaymentsOlderThan(@Param("cutoffDate") java.time.LocalDateTime cutoffDate);
 }
