@@ -6,6 +6,8 @@ import com.example.cinema.api.domain.payment.PaymentStatus;
 import com.example.cinema.api.domain.payment.exception.PaymentNotFoundException;
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.payment.events.PaymentConfirmedEvent;
+import com.example.cinema.api.domain.payment.events.PixPaymentStatusUpdatedEvent;
+import com.example.cinema.api.domain.payment.PaymentType;
 import com.example.cinema.api.infrastructure.persistence.OrderPaymentRepositoryJpa;
 import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +66,10 @@ public class PaymentUpdateService {
         payment.registerTransaction(newPaymentStatus, snapshot.providerName(), snapshot.statusDetail(), LocalDateTime.now());
         
         paymentRepositoryJpa.save(payment);
+
+        if (payment.getPaymentMethod() == PaymentType.PIX) {
+            eventPublisher.publishEvent(new PixPaymentStatusUpdatedEvent(order.getId(), newPaymentStatus, snapshot.statusDetail()));
+        }
 
         if (newPaymentStatus == PaymentStatus.APPROVED) {
             eventPublisher.publishEvent(new PaymentConfirmedEvent(payment.getId(), order.getId()));

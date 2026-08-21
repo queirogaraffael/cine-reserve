@@ -52,6 +52,10 @@ public enum PaymentStatus {
         return next != null && allowedTransitions.contains(next);
     }
 
+    public boolean isTerminal() {
+        return this == APPROVED || this == REJECTED || this == CANCELLED || this == FAILED || this == EXPIRED || this == CHARGED_BACK;
+    }
+
     public PaymentStatus transitionTo(PaymentStatus next) {
         if (!canTransitionTo(next)) {
             log.error("Transição inválida: {} -> {}", this, next);
