@@ -18,6 +18,8 @@ import java.util.UUID;
 @Repository
 public interface OrderRepositoryJpa extends JpaRepository<Order, Long> {
     Optional<Order> findByIdAndUserId(Long orderId, UUID userId);
+    
+    boolean existsByIdAndUserId(Long orderId, UUID userId);
 
     @EntityGraph(attributePaths = {"movieSession.movieExhibition.movie"})
     Page<Order> findAllByUserIdAndStatusNotOrderByCreatedAtDesc(UUID userId, OrderStatus status, Pageable pageable);

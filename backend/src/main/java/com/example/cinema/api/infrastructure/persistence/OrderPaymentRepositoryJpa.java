@@ -20,6 +20,8 @@ public interface OrderPaymentRepositoryJpa extends JpaRepository<OrderPayment, L
 
     List<OrderPayment> findAllByOrderIdIn(List<Long> orderIds);
 
+    long countByOrderId(Long orderId);
+
     @Query("""
         SELECT p.paymentStatus
         FROM OrderPayment p
