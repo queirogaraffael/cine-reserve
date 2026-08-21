@@ -4,7 +4,6 @@ import com.example.cinema.api.application.dto.order.*;
 import com.example.cinema.api.application.mapper.OrderMapper;
 import com.example.cinema.api.domain.movie.MovieSession;
 import com.example.cinema.api.domain.movie.exception.MovieSessionNotFoundException;
-import com.example.cinema.api.domain.movie.exception.MovieSessionNotAvailableForPurchaseException;
 import com.example.cinema.api.domain.order.Order;
 import com.example.cinema.api.domain.order.OrderItem;
 import com.example.cinema.api.domain.order.OrderStatus;
@@ -59,6 +58,7 @@ public class OrderService {
     private final ApplicationEventPublisher eventPublisher;
 
     private final OrderPaymentRepositoryJpa orderPaymentRepository;
+    private final PaymentValidationService paymentValidationService;
 
     public OrderService(OrderRepositoryJpa orderRepository,
                         MovieSessionRepositoryJpa movieSessionRepository,
@@ -69,7 +69,8 @@ public class OrderService {
                         UserService userService,
                         OrderMapper orderMapper,
                         ApplicationEventPublisher eventPublisher,
-                        OrderPaymentRepositoryJpa orderPaymentRepository) {
+                        OrderPaymentRepositoryJpa orderPaymentRepository,
+                        PaymentValidationService paymentValidationService) {
         this.orderRepository = orderRepository;
         this.movieSessionRepository = movieSessionRepository;
         this.ticketTypeRepository = ticketTypeRepository;
@@ -80,6 +81,7 @@ public class OrderService {
         this.orderMapper = orderMapper;
         this.eventPublisher = eventPublisher;
         this.orderPaymentRepository = orderPaymentRepository;
+        this.paymentValidationService = paymentValidationService;
     }
 
     @Transactional(readOnly = true)
@@ -97,20 +99,28 @@ public class OrderService {
                 .collect(Collectors.groupingBy(res -> res.getOrder().getId()));
 
         List<OrderPayment> allPayments = orderPaymentRepository.findAllByOrderIdIn(orderIds);
-        Map<Long, OrderPayment> paymentByOrderId = allPayments.stream()
-                .collect(Collectors.toMap(p -> p.getOrder().getId(), p -> p));
+        
+        Map<Long, OrderPayment> latestPaymentByOrderId = allPayments.stream()
+                .collect(Collectors.toMap(
+                        p -> p.getOrder().getId(),
+                        p -> p,
+                        (existing, replacement) -> existing.getPaymentDate().isAfter(replacement.getPaymentDate()) ? existing : replacement
+                ));
+
+        Map<Long, Long> attemptCountByOrderId = allPayments.stream()
+                .collect(Collectors.groupingBy(p -> p.getOrder().getId(), Collectors.counting()));
 
         return orders.map(order -> {
             List<SeatReservation> orderSeats = seatsByOrderId.getOrDefault(order.getId(), java.util.Collections.emptyList());
             String seatsStr = orderSeats.stream().map(res -> res.getSeat().getCode()).collect(Collectors.joining(", "));
 
-            OrderPayment payment = paymentByOrderId.get(order.getId());
-            String paymentStatus = (payment != null && payment.getPaymentStatus() != null) ? payment.getPaymentStatus().name() : null;
+            OrderPayment latestPayment = latestPaymentByOrderId.get(order.getId());
+            String paymentStatus = (latestPayment != null && latestPayment.getPaymentStatus() != null) ? latestPayment.getPaymentStatus().name() : null;
 
             boolean isCancelled = order.getStatus() == OrderStatus.CANCELLED;
             
-            boolean paymentFailedOrPending = paymentStatus == null || !paymentStatus.equals("APPROVED");
-            boolean canRetryPayment = order.getStatus() == OrderStatus.WAITING_PAYMENT && paymentFailedOrPending;
+            long totalAttempts = attemptCountByOrderId.getOrDefault(order.getId(), 0L);
+            boolean canRetryPayment = paymentValidationService.isEligibleForRetry(order, latestPayment, totalAttempts);
 
             return com.example.cinema.api.application.dto.order.OrderHistoryResponseDTO.builder()
                     .orderId(order.getId())
@@ -134,9 +144,7 @@ public class OrderService {
         MovieSession session = movieSessionRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new MovieSessionNotFoundException("Sessão não encontrada."));
 
-        if (!session.isAvailableForPurchase()) {
-            throw new MovieSessionNotAvailableForPurchaseException("Sessão não está disponível para compra.");
-        }
+        session.validateAvailabilityForReservation();
 
         Order order = new Order(user, session);
 
@@ -182,6 +190,8 @@ public class OrderService {
     public OrderResponseDTO selectSeats(Long orderId, OrderSeatSelectionRequestDTO dto, UUID userId) {
         Order order = orderRepository.findByIdAndUserId(orderId, userId)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
+
+        order.getMovieSession().validateAvailabilityForReservation();
 
         Set<Long> seatIds = dto.getSeatIds();
 
