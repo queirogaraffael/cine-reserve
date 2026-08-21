@@ -1,10 +1,13 @@
 package com.example.cinema.api.infrastructure.mercadopago.services;
 
-import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.service.gateway.CardPaymentGatewayPort;
+import com.example.cinema.api.application.service.gateway.PixPaymentGatewayPort;
 import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.response.gateway.card.CardGatewayResult;
 import com.example.cinema.api.application.dto.payment.response.gateway.pix.PixGatewayResult;
+import com.example.cinema.api.domain.payment.exception.GatewayUnavailableException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import com.example.cinema.api.domain.order.exception.InvalidPaymentAmountException;
 import com.example.cinema.api.infrastructure.exception.ApiPagamentoException;
 import com.example.cinema.api.application.dto.payment.PaymentAddressDTO;
@@ -32,7 +35,7 @@ import java.util.Collections;
 
 @Component
 @Slf4j
-public class MercadoPagoGatewayService implements PaymentGatewayService {
+public class MercadoPagoGatewayService implements PixPaymentGatewayPort, CardPaymentGatewayPort {
 
     private final PaymentClient paymentClientMercadoPago;
 
@@ -46,6 +49,7 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
     }
 
     @Override
+    @CircuitBreaker(name = "mercadopago-gateway", fallbackMethod = "pixPaymentFallback")
     public PixGatewayResult createPixPayment(OrderPaymentContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
@@ -106,7 +110,14 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
         }
     }
 
+    public PixGatewayResult pixPaymentFallback(OrderPaymentContext purchase, PaymentUserContext user, PixPaymentRequestDTO request, Throwable ex) {
+        if (ex instanceof InvalidPaymentAmountException) throw (InvalidPaymentAmountException) ex;
+        log.error("Circuit Breaker aberto/falha para PIX. purchaseId={}", purchase.id(), ex);
+        throw new GatewayUnavailableException("Serviço de pagamento PIX temporariamente indisponível. Tente novamente em alguns instantes.");
+    }
+
     @Override
+    @CircuitBreaker(name = "mercadopago-gateway", fallbackMethod = "cardPaymentFallback")
     public CardGatewayResult createCardPayment(OrderPaymentContext purchase, PaymentUserContext user, CardPaymentRequestDTO request) {
         validateTotalPrice(purchase);
 
@@ -153,6 +164,12 @@ public class MercadoPagoGatewayService implements PaymentGatewayService {
             log.error("Erro inesperado ao processar pagamento com cartão. purchaseId={}", purchase.id(), e);
             throw new ApiPagamentoException("Erro inesperado ao processar resposta do pagamento com cartão", e);
         }
+    }
+
+    public CardGatewayResult cardPaymentFallback(OrderPaymentContext purchase, PaymentUserContext user, CardPaymentRequestDTO request, Throwable ex) {
+        if (ex instanceof InvalidPaymentAmountException) throw (InvalidPaymentAmountException) ex;
+        log.error("Circuit Breaker aberto/falha para cartão. purchaseId={}", purchase.id(), ex);
+        throw new GatewayUnavailableException("Serviço de pagamento com cartão temporariamente indisponível. Tente novamente em alguns instantes.");
     }
 
     private void validateTotalPrice(OrderPaymentContext purchase) {
