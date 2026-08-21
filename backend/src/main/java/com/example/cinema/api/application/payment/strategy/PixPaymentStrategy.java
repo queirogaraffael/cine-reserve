@@ -4,16 +4,16 @@ import com.example.cinema.api.application.dto.payment.OrderPaymentContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.PaymentType;
-import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.service.gateway.PixPaymentGatewayPort;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO> {
 
-    private final PaymentGatewayService paymentGatewayService;
+    private final PixPaymentGatewayPort paymentGatewayService;
 
-    public PixPaymentStrategy(PaymentGatewayService paymentGatewayService) {
+    public PixPaymentStrategy(PixPaymentGatewayPort paymentGatewayService) {
         this.paymentGatewayService = paymentGatewayService;
     }
 
