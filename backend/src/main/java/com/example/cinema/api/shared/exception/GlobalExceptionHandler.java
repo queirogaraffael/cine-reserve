@@ -23,11 +23,14 @@ import java.time.LocalDateTime;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public record ApiErrorResponse(String message, int status, String path, LocalDateTime timestamp) {}
+    public record ApiErrorResponse(String message, int status, String path, LocalDateTime timestamp) {
+    }
 
-    private ResponseEntity<ApiErrorResponse> buildErrorResponse(String message, HttpStatus status, HttpServletRequest request) {
+    private ResponseEntity<ApiErrorResponse> buildErrorResponse(String message, HttpStatus status,
+            HttpServletRequest request) {
 
-        ApiErrorResponse error = new ApiErrorResponse(message, status.value(), request.getRequestURI(), LocalDateTime.now());
+        ApiErrorResponse error = new ApiErrorResponse(message, status.value(), request.getRequestURI(),
+                LocalDateTime.now());
 
         return ResponseEntity.status(status).body(error);
     }
@@ -56,8 +59,23 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
     }
 
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ApiErrorResponse> handleBusinessRuleException(BusinessRuleException ex,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY, request);
+    }
+
+    @ExceptionHandler(InfrastructureUnavailableException.class)
+    public ResponseEntity<ApiErrorResponse> handleInfrastructureUnavailableException(
+            InfrastructureUnavailableException ex, HttpServletRequest request) {
+        log.error("Infrastructure unavailable at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE, request);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiErrorResponse> handleBadCredentialsException(BadCredentialsException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleBadCredentialsException(BadCredentialsException ex,
+            HttpServletRequest request) {
 
         String safeMessage = "Credenciais de acesso inválidas (usuário ou senha incorretos).";
 
@@ -67,24 +85,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<ApiErrorResponse> handleLockedException(LockedException ex, HttpServletRequest request) {
 
-        return buildErrorResponse("A conta está temporariamente bloqueada devido ao excesso de tentativas falhas.", HttpStatus.LOCKED, request);
+        return buildErrorResponse("A conta está temporariamente bloqueada devido ao excesso de tentativas falhas.",
+                HttpStatus.LOCKED, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
+            HttpServletRequest request) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(InsufficientAuthenticationException.class)
-    public ResponseEntity<ApiErrorResponse> handleInsufficientAuthentication(InsufficientAuthenticationException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleInsufficientAuthentication(InsufficientAuthenticationException ex,
+            HttpServletRequest request) {
 
         return buildErrorResponse("Usuário não autenticado", HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
-        return buildErrorResponse("Acesso negado: Você não tem permissão para realizar esta operação.", HttpStatus.FORBIDDEN, request);
+        return buildErrorResponse("Acesso negado: Você não tem permissão para realizar esta operação.",
+                HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(Exception.class)
@@ -94,55 +116,66 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
+            HttpServletRequest request) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<ApiErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException ex,
+            HttpServletRequest request) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiErrorResponse> handleIllegalStateException(IllegalStateException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalStateException(IllegalStateException ex,
+            HttpServletRequest request) {
 
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
 
         StringBuilder message = new StringBuilder();
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {message.append(error.getField())
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            message.append(error.getField())
                     .append(": ")
                     .append(error.getDefaultMessage())
-                    .append("; ");});
+                    .append("; ");
+        });
 
         return buildErrorResponse(message.toString(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(InfrastructureException.class)
-    public ResponseEntity<ApiErrorResponse> handleInfrastructure(InfrastructureException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleInfrastructure(InfrastructureException ex,
+            HttpServletRequest request) {
         log.error("Infrastructure failure at {}: {}", request.getRequestURI(), ex.getMessage(), ex.getCause());
-        return buildErrorResponse("An internal server error occurred. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return buildErrorResponse("An internal server error occurred. Please try again later.",
+                HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(TokenCreationException.class)
-    public ResponseEntity<ApiErrorResponse> handleTokenCreationException(TokenCreationException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleTokenCreationException(TokenCreationException ex,
+            HttpServletRequest request) {
         log.error("Failed to create JWT token", ex);
         return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(RefreshTokenInvalidException.class)
-    public ResponseEntity<ApiErrorResponse> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleRefreshTokenInvalidException(RefreshTokenInvalidException ex,
+            HttpServletRequest request) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiErrorResponse> handleDisabledException(DisabledException ex, HttpServletRequest request) {
-        return buildErrorResponse("A conta do usuário está desativada. Entre em contato com o suporte.", HttpStatus.FORBIDDEN, request);
+        return buildErrorResponse("A conta do usuário está desativada. Entre em contato com o suporte.",
+                HttpStatus.FORBIDDEN, request);
     }
 }
