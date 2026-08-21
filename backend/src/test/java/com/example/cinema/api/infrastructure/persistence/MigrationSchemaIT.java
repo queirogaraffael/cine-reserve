@@ -27,17 +27,31 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @AutoConfigureMockMvc
 class MigrationSchemaIT {
 
+    static final boolean DOCKER_AVAILABLE;
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine")
             .withDatabaseName("cinema_migration_test")
             .withUsername("test")
             .withPassword("test");
 
     static {
-        POSTGRES.start();
+        boolean available = false;
+        try {
+            available = org.testcontainers.DockerClientFactory.instance().isDockerAvailable();
+        } catch (Exception e) {}
+        DOCKER_AVAILABLE = available;
+        if (DOCKER_AVAILABLE) {
+            POSTGRES.start();
+        }
+    }
+
+    @org.junit.jupiter.api.BeforeAll
+    static void checkDocker() {
+        org.junit.jupiter.api.Assumptions.assumeTrue(DOCKER_AVAILABLE, "Docker is not available. Skipping MigrationSchemaIT.");
     }
 
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
+        if (!DOCKER_AVAILABLE) return;
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);

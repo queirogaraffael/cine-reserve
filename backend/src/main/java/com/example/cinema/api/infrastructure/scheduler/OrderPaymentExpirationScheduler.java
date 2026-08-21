@@ -6,6 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Component
 @Slf4j
 public class OrderPaymentExpirationScheduler {
@@ -19,7 +21,7 @@ public class OrderPaymentExpirationScheduler {
     @Scheduled(fixedDelay = 5 * 60 * 1000)
     @Transactional
     public void expirePendingPayments() {
-        java.time.LocalDateTime cutoff = java.time.LocalDateTime.now().minusMinutes(5);
+        LocalDateTime cutoff = java.time.LocalDateTime.now().minusMinutes(5);
         int updated = paymentRepository.expirePendingPaymentsOlderThan(cutoff);
         if (updated > 0) {
             log.info("Expirados {} pagamentos que ficaram travados em PENDING", updated);
