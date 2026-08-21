@@ -4,6 +4,7 @@ import com.example.cinema.api.domain.payment.exception.InvalidPaymentStatusExcep
 import com.example.cinema.api.domain.payment.exception.InvalidTransactionIdException;
 import com.example.cinema.api.domain.payment.exception.TransactionAlreadyRegisteredException;
 import com.example.cinema.api.domain.payment.exception.PaymentMethodRequiredException;
+import com.example.cinema.api.domain.payment.exception.PaymentValidationException;
 import com.example.cinema.api.domain.payment.exception.OrderRequiredException;
 import com.example.cinema.api.domain.order.Order;
 import jakarta.persistence.*;
@@ -25,6 +26,9 @@ public class OrderPayment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String idempotencyKey;
 
     @Version
     private Long version;
@@ -52,7 +56,7 @@ public class OrderPayment {
     @ToString.Exclude
     private List<PaymentTransaction> transactions = new ArrayList<>();
 
-    public OrderPayment(Order order, PaymentType paymentMethod) {
+    public OrderPayment(Order order, PaymentType paymentMethod, String idempotencyKey) {
 
         if (order == null) {
             throw new OrderRequiredException("O pedido é obrigatório para criar um pagamento.");
@@ -62,10 +66,15 @@ public class OrderPayment {
             throw new PaymentMethodRequiredException("O método de pagamento é obrigatório.");
         }
 
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            throw new PaymentValidationException("A chave de idempotência é obrigatória para criar um pagamento.");
+        }
+
         this.order = order;
         this.paymentMethod = paymentMethod;
         this.paymentDate = LocalDateTime.now();
         this.paymentStatus = PaymentStatus.PENDING;
+        this.idempotencyKey = idempotencyKey;
     }
 
     private void moveToStatus(PaymentStatus newStatus) {
@@ -84,14 +93,15 @@ public class OrderPayment {
         this.providerPaymentId = providerPaymentId;
     }
 
-    public void registerTransaction(PaymentStatus newStatus, String source, String details, LocalDateTime gatewayTimestamp) {
+    public void registerTransaction(PaymentStatus newStatus, String source, String details,
+            LocalDateTime gatewayTimestamp) {
         if (newStatus == null || newStatus == PaymentStatus.UNKNOWN) {
             throw new InvalidPaymentStatusException("Status invalido: " + newStatus);
         }
-        
+
         moveToStatus(newStatus);
         this.statusDetail = details;
-        
+
         this.transactions.add(new PaymentTransaction(this, newStatus, source, details, gatewayTimestamp));
     }
 }

@@ -2,6 +2,7 @@ package com.example.cinema.api.application.dto.payment;
 
 import com.example.cinema.api.domain.payment.exception.PaymentValidationException;
 import com.example.cinema.api.domain.order.Order;
+import com.example.cinema.api.domain.payment.OrderPayment;
 
 import java.math.BigDecimal;
 
@@ -14,12 +15,12 @@ public record OrderPaymentContext(String idempotencyKey, BigDecimal totalPrice, 
         if (orderPaymentId == null) throw new PaymentValidationException("ID do pagamento é obrigatório");
     }
 
-    public static OrderPaymentContext from(Order order, Long orderPaymentId) {
+    public static OrderPaymentContext from(Order order, OrderPayment orderPayment) {
         return new OrderPaymentContext(
-                "orderPayment-" + orderPaymentId,
+                orderPayment.getIdempotencyKey(),
                 order.getTotalPrice().getAmount(),
                 order.getId(),
-                orderPaymentId
+                orderPayment.getId()
         );
     }
 }

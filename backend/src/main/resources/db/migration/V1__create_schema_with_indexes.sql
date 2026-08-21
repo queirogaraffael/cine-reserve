@@ -152,6 +152,7 @@ CREATE INDEX idx_order_status ON orders(status);
 
 CREATE TABLE order_payment (
     id              BIGSERIAL      PRIMARY KEY,
+    idempotency_key VARCHAR(100)   NOT NULL UNIQUE,
     payment_date    TIMESTAMP,
     provider_payment_id VARCHAR(100),
     version         BIGINT         NOT NULL DEFAULT 0,
