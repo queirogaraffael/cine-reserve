@@ -1,0 +1,26 @@
+# ─── Terraform state files ────────────────────────────────────────────────────
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# ─── Terraform plans ─────────────────────────────────────────────────────────
+*.tfplan
+*.plan
+
+# ─── Variáveis com credenciais (NUNCA commitar!) ──────────────────────────────
+*.tfvars
+!*.tfvars.example
+
+# ─── Terraform cache e plugins ───────────────────────────────────────────────
+.terraform/
+.terraform.lock.hcl
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+crash.log
+crash.*.log
+
+# ─── Override files ───────────────────────────────────────────────────────────
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
