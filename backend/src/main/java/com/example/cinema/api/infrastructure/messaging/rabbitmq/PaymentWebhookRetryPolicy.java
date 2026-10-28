@@ -29,7 +29,7 @@ public class PaymentWebhookRetryPolicy {
     public void retry(PaymentWebhookEvent event, Message message, int retries, String reason) {
 
         if (retries >= MAX_RETRIES) {
-            throw new MaxRetriesExceededException(event.getPaymentId());
+            throw new MaxRetriesExceededException(event.getProviderPaymentId());
         }
 
         String routingKey = chooseRetryRoutingKey(retries + 1);
@@ -46,7 +46,7 @@ public class PaymentWebhookRetryPolicy {
         );
 
         log.warn("Retry {} scheduled for payment {} ({}) via {}",
-                retries + 1, event.getPaymentId(), reason, routingKey);
+                retries + 1, event.getProviderPaymentId(), reason, routingKey);
     }
 
     public int getRetryCount(Message message) {

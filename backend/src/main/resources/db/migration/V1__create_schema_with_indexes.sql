@@ -1,6 +1,7 @@
 CREATE TABLE genre (
     id      BIGSERIAL    PRIMARY KEY,
-    name    VARCHAR(100) NOT NULL UNIQUE
+    name    VARCHAR(100) NOT NULL UNIQUE,
+    active  BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
 
@@ -14,6 +15,7 @@ CREATE TABLE movie (
     rating       VARCHAR(10)  NOT NULL,
     in_theaters  BOOLEAN      NOT NULL DEFAULT TRUE,
     pre_release  BOOLEAN      NOT NULL DEFAULT FALSE,
+    active       BOOLEAN      NOT NULL DEFAULT TRUE,
     genre_id     BIGINT       NOT NULL REFERENCES genre(id)
 );
 
@@ -35,6 +37,7 @@ CREATE TABLE cinema (
 CREATE TABLE rooms (
     id        BIGSERIAL    PRIMARY KEY,
     name      VARCHAR(255) NOT NULL,
+    active    BOOLEAN      NOT NULL DEFAULT TRUE,
     cinema_id BIGINT       NOT NULL REFERENCES cinema(id)
 );
 
@@ -86,11 +89,11 @@ CREATE TABLE movie_session (
 CREATE INDEX idx_movie_session_exhibition_id ON movie_session(exhibition_id);
 CREATE INDEX idx_movie_session_room_id ON movie_session(room_id);
 CREATE INDEX idx_movie_session_show_date ON movie_session(show_date);
-CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled) WHERE canceled = FALSE;
+CREATE INDEX idx_movie_session_available ON movie_session(show_date, canceled);
 
 
 CREATE TABLE users (
-    id               UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    id               UUID         PRIMARY KEY,
     name             VARCHAR(255),
     cpf              VARCHAR(14)  UNIQUE,
     email            VARCHAR(255) NOT NULL UNIQUE,
@@ -111,14 +114,15 @@ CREATE TABLE users (
     failed_attempt   INTEGER      NOT NULL DEFAULT 0,
     lock_time        TIMESTAMP,
     is_locked        BOOLEAN      NOT NULL DEFAULT FALSE,
-    role             VARCHAR(50)  NOT NULL
+    role             VARCHAR(50)  NOT NULL,
+    cinema_id        BIGINT       REFERENCES cinema(id)
 );
 
-CREATE INDEX idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
+CREATE INDEX idx_users_is_locked ON users(is_locked);
 
 
 CREATE TABLE registration_confirmations (
-    id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    id         UUID         PRIMARY KEY,
     user_id    UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     code       VARCHAR(6)   NOT NULL,
     expires_at TIMESTAMP    NOT NULL,
@@ -148,18 +152,28 @@ CREATE INDEX idx_order_status ON orders(status);
 
 CREATE TABLE order_payment (
     id              BIGSERIAL      PRIMARY KEY,
+    idempotency_key VARCHAR(100)   NOT NULL UNIQUE,
     payment_date    TIMESTAMP,
-    transaction_id  BIGINT,
+    provider_payment_id VARCHAR(100),
     version         BIGINT         NOT NULL DEFAULT 0,
     payment_method  VARCHAR(50)    NOT NULL,
     payment_status  VARCHAR(50)    NOT NULL,
     status_detail   VARCHAR(255),
-    order_id        BIGINT         NOT NULL UNIQUE REFERENCES orders(id)
+    order_id        BIGINT         NOT NULL REFERENCES orders(id)
 );
 
-CREATE INDEX idx_order_payment_transaction_id ON order_payment(transaction_id);
+CREATE INDEX idx_order_payment_provider_payment_id ON order_payment(provider_payment_id);
 CREATE INDEX idx_order_payment_status ON order_payment(payment_status);
 
+CREATE TABLE payment_transaction (
+    id                  BIGSERIAL       PRIMARY KEY,
+    order_payment_id    BIGINT          NOT NULL REFERENCES order_payment(id),
+    status              VARCHAR(50)     NOT NULL,
+    source              VARCHAR(100),
+    details             VARCHAR(255),
+    gateway_timestamp   TIMESTAMP,
+    created_at          TIMESTAMP       NOT NULL
+);
 
 CREATE TABLE ticket_types (
     id                     BIGSERIAL      PRIMARY KEY,
@@ -209,5 +223,22 @@ CREATE TABLE seat_reservations (
 
 CREATE INDEX idx_seat_reservation_session_id ON seat_reservations(session_id);
 CREATE INDEX idx_seat_reservation_order_id ON seat_reservations(order_id);
-CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_id, expires_at)
-    WHERE status = 'RESERVED';
+CREATE INDEX idx_seat_reservation_active ON seat_reservations(session_id, seat_id, expires_at);
+
+CREATE TABLE coupons (
+    id              BIGSERIAL      PRIMARY KEY,
+    code            VARCHAR(255)   NOT NULL UNIQUE,
+    description     VARCHAR(255)   NOT NULL,
+    discount_type   VARCHAR(50)    NOT NULL,
+    discount_value  NUMERIC(10, 2) NOT NULL,
+    expiration_date TIMESTAMP,
+    user_id         UUID           REFERENCES users(id),
+    cinema_id       BIGINT         REFERENCES cinema(id),
+    status          VARCHAR(50)    NOT NULL DEFAULT 'AVAILABLE',
+    active          BOOLEAN        NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX idx_coupon_user_id ON coupons(user_id);
+CREATE INDEX idx_coupon_code ON coupons(code);
+CREATE INDEX idx_coupon_status ON coupons(status);
+CREATE INDEX idx_coupon_cinema_id ON coupons(cinema_id);

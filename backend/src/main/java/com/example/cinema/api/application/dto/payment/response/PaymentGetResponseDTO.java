@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class PaymentGetResponseDTO {
     Long id;
     LocalDateTime paymentDate;
-    Long transactionId;
+    String providerPaymentId;
     PaymentType paymentMethod;
     PaymentStatus paymentStatus;
     String statusDetail;

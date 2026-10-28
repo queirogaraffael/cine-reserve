@@ -4,6 +4,6 @@ import com.example.cinema.api.application.dto.webhook.ExternalPaymentSnapshot;
 
 public interface ExternalPaymentProvider {
 
-    ExternalPaymentSnapshot getPayment(Long paymentId);
+    ExternalPaymentSnapshot getPayment(String providerPaymentId);
 
 }

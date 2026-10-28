@@ -42,6 +42,8 @@ public class Movie {
     @Column(nullable = false)
     private boolean preRelease = false;
 
+    private boolean active = true;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", nullable = false)

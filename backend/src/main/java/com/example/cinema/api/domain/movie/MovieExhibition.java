@@ -43,6 +43,10 @@ public class MovieExhibition {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Setter
+    @Column(nullable = false, length = 255)
+    private String title;
+
     @OneToMany(mappedBy = "movieExhibition", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<MovieSession> sessions = new ArrayList<>();
@@ -56,6 +60,7 @@ public class MovieExhibition {
         this.format = format;
         this.audio = audio;
         this.active = true;
+        this.title = movie.getTitle() + " " + format.getLabel() + " " + audio.getLabel();
         movie.addExhibition(this);
         cinema.addExhibition(this);
     }

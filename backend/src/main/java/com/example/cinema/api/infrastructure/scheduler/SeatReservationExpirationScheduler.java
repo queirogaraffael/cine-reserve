@@ -1,7 +1,5 @@
 package com.example.cinema.api.infrastructure.scheduler;
 
-import com.example.cinema.api.domain.order.Order;
-import com.example.cinema.api.domain.order.OrderStatus;
 import com.example.cinema.api.infrastructure.persistence.OrderRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.SeatReservationRepositoryJpa;
 import lombok.RequiredArgsConstructor;
@@ -30,4 +28,3 @@ public class SeatReservationExpirationScheduler {
         reservationRepository.expireOldReservations(LocalDateTime.now());
     }
 }
-

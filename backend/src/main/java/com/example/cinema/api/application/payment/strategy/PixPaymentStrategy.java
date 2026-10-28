@@ -1,19 +1,19 @@
 package com.example.cinema.api.application.payment.strategy;
 
-import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
+import com.example.cinema.api.application.dto.payment.OrderPaymentContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.response.gateway.PaymentGatewayResult;
 import com.example.cinema.api.domain.payment.PaymentType;
-import com.example.cinema.api.application.service.PaymentGatewayService;
+import com.example.cinema.api.application.service.gateway.PixPaymentGatewayPort;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO> {
 
-    private final PaymentGatewayService paymentGatewayService;
+    private final PixPaymentGatewayPort paymentGatewayService;
 
-    public PixPaymentStrategy(PaymentGatewayService paymentGatewayService) {
+    public PixPaymentStrategy(PixPaymentGatewayPort paymentGatewayService) {
         this.paymentGatewayService = paymentGatewayService;
     }
 
@@ -28,7 +28,7 @@ public class PixPaymentStrategy implements PaymentStrategy<PixPaymentRequestDTO>
     }
 
     @Override
-    public PaymentGatewayResult process(PaymentOrderContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
+    public PaymentGatewayResult process(OrderPaymentContext purchase, PaymentUserContext user, PixPaymentRequestDTO request) {
         return paymentGatewayService.createPixPayment(purchase, user, request);
     }
 }

@@ -4,7 +4,7 @@ import com.example.cinema.api.domain.user.exception.InvalidPasswordException;
 import com.example.cinema.api.domain.user.exception.PasswordReuseException;
 import com.example.cinema.api.domain.user.exception.UserUnderageException;
 import com.example.cinema.api.domain.order.Order;
-import com.example.cinema.api.domain.seatreservation.SeatReservation;
+import com.example.cinema.api.domain.cinema.Cinema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -72,7 +72,9 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Order> orders = new ArrayList<>();
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cinema_id")
+    private Cinema cinema;
 
     public User(String name, String email, String password, String phone, LocalDate dataJoined, UserRole role) {
         this.name = name;
@@ -85,7 +87,8 @@ public class User implements UserDetails {
         this.active = true;
     }
 
-    public User(String cpf, String name, String email, String password, String phone, Gender gender, Address address, boolean emailConfirmed, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
+    public User(String cpf, String name, String email, String password, String phone, Gender gender, Address address,
+            boolean emailConfirmed, LocalDate dataJoined, LocalDate birthdate, UserRole role) {
         this.cpf = cpf;
         this.name = name;
         this.email = email != null ? email.trim().toLowerCase() : null;
@@ -139,6 +142,15 @@ public class User implements UserDetails {
         this.address = address;
     }
 
+    public void setCinema(Cinema cinema) {
+        this.cinema = cinema;
+    }
+
+    public void removeAdminPrivileges() {
+        this.role = UserRole.USER;
+        this.cinema = null;
+    }
+
     public void markEmailAsConfirmed() {
         this.emailConfirmed = true;
     }
@@ -150,13 +162,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role == UserRole.ADMIN)
-            return List.of(
-                    new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_USER")
-            );
-
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return switch (this.role) {
+            case SUPER_ADMIN -> List.of(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
+            case CINEMA_ADMIN -> List.of(new SimpleGrantedAuthority("ROLE_CINEMA_ADMIN"));
+            case USER -> List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        };
     }
 
     @Override
@@ -178,9 +188,20 @@ public class User implements UserDetails {
         this.failedAttempt = 0;
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return this.active; }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.active;
+    }
 
     public void changePassword(String newPassword) {
         if (newPassword == null || newPassword.isBlank()) {

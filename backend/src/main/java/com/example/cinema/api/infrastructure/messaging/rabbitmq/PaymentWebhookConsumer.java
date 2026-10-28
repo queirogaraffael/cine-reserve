@@ -37,11 +37,11 @@ public class PaymentWebhookConsumer {
         int retries = retryPolicy.getRetryCount(message);
 
         try {
-            ExternalPaymentSnapshot externalPaymentSnapshot = externalPaymentProvider.getPayment(event.getPaymentId());
+            ExternalPaymentSnapshot externalPaymentSnapshot = externalPaymentProvider.getPayment(event.getProviderPaymentId());
 
             paymentUpdateService.processPaymentUpdate(externalPaymentSnapshot);
 
-            log.info("Pagamento {} processado com sucesso.", event.getPaymentId());
+            log.info("Pagamento {} processado com sucesso.", event.getProviderPaymentId());
 
         } catch (ExternalServiceTemporaryException e) {
 
@@ -49,14 +49,14 @@ public class PaymentWebhookConsumer {
                 retryPolicy.retry(event, message, retries, e.getMessage());
                 return;
             } catch (MaxRetriesExceededException ex) {
-                log.error("Número máximo de tentativas excedido para o pagamento {}. Enviando para parking lot.", event.getPaymentId(), ex);
+                log.error("Número máximo de tentativas excedido para o pagamento {}. Enviando para parking lot.", event.getProviderPaymentId(), ex);
 
                 failureHandler.sendToParkingLot(event);
                 return;
             }
 
         } catch (Exception e) {
-            log.error("Erro não recuperável ao processar o pagamento {}. Enviando para parking lot.", event.getPaymentId(), e);
+            log.error("Erro não recuperável ao processar o pagamento {}. Enviando para parking lot.", event.getProviderPaymentId(), e);
 
             failureHandler.sendToParkingLot(event);
         }

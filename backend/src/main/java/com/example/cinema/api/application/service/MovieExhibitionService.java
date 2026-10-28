@@ -13,6 +13,7 @@ import com.example.cinema.api.infrastructure.persistence.CinemaRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieExhibitionRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.MovieRepositoryJpa;
 import com.example.cinema.api.infrastructure.persistence.specification.MovieExhibitionSpecification;
+import com.example.cinema.api.infrastructure.security.AuthenticatedUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +25,15 @@ public class MovieExhibitionService {
     private final MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa;
     private final MovieRepositoryJpa movieRepositoryJpa;
     private final CinemaRepositoryJpa cinemaRepositoryJpa;
+    private final CinemaAdminService cinemaAdminService;
 
-    public MovieExhibitionService(MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa, MovieRepositoryJpa movieRepositoryJpa, CinemaRepositoryJpa cinemaRepositoryJpa) {
+    public MovieExhibitionService(MovieExhibitionRepositoryJpa movieExhibitionRepositoryJpa,
+            MovieRepositoryJpa movieRepositoryJpa, CinemaRepositoryJpa cinemaRepositoryJpa,
+            CinemaAdminService cinemaAdminService) {
         this.movieExhibitionRepositoryJpa = movieExhibitionRepositoryJpa;
         this.movieRepositoryJpa = movieRepositoryJpa;
         this.cinemaRepositoryJpa = cinemaRepositoryJpa;
+        this.cinemaAdminService = cinemaAdminService;
     }
 
     @Transactional(readOnly = true)
@@ -36,14 +41,17 @@ public class MovieExhibitionService {
         if (!cinemaRepositoryJpa.existsById(cinemaId)) {
             throw new CinemaNotFoundException("Cinema " + cinemaId + " não encontrado.");
         }
-        List<MovieExhibition> exhibitions = movieExhibitionRepositoryJpa.findAll(MovieExhibitionSpecification.withFilters(cinemaId, filter));
+        List<MovieExhibition> exhibitions = movieExhibitionRepositoryJpa
+                .findAll(MovieExhibitionSpecification.withFilters(cinemaId, filter));
         return exhibitions.stream()
                 .map(MovieExhibitionCardDTO::new)
                 .toList();
     }
 
     @Transactional
-    public MovieExhibitionCardDTO createExhibition(MovieExhibitionRequestDTO dto) {
+    public MovieExhibitionCardDTO createExhibition(MovieExhibitionRequestDTO dto, AuthenticatedUser user) {
+        cinemaAdminService.validateCinemaOwnership(user, dto.getCinemaId());
+
         Movie movie = movieRepositoryJpa.findById(dto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException("Filme " + dto.getMovieId() + " não encontrado."));
         Cinema cinema = cinemaRepositoryJpa.findById(dto.getCinemaId())
@@ -57,22 +65,27 @@ public class MovieExhibitionService {
     @Transactional
     public MovieExhibitionCardDTO getExhibitionById(Long exhibitionId) {
         MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(exhibitionId)
-                .orElseThrow(() -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
+                .orElseThrow(
+                        () -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
         return new MovieExhibitionCardDTO(exhibition);
     }
 
     @Transactional
-    public void activateExhibition(Long exhibitionId) {
-        MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(exhibitionId)
-                .orElseThrow(() -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
+    public void activateExhibition(Long exhibitionId, AuthenticatedUser user) {
+        MovieExhibition exhibition = movieExhibitionRepositoryJpa.findByIdWithCinema(exhibitionId)
+                .orElseThrow(
+                        () -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
+        cinemaAdminService.validateCinemaOwnership(user, exhibition.getCinema().getId());
         exhibition.activate();
         movieExhibitionRepositoryJpa.save(exhibition);
     }
 
     @Transactional
-    public void deactivateExhibition(Long exhibitionId) {
-        MovieExhibition exhibition = movieExhibitionRepositoryJpa.findById(exhibitionId)
-                .orElseThrow(() -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
+    public void deactivateExhibition(Long exhibitionId, AuthenticatedUser user) {
+        MovieExhibition exhibition = movieExhibitionRepositoryJpa.findByIdWithCinema(exhibitionId)
+                .orElseThrow(
+                        () -> new MovieExhibitionNotFoundException("Exibição " + exhibitionId + " não encontrada."));
+        cinemaAdminService.validateCinemaOwnership(user, exhibition.getCinema().getId());
         exhibition.deactivate();
         movieExhibitionRepositoryJpa.save(exhibition);
     }

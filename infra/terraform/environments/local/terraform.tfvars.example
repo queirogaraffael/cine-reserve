@@ -1,0 +1,10 @@
+# cp terraform.tfvars.example terraform.tfvars  →  preencha e NÃO commite
+
+aws_region   = "us-east-1"
+project_name = "cine-reserve"
+
+availability_zones = ["us-east-1a", "us-east-1b"]
+vpc_cidr           = "10.0.0.0/16"
+
+db_username = "cine_user"
+db_password = "CHANGE_ME_strong_password_123!"

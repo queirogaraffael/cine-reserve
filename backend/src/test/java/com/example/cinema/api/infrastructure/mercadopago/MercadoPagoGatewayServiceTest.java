@@ -1,6 +1,6 @@
 package com.example.cinema.api.infrastructure.mercadopago;
 
-import com.example.cinema.api.application.dto.payment.PaymentOrderContext;
+import com.example.cinema.api.application.dto.payment.OrderPaymentContext;
 import com.example.cinema.api.application.dto.payment.PaymentUserContext;
 import com.example.cinema.api.application.dto.payment.requests.CardPaymentRequestDTO;
 import com.example.cinema.api.application.dto.payment.requests.PixPaymentRequestDTO;
@@ -47,7 +47,7 @@ class MercadoPagoGatewayServiceTest {
     @InjectMocks
     private MercadoPagoGatewayService service;
 
-    private PaymentOrderContext purchase;
+    private OrderPaymentContext purchase;
     private PaymentUserContext user;
     private PixPaymentRequestDTO pixRequest;
     private CardPaymentRequestDTO cardRequest;
@@ -84,7 +84,7 @@ class MercadoPagoGatewayServiceTest {
         PixGatewayResult result = service.createPixPayment(purchase, user, pixRequest);
 
         assertNotNull(result);
-        assertEquals(123L, result.transactionId());
+        assertEquals("123", result.providerPaymentId());
         assertEquals("pending", result.status());
         assertEquals("qr-code-string", result.pixCopiaECola());
         assertEquals("qr-code-base64", result.qrCodeBase64());
@@ -132,7 +132,7 @@ class MercadoPagoGatewayServiceTest {
         CardGatewayResult result = service.createCardPayment(purchase, user, cardRequest);
 
         assertNotNull(result);
-        assertEquals(456L, result.transactionId());
+        assertEquals("456", result.providerPaymentId());
         assertEquals("approved", result.status());
         assertEquals("accredited", result.statusDetail());
         assertEquals(1, result.installments());

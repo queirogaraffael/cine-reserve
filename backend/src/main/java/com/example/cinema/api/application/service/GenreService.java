@@ -10,6 +10,7 @@ import com.example.cinema.api.domain.genre.exception.GenreAlreadyExistsException
 import com.example.cinema.api.application.mapper.GenreMapper;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class GenreService {
     @Transactional(readOnly = true)
     @Cacheable(value = "genres", key = "#id")
     public GenreResponseDTO findById(Long id) {
-        Genre genre = genreRepository.findById(id)
+        Genre genre = genreRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
         return genreMapper.toDTO(genre);
     }
@@ -49,19 +50,19 @@ public class GenreService {
     @Transactional(readOnly = true)
     public Page<GenreResponseDTO> findAllPageable(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return genreRepository.findAll(pageable).map(genreMapper::toDTO);
+        return genreRepository.findAllByActiveTrue(pageable).map(genreMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
     public Page<GenreResponseDTO> findByNameContainingIgnoreCase(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return genreRepository.findByNameContainingIgnoreCase(name, pageable).map(genreMapper::toDTO);
+        return genreRepository.findByNameContainingIgnoreCaseAndActiveTrue(name, pageable).map(genreMapper::toDTO);
     }
 
     @Transactional
     @CachePut(value = "genres", key = "#id")
     public GenreResponseDTO update(Long id, GenreUpdateDTO dto) {
-        Genre genre = genreRepository.findById(id)
+        Genre genre = genreRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new GenreNotFoundException("Gênero não encontrado"));
 
         if(genreRepository.existsByName(dto.getName()) && !Objects.equals(dto.getName(), genre.getName())){
@@ -71,6 +72,15 @@ public class GenreService {
         genreMapper.updateEntityFromDTO(dto, genre);
         return genreMapper.toDTO(genreRepository.save(genre));
 
+    }
+
+    @Transactional
+    @CacheEvict(value = "genres", key = "#id")
+    public void delete(Long id) {
+        if (!genreRepository.existsByIdAndActiveTrue(id)) {
+            throw new GenreNotFoundException("Gênero não encontrado");
+        }
+        genreRepository.softDelete(id);
     }
 
 }

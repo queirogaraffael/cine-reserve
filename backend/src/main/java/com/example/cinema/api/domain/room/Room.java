@@ -26,6 +26,8 @@ public class Room {
     @Column(nullable = false)
     private String name;
 
+    private boolean active = true;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     @Setter(AccessLevel.NONE)
     @ToString.Exclude

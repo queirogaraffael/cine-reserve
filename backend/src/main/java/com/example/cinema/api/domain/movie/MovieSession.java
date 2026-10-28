@@ -5,6 +5,8 @@ import com.example.cinema.api.domain.movie.exception.MovieExhibitionRequiredExce
 import com.example.cinema.api.domain.movie.exception.RoomCinemaMismatchException;
 import com.example.cinema.api.domain.room.exception.RoomRequiredException;
 import com.example.cinema.api.domain.movie.exception.InvalidMovieSessionTimeRangeException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionNotAvailableForPurchaseException;
+import com.example.cinema.api.domain.movie.exception.MovieSessionNoLongerAvailableException;
 import com.example.cinema.api.domain.seatreservation.SeatReservation;
 import com.example.cinema.api.domain.room.Room;
 
@@ -13,6 +15,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +105,24 @@ public class MovieSession {
     }
 
     @Transient
-    public boolean isAvailableForPurchase() {
-        return !canceled && getStatus() == MovieSessionStatus.SCHEDULED;
+    public void validateAvailabilityForReservation() {
+        if (canceled) {
+            throw new MovieSessionNotAvailableForPurchaseException("Esta sessão foi cancelada e não aceita mais reservas.");
+        }
+        LocalDateTime cutoff = LocalDateTime.of(showDate, startTime).minusHours(1);
+        if (!LocalDateTime.now().isBefore(cutoff)) {
+            throw new MovieSessionNotAvailableForPurchaseException("As reservas online se encerram 1 hora antes do início do filme.");
+        }
+    }
+
+    @Transient
+    public void validateAvailabilityForPayment() {
+        if (canceled) {
+            throw new MovieSessionNoLongerAvailableException("Esta sessão foi cancelada e o pagamento não pode ser processado.");
+        }
+        LocalDateTime sessionStart = LocalDateTime.of(showDate, startTime);
+        if (!LocalDateTime.now().isBefore(sessionStart)) {
+            throw new MovieSessionNoLongerAvailableException("O tempo limite para pagamento expirou, pois a sessão já começou ou está prestes a começar.");
+        }
     }
 }

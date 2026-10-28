@@ -6,7 +6,7 @@ import com.example.cinema.api.domain.payment.PaymentStatus;
 
 import java.time.ZonedDateTime;
 
-public record PixGatewayResult(Long transactionId,
+public record PixGatewayResult(String providerPaymentId,
                                String status,
                                String statusDetail,
                                String pixCopiaECola,

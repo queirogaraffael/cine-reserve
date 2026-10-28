@@ -5,17 +5,28 @@ import com.example.cinema.api.infrastructure.persistence.projection.GenreRespons
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface GenreRepositoryJpa extends JpaRepository<Genre, Long> {
 
-    Page<GenreResponseDTOProjection> findAllBy(Pageable pageable);
+    Page<GenreResponseDTOProjection> findAllByActiveTrue(Pageable pageable);
 
-    Page<GenreResponseDTOProjection> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<GenreResponseDTOProjection> findByNameContainingIgnoreCaseAndActiveTrue(String name, Pageable pageable);
 
     boolean existsByName(String name);
 
-    boolean existsById(Long id);
+    boolean existsByIdAndActiveTrue(Long id);
+
+    Optional<Genre> findByIdAndActiveTrue(Long id);
+
+    @Modifying
+    @Query("UPDATE Genre g SET g.active = false WHERE g.id = :id")
+    void softDelete(@Param("id") Long id);
 
 }
